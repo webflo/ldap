@@ -213,7 +213,7 @@ class LdapUserConf {
       );
 
     $this->setSynchMapping(TRUE);
-    $this->detailedWatchdog = variable_get('ldap_help_watchdog_detail', 0);
+    $this->detailedWatchdog = config('ldap_help.settings')->get('watchdog_detail');
   }
 
   function load() {

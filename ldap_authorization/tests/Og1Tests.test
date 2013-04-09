@@ -154,7 +154,7 @@ class LdapAuthorizationOg1Tests extends LdapTestCase {
         module_exists('ldap_servers') &&
         module_exists('ldap_authorization') &&
         module_exists('ldap_authorization_og') &&
-        (variable_get('ldap_simpletest', 2) == 2)
+        (config('ldap_test.settings')->get('simpletest')== 2)
       );
     $this->assertTrue($setup_success, ' ldap_authorizations og setup successful', $this->ldapTestId);
 

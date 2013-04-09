@@ -41,7 +41,7 @@ function _ldap_authentication_login_form_alter(&$form, &$form_state, $form_id) {
   }
 
   if ($form_id == 'user_login_block') {
-    $user_register = variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+      $user_register = config('user.settings')->get('register');
     $vars = array(
       'show_reset_pwd' => ldap_authentication_show_reset_pwd(),
       'auth_conf' => $auth_conf,
@@ -113,7 +113,7 @@ function _ldap_authentication_form_user_profile_form_alter(&$form, $form_state) 
   */
 function _ldap_authentication_user_login_authenticate_validate(&$form_state, $return_user) {
 
-  $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
   $authname = $form_state['values']['name']; // $authname is the name the user is authenticated with from the logon form // patch 1599632
 
   /*
@@ -324,7 +324,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
      */
 
     if ($auth_conf->ldapUser->acctCreation == LDAP_AUTHENTICATION_ACCT_CREATION_USER_SETTINGS_FOR_LDAP &&
-        variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) == USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) {
+        config('user.settings')->get('register') == USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) {
       $user_edit = array('name' => $drupal_accountname, 'status' => 0); // if admin approval required, set status to 0.
     }
     else {
@@ -366,7 +366,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
  * given authname, determine if corresponding drupal account exists and is authmapped
  */
 function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$watchdog_tokens) {
-  $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
   if (!($drupal_account = user_load_by_name($authname))) {
     $uid = db_query("SELECT uid FROM {authmap} WHERE authname = :authname AND module = 'ldap_user'", array(':authname' => $authname))->fetchColumn();
     $drupal_account = $uid ? user_load($uid) : FALSE;
@@ -398,7 +398,7 @@ function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$
 }
 
 function ldap_authentication_test_credentials($auth_conf, $sso_login, $authname, $password, &$watchdog_tokens) {
-  $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
   $authentication_result = LDAP_AUTHENTICATION_RESULT_FAIL_GENERIC;
   $ldap_user = FALSE;
   $ldap_server = NULL;

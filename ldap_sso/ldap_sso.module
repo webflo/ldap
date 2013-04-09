@@ -135,7 +135,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
       $replacements = array(
         '|',
         '.*',
-        '\1' . preg_quote(variable_get('site_frontpage', 'node'), '/') . '\2'
+        '\1' . preg_quote(config('system.site')->get('frontpage'), '/') . '\2'
       );
       $patterns_quoted = preg_quote($patterns, '/');
       $regex = '/^(' . preg_replace($to_replace, $replacements, $patterns_quoted) . ')$/';
@@ -162,7 +162,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
  */
 function ldap_sso_user_login_sso() {
 
-  $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
   $auth_conf = ldap_authentication_get_valid_conf();
   $implementation = $auth_conf->ldapImplementation;
   //$enabled = $auth_conf->ssoEnabled; // this is redundant since hook won't be called if ldap_sso isn't enabled.

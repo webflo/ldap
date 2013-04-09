@@ -144,7 +144,7 @@ function ldap_user_cron() {
 function ldap_user_mail($key, &$message, $params) {
   switch ($key) {
     case 'orphaned_accounts':
-      $message['subject'] =  variable_get('site_name') . ' ' . t('Orphaned LDAP Users');
+      $message['subject'] = config('system.site')->get('name') . ' ' . t('Orphaned LDAP Users');
       $message['body'][] =  t('The following !count Drupal users no longer have
         corresponding LDAP Entries.  Perhaps they have been removed from the LDAP
         and should be removed:', array('!count' => count($params['accounts'])))

@@ -135,7 +135,7 @@ class LdapServer {
     if (!is_scalar($sid)) {
       return;
     }
-    $this->detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+    $this->detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
     $server_record = FALSE;
     if (module_exists('ctools')) {
       ctools_include('export');
@@ -167,7 +167,7 @@ class LdapServer {
     else {
       $this->inDatabase = TRUE;
       $this->sid = $sid;
-      $this->detailedWatchdogLog = variable_get('ldap_help_watchdog_detail', 0);
+      $this->detailedWatchdogLog = config('ldap_help.settings')->get('watchdog_detail');
       foreach ($this->field_to_properties_map() as $db_field_name => $property_name ) {
         if (isset($server_record->$db_field_name)) {
           $this->{$property_name} = $server_record->$db_field_name;
@@ -1065,9 +1065,11 @@ class LdapServer {
 			$info = image_get_info($fileuri);
 			unlink($fileuri);
 			// create file object
+      //@todo needs to change to reflect new approach to user picture: http://drupal.org/node/1851200
 			$file = file_save_data($thumb, 'public://' . variable_get('user_picture_path') .'/'. $filename .'.'. $info['extension']);
 			$file->md5Sum = $md5thumb;
 			// standard Drupal validators for user pictures
+      //@todo needs to change to reflect new approach to user picture: http://drupal.org/node/1851200
 			$validators = array(
 					'file_validate_is_image' => array(),
 					'file_validate_image_resolution' => array(variable_get('user_picture_dimensions', '85x85')),

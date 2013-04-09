@@ -49,7 +49,7 @@ class LdapAuthorizationBasicTests extends LdapTestCase {
         module_exists('ldap_servers') &&
         module_exists('ldap_authorization') &&
         module_exists('ldap_authorization_drupal_role') &&
-        (variable_get('ldap_simpletest', 2) > 0)
+        (config('ldap_test.settings')->get('simpletest')> 0)
       );
     $this->assertTrue($setup_success, ' ldap_authorizations setup successful', 'LDAP Authorization: Test Setup Success');
 
@@ -469,7 +469,7 @@ function testFlags() {
 
   public function testUIForms() {
 
-    $ldap_simpletest_initial = variable_get('ldap_simpletest', 2);
+    $ldap_simpletest_initial = config('ldap_test.settings')->get('simpletest');
     variable_del('ldap_simpletest'); // need to be out of fake server mode to test ui.
 
     $sid = 'activedirectory1';

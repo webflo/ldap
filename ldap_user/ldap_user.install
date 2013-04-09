@@ -522,3 +522,17 @@ function ldap_user_update_check_user_fields($query = FALSE) {
   return $fields_added;
 
 }
+
+/**
+ * Converts default_file_main variable to config.
+ *
+ * @ingroup config_upgrade
+ */
+function ldap_user_update_8000() {
+  update_variables_to_config('ldap_user.settings', array(
+    'ldap_user_cron_last_uid_checked' => 'cron_last_uid_checked',
+  ));
+}
+
+
+

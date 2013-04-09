@@ -440,7 +440,7 @@ class LdapAuthorizationConsumerOG extends LdapAuthorizationConsumerAbstract {
       $user_auth_data = array();
     }
 
-    $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+    $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
     $this->sortConsumerIds($op, $consumers);
 
     $results = array();

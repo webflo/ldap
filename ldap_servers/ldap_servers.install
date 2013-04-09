@@ -796,3 +796,16 @@ function ldap_servers_install_update_schema($schema, &$change_log) {
     }
   }
 }
+
+
+/**
+* Converts default_file_main variable to config.
+*
+* @ingroup config_upgrade
+*/
+function ldap_servers_update_8000() {
+  update_variables_to_config('ldap_servers.settings', array(
+    'ldap_servers_encryption' => 'encryption',
+    'ldap_servers_require_ssl_for_credentails' => 'require_ssl_for_credentails',
+  ));
+}

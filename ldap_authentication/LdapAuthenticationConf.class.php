@@ -228,8 +228,8 @@ class LdapAuthenticationConf {
 
     $this->ldapUser = new LdapUserConf();
     $this->ssoEnabled = module_exists('ldap_sso');
-    $this->apiPrefs['requireHttps'] = variable_get('ldap_servers_require_ssl_for_credentails', 0);
-    $this->apiPrefs['encryption'] = variable_get('ldap_servers_encryption', LDAP_SERVERS_ENC_TYPE_CLEARTEXT);
+    $this->apiPrefs['requireHttps'] = config('ldap_servers.settings')->get('require_ssl_for_credentails');
+    $this->apiPrefs['encryption'] = config('ldap_servers.settings')->get('encryption');
 
   }
 
@@ -256,7 +256,7 @@ class LdapAuthenticationConf {
      */
     $ldap_user_conf = ldap_user_conf();
     // if user does not already exists and deferring to user settings AND user settings only allow
-    $user_register = variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+    $user_register = config('user.settings')->get('register');
 
     foreach ($this->excludeIfTextInDn as $test) {
       if (stripos($ldap_user['dn'], $test) !== FALSE) {

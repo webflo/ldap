@@ -15,3 +15,17 @@ function ldap_help_uninstall() {
   variable_del('ldap_help_user_data_clear');
   variable_del('ldap_help_user_data_clear_set_date');
 }
+
+
+/**
+ * Converts default_file_main variable to config.
+ *
+ * @ingroup config_upgrade
+ */
+function ldap_help_update_8000() {
+  update_variables_to_config('ldap_help.settings', array(
+    'ldap_help_watchdog_detail' => 'watchdog_detail',
+    'ldap_help_user_data_clear' => 'user_data_clear',
+    'ldap_help_user_data_clear_set_date' => 'user_data_clear_set_date',
+  ));
+}

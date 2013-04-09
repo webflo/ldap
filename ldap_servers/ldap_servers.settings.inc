@@ -26,7 +26,7 @@ function ldap_servers_settings() {
       be entered on or submitted to HTTP pages, only HTTPS. This option should be used with an
       approach to get all logon forms to be https, such as:') .
       theme('item_list', array('items' => $https_approaches)),
-    '#default_value' => variable_get('ldap_servers_require_ssl_for_credentails', 0),
+    '#default_value' => config('ldap_servers.settings')->get('require_ssl_for_credentails'),
   );
 
   $options = ldap_servers_encrypt_types('encrypt');
@@ -35,13 +35,13 @@ function ldap_servers_settings() {
     *   ... thus default needs to be "No Encryption" to avoid confusion.
     */
 
-  $form['previous_encryption'] = array('#type' => 'hidden',  '#default_value' => variable_get('ldap_servers_encryption', LDAP_SERVERS_ENC_TYPE_CLEARTEXT));
+  $form['previous_encryption'] = array('#type' => 'hidden',  '#default_value' => config('ldap_servers.settings')->get('encryption'));
   $form['encryption'] = array('#type' => 'fieldset', '#title' => t('Encryption'));
   $form['encryption']['ldap_servers_encryption'] = array(
     '#type' => 'select',
     '#options' => $options,
     '#title' => t('Encrypt Stored LDAP Passwords?'),
-    '#default_value' => variable_get('ldap_servers_encryption', LDAP_SERVERS_ENC_TYPE_CLEARTEXT),
+    '#default_value' => config('ldap_servers.settings')->get('encryption'),
     '#description' => t('With encryption, passwords will be stored in encrypted form.
     This is two way encryption because the actual password needs to used to bind to LDAP.
     So it offers minimal defense if someone gets in the filespace.  It mainly helps avoid the accidental

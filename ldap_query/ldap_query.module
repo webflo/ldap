@@ -114,7 +114,7 @@ function ldap_query_cache_clear() {
  */
 function ldap_query_get_queries($qid = NULL, $type, $flatten = FALSE, $reset = FALSE) {
   ldap_servers_module_load_include('inc', 'ldap_query', 'ldap_query');
-  if (variable_get('ldap_simpletest', FALSE)) {
+  if (config('ldap_test.settings')->get('simpletest')) {
     return _ldap_query_get_simpletest_queries($qid, $type, $flatten, $reset);
   }
   else {

@@ -519,7 +519,7 @@ function ldap_servers_module_load_include($type, $module, $name = NULL) {
  *         - single server conf object (if flatten == TRUE)
  */
 function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $reset = FALSE) {
-  if (variable_get('ldap_simpletest', FALSE)) {
+  if (config('ldap_test.settings')->get('simpletest')) {
     return _ldap_servers_get_simpletest_servers($sid, $type, $flatten, $reset);
   }
   else {
@@ -573,7 +573,7 @@ function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $res
   }
 
   //two flavors of mock servers exist.  ultimately v2 will be used in all simpletests
-  if (variable_get('ldap_simpletest', 0) == 2) {
+  if (config('ldap_test.settings')->get('simpletest') == 2) {
     ldap_servers_module_load_include('php', 'ldap_test', 'LdapServerTest.class');
     $servers['all'] = LdapServerTest::getLdapServerObjects(NULL, 'all', FALSE);
     foreach ($servers['all'] as $_sid => $ldap_server) {
@@ -595,7 +595,7 @@ function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $res
   }
 }
 function ldap_servers_debug($variable) {
-  if (variable_get('ldap_simpletest', FALSE) && function_exists('dpm')) {
+  if (config('ldap_test.settings')->get('simpletest') && function_exists('dpm')) {
     dpm($variable);
   }
   else {
@@ -797,11 +797,11 @@ function ldap_servers_convert_attribute($value, $conversion = NULL) {
  */
 function ldap_servers_disable_http_check(&$form) {
 
-  if (variable_get('ldap_servers_require_ssl_for_credentails', 0) == 1 && @$_SERVER['HTTPS'] != 'on') {
+  if (config('ldap_servers.settings')->get('require_ssl_for_credentails') == 1 && @$_SERVER['HTTPS'] != 'on') {
 
     $tokens = array(
-      'site_name' => variable_get('site_name', 'this site'),
-      'site_mail' =>  variable_get('site_mail', ''),
+      'site_name' => config('system.site')->get('name'),
+      'site_mail' => config('system.site')->get('mail'),
       );
 
     drupal_set_message(t(theme('ldap_servers_https_required', $tokens)), 'error');

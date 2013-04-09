@@ -53,7 +53,7 @@ class LdapServerTest extends LdapServer {
     $this->entries = (is_array($test_data) && isset($test_data['ldap'])) ? $test_data['ldap'] : array();
   //  debug('this->entries');debug($this->entries);
     $this->searchResults = (isset($test_data['search_results'])) ? $test_data['search_results'] : array();
-    $this->detailedWatchdogLog = variable_get('ldap_help_watchdog_detail', 0);
+    $this->detailedWatchdogLog = config('ldap_help.settings')->get('watchdog_detail');
     foreach ($test_data['properties'] as $property_name => $property_value ) {
       $this->{$property_name} = $property_value;
     }
