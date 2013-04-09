@@ -1,7 +1,8 @@
-name = LDAP Help
-description = LDAP Help for configuration and reporting issues.
-package = Lightweight Directory Access Protocol
-core = 7.x
+name: 'LDAP Help'
+description: 'LDAP Help for configuration and reporting issues.'
+package: 'Lightweight Directory Access Protocol'
+core: 8.x
 
-dependencies[] = ldap_servers
-dependencies[] = ldap_test
+dependencies:
+  - ldap_servers
+  - ldap_test
