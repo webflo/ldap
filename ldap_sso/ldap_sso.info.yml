@@ -1,8 +1,10 @@
 name: 'LDAP SSO'
 description: 'Implements Single Sign On (SSO) LDAP Authentication'
+type: module
+core: 8.x
 package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
   - ldap_authentication
-core: 8.x
+
 #configure = admin/config/people/ldap/authentication

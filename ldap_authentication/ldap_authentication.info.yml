@@ -1,7 +1,8 @@
 name: 'LDAP Authentication'
 description: 'Implements LDAP authentication'
-package: 'Lightweight Directory Access Protocol'
+type: module
 core: 8.x
+package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
   - ldap_user

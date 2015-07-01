@@ -1,8 +1,8 @@
 name: 'LDAP Servers'
 description: 'Implements LDAP Server Configuration'
-package: 'Lightweight Directory Access Protocol'
+type: module
 core: 8.x
-
+package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ctools
 

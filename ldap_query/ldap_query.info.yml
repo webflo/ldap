@@ -1,10 +1,10 @@
 name: 'LDAP Query'
 description: 'LDAP Query Builder and Storage for queries used by other ldap modules such as ldap feeds, ldap provision, etc'
+type: module
+core: 8.x
 package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
-
-core: 8.x
 
 #files[] = LdapQuery.class.php
 #files[] = LdapQueryAdmin.class.php

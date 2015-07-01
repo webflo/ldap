@@ -1,10 +1,11 @@
 name: 'LDAP Views'
 description: 'Implements LDAP integration with Views'
+type: module
+core: 8.x
 package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_query
   - views
-core: 8.x
 
 #files[] = ldap_views.module
 #files[] = ldap_views.install

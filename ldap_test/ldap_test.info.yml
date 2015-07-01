@@ -1,12 +1,11 @@
 name: 'LDAP Test Module'
 description: 'Module for LDAP module for testing.  Only for development and debugging purposes.'
+type: module
+core: 8.x
 package: 'Lightweight Directory Access Protocol'
-
 dependencies:
   - ldap_servers
   - entity
-
-core = 8.x
 
 #files[] = ldap_servers.conf.inc
 #files[] = ldap_user.conf.inc

@@ -1,10 +1,11 @@
 name: 'LDAP Authorization'
 description: 'Implements LDAP authorization (previously LDAP Groups)'
+type: module
+core: 8.x
 package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
   - ldap_user
-core: 8.x
 
 #files[] = LdapAuthorizationConsumerAbstract.class.php
 #files[] = LdapAuthorizationConsumer.class.php
