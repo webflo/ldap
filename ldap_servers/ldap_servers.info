@@ -9,7 +9,6 @@ files[] = LdapServerAdmin.class.php
 files[] = ldap_servers.admin.inc
 files[] = ldap_servers.encryption.inc
 files[] = ldap_servers.functions.inc
-files[] = ldap_servers.inc
 files[] = ldap_servers.install
 files[] = ldap_servers.module
 files[] = ldap_servers.settings.inc
