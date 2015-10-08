@@ -3,8 +3,7 @@ description: 'Implements LDAP Server Configuration'
 type: module
 core: 8.x
 package: 'Lightweight Directory Access Protocol'
-dependencies:
-  - ctools
+
 
 #files[] = LdapServer.class.php
 #files[] = LdapServerAdmin.class.php
