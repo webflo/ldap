@@ -1,0 +1,10 @@
+ldap_servers.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    ldap_servers_encryption:
+      type: boolean
+    ldap_servers_encrypt_key:
+      type: boolean
+    ldap_servers_require_ssl_for_credentails:
+      type: integer
