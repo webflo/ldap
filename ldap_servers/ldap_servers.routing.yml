@@ -1,0 +1,58 @@
+ldap_servers.settings:
+  path: /admin/config/people/ldap
+  defaults:
+    _title: 'LDAP Configuration'
+    _form: \Drupal\ldap_servers\Form\LdapServersSettings
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.edit_index:
+  path: /admin/config/people/ldap/servers
+  defaults:
+    _title: '2. Servers'
+    _controller: '\Drupal\ldap_servers\Controller\DefaultController::ldap_servers_edit_index'
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.admin_form_add:
+  path: /admin/config/people/ldap/servers/add
+  defaults:
+    op: add
+    _title: 'Add LDAP Server Configuration'
+    _form: \Drupal\ldap_servers\Form\LdapServersAdminForm
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.admin_form_edit:
+  path: '/admin/config/people/ldap/servers/edit/{sid}'
+  defaults:
+    op: edit
+    sid: null
+    _title: 'Edit LDAP Server Configuration'
+    _form: \Drupal\ldap_servers\Form\LdapServersAdminForm
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.test_form:
+  path: '/admin/config/people/ldap/servers/{op}/{sid}'
+  defaults:
+    op: null
+    sid: null
+    _title: 'Test LDAP Server Configuration'
+    _form: \Drupal\ldap_servers\Form\LdapServersTestForm
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.admin_delete:
+  path: '/admin/config/people/ldap/servers/{op}/{sid}'
+  defaults:
+    op: null
+    sid: null
+    _title: 'Delete LDAP Server'
+    _form: \Drupal\ldap_servers\Form\LdapServersAdminDelete
+  requirements:
+    _permission: 'administer site configuration'
+ldap_servers.admin_enable_disable:
+  path: '/admin/config/people/ldap/servers/{action}/{sid}'
+  defaults:
+    action: null
+    sid: null
+    _title: 'Enable LDAP Server'
+    _form: \Drupal\ldap_servers\Form\LdapServersAdminEnableDisable
+  requirements:
+    _permission: 'administer site configuration'

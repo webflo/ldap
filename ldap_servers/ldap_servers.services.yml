@@ -1,0 +1,6 @@
+services:
+  init_subscriber:
+    class: Drupal\ldap_servers\EventSubscriber\InitSubscriber
+    tags:
+      -
+        name: event_subscriber

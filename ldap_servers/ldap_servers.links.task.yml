@@ -1,0 +1,14 @@
+ldap_servers.settings:
+  route_name: ldap_servers.settings
+  title: '1. Settings'
+  weight: -2
+  base_route: ldap_servers.settings
+ldap_servers.edit_index:
+  route_name: ldap_servers.edit_index
+  title: '2. Servers'
+  weight: -1
+  base_route: ldap_servers.settings
+ldap_servers.edit_index_0:
+  route_name: ldap_servers.edit_index
+  title: List
+  parent_id: ldap_servers.edit_index
