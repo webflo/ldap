@@ -73,7 +73,7 @@ function ldap_servers_token_replace($resource, $text, $resource_type = 'ldap_ent
 
   // add lowercase tokens to avoid case sensitivity
   foreach ($tokens as $attribute => $value) {
-    $tokens[drupal_strtolower($attribute)] = $value;
+    $tokens[\Drupal\Component\Utility\Unicode::strtolower($attribute)] = $value;
   }
 
   $attributes = array_keys($tokens); //array of attributes (sn, givenname, etc)
@@ -185,7 +185,7 @@ should return tokens such as:
 
 function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pre = LDAP_SERVERS_TOKEN_PRE, $post = LDAP_SERVERS_TOKEN_POST) {
 
-  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
+  $detailed_watchdog_log = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
   $tokens = array();
   $watchdog_tokens = array();
   if (function_exists('debug_backtrace') && $backtrace = debug_backtrace()) {
@@ -193,14 +193,14 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
   }
   if (!is_array($ldap_entry)) {
     if ($detailed_watchdog_log) {
-      watchdog('ldap_servers', 'skipped tokenization of ldap entry because no ldap entry provided when called from %calling_function.', $watchdog_tokens, WATCHDOG_DEBUG);
+      \Drupal::logger('ldap_servers')->debug('skipped tokenization of ldap entry because no ldap entry provided when called from %calling_function.', []);
     }
     return $tokens; // empty array
   }
       
   // add lowercase keyed entries to ldap array
   foreach ($ldap_entry as $key => $values) {
-    $ldap_entry[drupal_strtolower($key)] = $values;
+    $ldap_entry[\Drupal\Component\Utility\Unicode::strtolower($key)] = $values;
   }
 
   // 1. tokenize dn
@@ -212,12 +212,12 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
     list($attr_name, $attr_value) = explode('=', $pair);
     $attr_value = ldap_pear_unescape_dn_value($attr_value);
     try {
-      $attr_value = check_plain($attr_value);
+      $attr_value = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value);
     }
     catch (Exception $e) {
       if ($detailed_watchdog_log) {
         $watchdog_tokens['%attr_name'] = $attr_name;
-        watchdog('ldap_servers', 'skipped tokenization of attribute %attr_name because the value would not pass check_plain function.', $watchdog_tokens, WATCHDOG_DEBUG);
+        \Drupal::logger('ldap_servers')->debug('skipped tokenization of attribute %attr_name because the value would not pass check_plain function.', []);
       }
       continue; // don't tokenize data that can't pass check_plain
     }
@@ -242,20 +242,20 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
     foreach ($token_keys as $attr_name) {
       $attr_value = $ldap_entry[$attr_name];
       if (is_array($attr_value) && is_scalar($attr_value[0]) && $attr_value['count'] == 1) {
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . $post] = check_plain($attr_value[0]);
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . '0' . $post] = check_plain($attr_value[0]);
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = check_plain($attr_value[0]);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value[0]);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . '0' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value[0]);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value[0]);
       }
       elseif (is_array($attr_value) && $attr_value['count'] > 1) {
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = check_plain($attr_value[$attr_value['count']-1]);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value[$attr_value['count']-1]);
         for ($i=0; $i<$attr_value['count']; $i++) {
-          $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . $i . $post] = check_plain($attr_value[$i]);
+          $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . $i . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value[$i]);
         }
       }
       elseif (is_scalar($attr_value)) {
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . $post] = check_plain($attr_value);
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . '0' . $post] = check_plain($attr_value);
-        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = check_plain($attr_value);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . '0' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value);
+        $tokens[$pre . ldap_server_massage_text($attr_name, 'attr_name', LDAP_SERVER_MASSAGE_TOKEN_REPLACE) . LDAP_SERVERS_TOKEN_DEL . 'last' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($attr_value);
       }
     }
   }
@@ -275,7 +275,7 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
       }
 
       $parts = explode(LDAP_SERVERS_TOKEN_DEL, $token_key);
-      $attr_name = drupal_strtolower($parts[0]);
+      $attr_name = \Drupal\Component\Utility\Unicode::strtolower($parts[0]);
       $ordinal_key = isset($parts[1]) ? $parts[1] : 0;
       $i = NULL;
 
@@ -318,15 +318,15 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
       }
 
 
-      $tokens[$pre . $full_token_key . $post] = check_plain($value);
-      if ($full_token_key != drupal_strtolower($full_token_key)) {
-        $tokens[$pre . drupal_strtolower($full_token_key) . $post] = check_plain($value);
+      $tokens[$pre . $full_token_key . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($value);
+      if ($full_token_key != \Drupal\Component\Utility\Unicode::strtolower($full_token_key)) {
+        $tokens[$pre . \Drupal\Component\Utility\Unicode::strtolower($full_token_key) . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($value);
       }
     }
   }
 
   // include the dn.  it will not be handled correctly by previous loops
-  $tokens[$pre . 'dn' . $post] = check_plain($ldap_entry['dn']);
+  $tokens[$pre . 'dn' . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($ldap_entry['dn']);
   return $tokens;
 }
 
@@ -347,7 +347,7 @@ function ldap_servers_token_tokenize_entry($ldap_entry, $token_keys = 'all', $pr
 
 function ldap_servers_token_tokenize_user_account($user_account, $token_keys = 'all', $pre = LDAP_SERVERS_TOKEN_PRE, $post = LDAP_SERVERS_TOKEN_POST) {
 
-  $detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
+  $detailed_watchdog_log = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
   $tokens = array();
 
   $user_entered_password_available = (boolean)ldap_user_ldap_provision_pwd('get');
@@ -358,14 +358,14 @@ function ldap_servers_token_tokenize_user_account($user_account, $token_keys = '
     foreach ((array)$user_account as $property_name => $value) {
       if (is_scalar($value) && $property_name != 'password') {
         $token_keys[] = 'property.' . $property_name;
-        if (drupal_strtolower($property_name) != $property_name) {
-          $token_keys[] = 'property.' . drupal_strtolower($property_name);
+        if (\Drupal\Component\Utility\Unicode::strtolower($property_name) != $property_name) {
+          $token_keys[] = 'property.' . \Drupal\Component\Utility\Unicode::strtolower($property_name);
         }
       }
       elseif (isset($user_account->{$attr_name}['und'][0]['value']) && is_scalar($user_account->{$attr_name}['und'][0]['value'])) {
         $token_keys[] = 'field.' . $property_name;
-        if (drupal_strtolower($property_name) != $property_name) {
-          $token_keys[] = 'field.' . drupal_strtolower($property_name);
+        if (\Drupal\Component\Utility\Unicode::strtolower($property_name) != $property_name) {
+          $token_keys[] = 'field.' . \Drupal\Component\Utility\Unicode::strtolower($property_name);
         }
       }
       else {
@@ -432,13 +432,13 @@ function ldap_servers_token_tokenize_user_account($user_account, $token_keys = '
           break;
 
         case 'to-lowercase':
-          $value = drupal_strtolower($value);
+          $value = \Drupal\Component\Utility\Unicode::strtolower($value);
           break;
       }
 
-      $tokens[$pre . $token_key . $post] = check_plain($value);
-      if ($token_key != drupal_strtolower($token_key)) {
-        $tokens[$pre . drupal_strtolower($token_key) . $post] = check_plain($value);
+      $tokens[$pre . $token_key . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($value);
+      if ($token_key != \Drupal\Component\Utility\Unicode::strtolower($token_key)) {
+        $tokens[$pre . \Drupal\Component\Utility\Unicode::strtolower($token_key) . $post] = \Drupal\Component\Utility\SafeMarkup::checkPlain($value);
       }
     }
   }
@@ -473,7 +473,9 @@ function ldap_servers_token_show_sample_user_tokens($sid) {
   }
 
   if ($ldap_user = $ldap_server->userUserNameToExistingLdapEntry($test_username)) {
-    $table = theme('ldap_server_ldap_entry_table', array(
+    // @FIXME
+    // $table = theme('ldap_server_ldap_entry_table', array(
+    $table = _theme('ldap_server_ldap_entry_table', array(
       'entry' => $ldap_user['attr'],
       'username' => $test_username,
       'dn' => $ldap_user['dn'],

@@ -36,7 +36,7 @@ function ldap_servers_empty_user_data($start, $step, $consumer_type, &$context) 
 
   if (isset($results['user'])) {
     foreach ($results['user'] as $uid => $entity_data) {
-      if ($uid > 1 && $account = user_load($uid, TRUE)) {
+      if ($uid > 1 && $account = \Drupal::entityManager()->getStorage('user')->load($uid)) {
         if ($consumer_type == NULL && isset($account->data['ldap_authorizations'])) { // remove all authorization data
           $names[] = $account->name;
           unset($account->data['ldap_authorizations']);
@@ -44,6 +44,8 @@ function ldap_servers_empty_user_data($start, $step, $consumer_type, &$context) 
         }
         elseif ($consumer_type != NULL && isset($account->data['ldap_authorizations'][$consumer_type])) { // remove only a particular consumers authorization data
           unset($account->data['ldap_authorizations'][$consumer_type]);
+          // @FIXME
+          // user_save() is now a method of the user entity.
           $updated_account = user_save($account, array('data' => $account->data));
         }
       }
@@ -53,19 +55,40 @@ function ldap_servers_empty_user_data($start, $step, $consumer_type, &$context) 
 
 function ldap_authorization_generate_users() {
   $response = "";
+  // @FIXME
+  // For loop was rewritten but need to be tested
+
+  // for ($i=1; $i<1000; $i++) {
+  //   $name = "user" . $i;
+  //   if ($account = user_load_by_name($name)) {
+  //     user_delete($account->uid);
+  //   }
+  //   $account = new stdClass();
+  //   $account->is_new = TRUE;
+  //   $account->name = "user" . $i;
+  //   $user_edit = array(
+  //     'data' => array('ldap_authorizations' => array('og_group' => 7, 'drupal_role' => 8))
+  //   );
+    
+  //   $user_response = user_save($account, $user_edit);
+  //   $response .= $user_response->name . "<br/>";
+  // }
   for ($i=1; $i<1000; $i++) {
     $name = "user" . $i;
-    if ($account = user_load_by_name($name)) {
-      user_delete($account->uid);
+    if ($user_response = user_load_by_name($name)) {
+      $user_response->uid->delete();
     }
-    $account = new stdClass();
-    $account->is_new = TRUE;
-    $account->name = "user" . $i;
+
     $user_edit = array(
       'data' => array('ldap_authorizations' => array('og_group' => 7, 'drupal_role' => 8))
     );
     
-    $user_response = user_save($account, $user_edit);
+    $user_response = entity_create('user', $user_edit);
+    $user_response->is_new = TRUE;
+    $user_response->name = "user" . $i;
+
+    entity_save('user', $user_response);
+    
     $response .= $user_response->name . "<br/>";
   }
   return $response;
