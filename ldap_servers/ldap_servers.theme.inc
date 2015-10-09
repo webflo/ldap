@@ -50,7 +50,16 @@ function theme_ldap_servers_list($variables) {
   else {
     $table['rows'] = array();
   }
-  $output = theme('table', $table);
+
+  // @FIXME
+  $table_theme = array(
+    '#type' => 'table',
+    '#rows' => $table,
+  );
+  // $output = theme('table', $table);
+  $output = drupal_render($table_theme);
+
+  
 
   return $output;
 }
@@ -158,6 +167,9 @@ function theme_ldap_server_ldap_entry_table($variables) {
       }
     }
   }
-  $entry_table = '<div class="content"><h2>' . t('LDAP Entry for %username (dn: %dn)', array('%dn' => $variables['dn'], '%username' => $variables['username'])) . '</h2>' . theme('table', array('colgroups' => NULL, 'caption' => 'ldap entry array', 'header' => $header, 'rows' => $rows, 'sticky' => TRUE, 'attributes' => array(), 'empty' => 'No data')) . '</div>';
+
+  // @FIXME
+  // $entry_table = '<div class="content"><h2>' . t('LDAP Entry for %username (dn: %dn)', array('%dn' => $variables['dn'], '%username' => $variables['username'])) . '</h2>' . theme('table', array('colgroups' => NULL, 'caption' => 'ldap entry array', 'header' => $header, 'rows' => $rows, 'sticky' => TRUE, 'attributes' => array(), 'empty' => 'No data')) . '</div>';
+  $entry_table = '<div class="content"><h2>' . t('LDAP Entry for %username (dn: %dn)', array('%dn' => $variables['dn'], '%username' => $variables['username'])) . '</h2>' . _theme('table', array('colgroups' => NULL, 'caption' => 'ldap entry array', 'header' => $header, 'rows' => $rows, 'sticky' => TRUE, 'attributes' => array(), 'empty' => 'No data')) . '</div>';
   return $entry_table;
 }
