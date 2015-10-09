@@ -28,8 +28,10 @@ function ldap_servers_servers_list($sid = NULL, $actions = FALSE) {
     'action' => TRUE,
     'type' => 'table',
     );
-
-  $html = theme('ldap_servers_list', $variables);
+  
+  // @FIXME
+  // $html = theme('ldap_servers_list', $variables);
+  $html = _theme('ldap_servers_list', $variables);
 
   return $html;
 }
@@ -61,7 +63,7 @@ function ldap_servers_admin_form($form, &$form_state, $op = NULL, $sid = NULL) {
  */
 function ldap_servers_admin_form_validate($form, &$form_state) {
 
-  $op = drupal_strtolower($form_state['clicked_button']['#value']);
+  $op = \Drupal\Component\Utility\Unicode::strtolower($form_state['clicked_button']['#value']);
   ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   $server = new LdapServerAdmin($form_state['values']['sid']);
 
@@ -82,7 +84,7 @@ function ldap_servers_admin_form_validate($form, &$form_state) {
  * Submit hook for the LDAP server form.
  */
 function ldap_servers_admin_form_submit($form, &$form_state) {
-  $button = drupal_strtolower($form_state['clicked_button']['#value']);
+  $button = \Drupal\Component\Utility\Unicode::strtolower($form_state['clicked_button']['#value']);
   $op = ($button == 'add') ? 'add' : 'edit';
   $verb = ($op == 'edit') ? 'edited' : $op . 'ed';
   ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
@@ -126,7 +128,9 @@ function ldap_servers_admin_delete($form, &$form_state, $op = NULL, $sid = NULL)
     $variables = array(
       'ldap_server' => $ldap_server, 'actions' => FALSE, 'type' => 'detail'
     );
-    $form['#prefix'] = '<div>' . theme('ldap_servers_server', $variables) . '</div>';
+    // @FIXME
+    // $form['#prefix'] = '<div>' . theme('ldap_servers_server', $variables) . '</div>';
+    $form['#prefix'] = '<div>' . _theme('ldap_servers_server', $variables) . '</div>';
     $form['sid'] = array(
       '#type' => 'hidden',
       '#value' => $sid,
@@ -136,7 +140,7 @@ function ldap_servers_admin_delete($form, &$form_state, $op = NULL, $sid = NULL)
       '#value' => $ldap_server->name,
     );
 
-    $warnings = module_invoke_all('ldap_server_in_use', $sid, $ldap_server->name);
+    $warnings = \Drupal::moduleHandler()->invokeAll('ldap_server_in_use', [$sid, $ldap_server->name]);
     if (count($warnings)) {
       drupal_set_message(join("<br/>", array_values($warnings)), 'error');
       drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/servers/list');
@@ -168,7 +172,7 @@ function ldap_servers_admin_delete_submit($form, &$form_state) {
     if ($result = $ldap_server->delete($sid)) {
       $tokens = array('%name' => $ldap_server->name, '!sid' => $sid);
       drupal_set_message(t('LDAP Server %name (server id = !sid) has been deleted.', $tokens), 'status');
-      watchdog('ldap', 'LDAP Server deleted: %name (sid = !sid) ', $tokens);
+      \Drupal::logger('ldap')->notice('LDAP Server deleted: %name (sid = !sid) ', []);
     }
     else {
       drupal_set_message(t('LDAP Server delete failed.'), 'warning');
@@ -201,7 +205,9 @@ function ldap_servers_admin_enable_disable($form, &$form_state, $action = NULL, 
     $variables = array(
       'ldap_server' => $ldap_server, 'actions' => FALSE, 'type' => 'detail'
     );
-    $form['#prefix'] = "<div>" . theme('ldap_servers_server', $variables) . "</div>";
+    // @FIXME
+    // $form['#prefix'] = "<div>" . theme('ldap_servers_server', $variables) . "</div>";
+    $form['#prefix'] = "<div>" . _theme('ldap_servers_server', $variables) . "</div>";
 
     $form['sid'] = array(
       '#type' => 'hidden',
@@ -244,7 +250,7 @@ function ldap_servers_admin_enable_disable_submit($form, &$form_state) {
     $tokens = array('%name' => $values['name'], '!sid' => $sid, '!action' => t($values['action']) . 'd');
     drupal_set_message(t('LDAP Server Configuration %name (server id = !sid) has been !action.', $tokens));
     $message = t('LDAP Server !action: %name (sid = !sid) ', $tokens);
-    watchdog('ldap', $message);
+    \Drupal::logger('ldap')->notice($message, []);
 
   }
 
