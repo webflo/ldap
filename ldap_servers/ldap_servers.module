@@ -143,7 +143,13 @@ require_once('ldap_servers.tokens.inc');
  * Implements hook_init().
  */
 function ldap_servers_init() {
-  drupal_add_css(drupal_get_path('module', 'ldap_servers') . '/ldap_servers.admin.css', 'module');
+  $stylesheet = array(
+    '#attached' => array(   
+      'css' => array(
+        drupal_get_path('module', 'ldap_servers') . '/ldap_servers.admin.css' => array(),
+      ),
+    ),
+  );
 }
 
 /**
@@ -291,8 +297,8 @@ function ldap_servers_theme() {
    */
   function ldap_server_find_key($key, $array) {
     $keys = array_combine(array_change_key_case($array), $array);
-    if (isset($keys[drupal_strtolower($key)])) {
-      return $keys[drupal_strtolower($key)];
+    if (isset($keys[\Drupal\Component\Utility\Unicode::strtolower($key)])) {
+      return $keys[\Drupal\Component\Utility\Unicode::strtolower($key)];
     }
     else {
       return FALSE;
@@ -352,10 +358,19 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
   $ldap_user_conf  = $params['ldap_user_conf'];
   $direction = $params['direction'];
 
+  // @TO REMOVE
+  // $tokens = array(
+  //   '!edit_link' => l($ldap_server->editPath, $ldap_server->editPath),
+  //   '!sid' => $ldap_server->sid,
+  // );
+
+  // use Drupal\Core\Url;
+  $url = Url::fromRoute('ldap_servers.edit_index');
   $tokens = array(
-    '!edit_link' => l($ldap_server->editPath, $ldap_server->editPath),
+    '!edit_link' => \Drupal::l($url, $url),
     '!sid' => $ldap_server->sid,
   );
+
 
   $server_edit_path = 'admin/config/people/ldap/servers/edit/' . $ldap_server->sid;
 
@@ -519,7 +534,7 @@ function ldap_servers_module_load_include($type, $module, $name = NULL) {
  *         - single server conf object (if flatten == TRUE)
  */
 function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $reset = FALSE) {
-  if (config('ldap_test.settings')->get('simpletest')) {
+  if (\Drupal::config('ldap_test.settings')->get('simpletest')) {
     return _ldap_servers_get_simpletest_servers($sid, $type, $flatten, $reset);
   }
   else {
@@ -573,7 +588,7 @@ function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $res
   }
 
   //two flavors of mock servers exist.  ultimately v2 will be used in all simpletests
-  if (config('ldap_test.settings')->get('simpletest') == 2) {
+  if (\Drupal::config('ldap_test.settings')->get('simpletest') == 2) {
     ldap_servers_module_load_include('php', 'ldap_test', 'LdapServerTest.class');
     $servers['all'] = LdapServerTest::getLdapServerObjects(NULL, 'all', FALSE);
     foreach ($servers['all'] as $_sid => $ldap_server) {
@@ -595,7 +610,7 @@ function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $res
   }
 }
 function ldap_servers_debug($variable) {
-  if (config('ldap_test.settings')->get('simpletest') && function_exists('dpm')) {
+  if (\Drupal::config('ldap_test.settings')->get('simpletest') && function_exists('dpm')) {
     dpm($variable);
   }
   else {
@@ -604,7 +619,7 @@ function ldap_servers_debug($variable) {
 }
 function ldap_servers_cache_clear() {
   $discard = ldap_servers_get_servers(NULL, 'all', FALSE, TRUE);
-  if (module_exists('ctools')) {
+  if (\Drupal::moduleHandler()->moduleExists('ctools')) {
     ctools_export_load_object_reset('ldap_servers');
   }
 }
@@ -683,7 +698,7 @@ function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_contex
     $drupal_username = (is_object($drupal_user)) ? $drupal_user->name : $drupal_user;
   }
   // if no explicit $sid, find most appropriate one
-  if (!$sid && module_exists('ldap_user')) {
+  if (\Drupal::moduleHandler()->moduleExists('ldap_user')) {
     if (property_exists($drupal_user, 'ldap_user_puid_sid') &&
         !empty($drupal_user->ldap_user_puid_sid['und'][0]['value'])
       ) {
@@ -705,7 +720,7 @@ function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_contex
   $ldap_server = ($sid) ? ldap_servers_get_servers($sid, 'enabled', TRUE) : FALSE;
 
   if ($ldap_server === FALSE) {
-    watchdog('ldap_servers', 'Failed to load server object %sid in _ldap_servers_get_user_ldap_data', array('%sid' => $sid), WATCHDOG_ERROR);
+    \Drupal::logger('ldap_servers')->error('Failed to load server object %sid in _ldap_servers_get_user_ldap_data', array('%sid' => $sid));
     return FALSE;
   }
 
@@ -797,14 +812,15 @@ function ldap_servers_convert_attribute($value, $conversion = NULL) {
  */
 function ldap_servers_disable_http_check(&$form) {
 
-  if (config('ldap_servers.settings')->get('require_ssl_for_credentails') == 1 && @$_SERVER['HTTPS'] != 'on') {
+  if (\Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentails') == 1 && @$_SERVER['HTTPS'] != 'on') {
 
     $tokens = array(
-      'site_name' => config('system.site')->get('name'),
-      'site_mail' => config('system.site')->get('mail'),
+      'site_name' => \Drupal::config('system.site')->get('name'),
+      'site_mail' => \Drupal::config('system.site')->get('mail'),
       );
 
-    drupal_set_message(t(theme('ldap_servers_https_required', $tokens)), 'error');
+    // drupal_set_message(t(theme('ldap_servers_https_required', $tokens)), 'error');
+    drupal_set_message(t(_theme('ldap_servers_https_required', $tokens)), 'error');
     $form['#disabled'] = TRUE;
   }
 }
@@ -942,7 +958,7 @@ function ldap_servers_ldap_servers_types() {
     'name' => 'Apple Open Directory',
   );
 
-  drupal_alter('ldap_servers_ldap_types', $types);
+  \Drupal::moduleHandler()->alter('ldap_servers_ldap_types', $types);
   return $types;
 
 }
@@ -976,11 +992,11 @@ function ldap_servers_get_ldap_type_object($ldap_conf) {
 function ldap_servers_get_first_rdn_value_from_dn($dn, $rdn) {
   $pairs = ldap_explode_dn($dn, 0); // escapes attribute values, need to be unescaped later
   $count = array_shift($pairs);
-  $rdn = drupal_strtolower($rdn);
+  $rdn = \Drupal\Component\Utility\Unicode::strtolower($rdn);
   $rdn_value = FALSE;
   foreach ($pairs as $p) {
     $pair = explode('=', $p);
-    if (drupal_strtolower(trim($pair[0])) == $rdn) {
+    if (\Drupal\Component\Utility\Unicode::strtolower(trim($pair[0])) == $rdn) {
       $rdn_value = ldap_pear_unescape_dn_value(trim($pair[1]));
       break;
     }
@@ -1000,11 +1016,11 @@ function ldap_servers_get_first_rdn_value_from_dn($dn, $rdn) {
 function ldap_servers_get_all_rdn_values_from_dn($dn, $rdn) {
   $pairs = ldap_explode_dn($dn, 0); // escapes attribute values, need to be unescaped later
   $count = array_shift($pairs);
-  $rdn = drupal_strtolower($rdn);
+  $rdn = \Drupal\Component\Utility\Unicode::strtolower($rdn);
   $rdn_values = array();
   foreach ($pairs as $p) {
     $pair = explode('=', $p);
-    if (drupal_strtolower(trim($pair[0])) == $rdn) {
+    if (\Drupal\Component\Utility\Unicode::strtolower(trim($pair[0])) == $rdn) {
       $rdn_values[] = ldap_pear_unescape_dn_value(trim($pair[1]));
       break;
     }
@@ -1062,8 +1078,12 @@ function ldap_servers_no_enabled_servers_msg($action) {
   $servers = ldap_servers_get_servers(NULL, 'enabled');
   if (count($servers) == 0) {
 
+    // use Drupal\Core\Url;
+    $url = Url::fromRoute('ldap_servers.edit_index');
+    $edit_server_link = \Drupal::l(t('@path', array('@path' => $url)), $url);
+
     $message = t('At least one ldap server must configured and <em>enabled</em> before') .
-      $action . '. ' . t('Please go to') . ' ' . l('admin/config/people/ldap/servers', 'admin/config/people/ldap/servers') . ' to configure an LDAP server';
+      $action . '. ' . t('Please go to') . ' ' . $edit_server_link . ' to configure an LDAP server';
 
     drupal_set_message($message, 'warning');
     return $message;
