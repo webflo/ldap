@@ -12,8 +12,10 @@ Files upgraded:
 X ldap_servers.info.yml
 X ldap_servers.install
 X ldap_servers.module
+X ldap_servers.encryption.inc
 
 Files unchanged:
+X ldap_servers.api.php
 X ldap_servers.admin.css
 
 Files created:
@@ -32,6 +34,18 @@ REMARKS
 
 - ldap_servers.admin.inc: _theme() line 33, 132, 208 doesn't seems to be the best D8 replacement solution (@FIXME)
 
+config : encryption & ldap_servers_encryption are potentially the same and should be merged
+
 TODO:
 - https://www.drupal.org/files/ldap-upgrade-path-broken-1054616-06.patch
 - remove: TO REMOVE notes
+- Update config/settings to get rid of useless
+- Update config/schema to get all variables in the mapping
+- replace "ldap_servers_require_ssl_for_credentails" by "require_ssl_for_credentails"
+- replace "ldap_servers_encryption" by "encryption"
+
+
+
+
+
+

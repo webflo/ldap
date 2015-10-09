@@ -86,14 +86,14 @@ function _ldap_servers_encrypt_types($type = 'all') {
 function _ldap_servers_encrypt($clear_txt, $enc_type = NULL) {
 
   if (!$enc_type) {
-    $enc_type = config('ldap_servers.settings')->get('encryption');
+    $enc_type = \Drupal::config('ldap_servers.settings')->get('encryption');
   }
 
   if ($enc_type == LDAP_SERVERS_ENC_TYPE_CLEARTEXT) {
     return $clear_txt;
   }
 
-  $key = config('ldap_servers.settings')->get('encrypt_key');
+  $key = \Drupal::config('ldap_servers.settings')->get('encrypt_key');
 
   switch ($enc_type) {
 
@@ -127,9 +127,9 @@ function _ldap_servers_encrypt($clear_txt, $enc_type = NULL) {
 
 function _ldap_servers_decrypt($cipher_txt, $enc_type = NULL) {
 
-  $key = config('ldap_servers.settings')->get('encrypt_key');
+  $key = \Drupal::config('ldap_servers.settings')->get('encrypt_key');
   if (!$enc_type) {
-    $enc_type =  config('ldap_servers.settings')->get('encryption');
+    $enc_type =  \Drupal::config('ldap_servers.settings')->get('encryption');
   }
   if ($enc_type == LDAP_SERVERS_ENC_TYPE_CLEARTEXT) {
     return $cipher_txt;
