@@ -17,9 +17,9 @@ function ldap_servers_install() {
  * Implements hook_uninstall().
  */
 function ldap_servers_uninstall() {
-  variable_del('ldap_servers_encryption');
-  variable_del('ldap_servers_require_ssl_for_credentails');
-  variable_del('ldap_servers_encrypt_key');
+  \Drupal::config('ldap_servers.settings')->clear('ldap_servers_encryption')->save();
+  \Drupal::config('ldap_servers.settings')->clear('ldap_servers_require_ssl_for_credentails')->save();
+  \Drupal::config('ldap_servers.settings')->clear('ldap_servers_encrypt_key')->save();
 
 }
 
@@ -485,7 +485,7 @@ function ldap_servers_update_7201() {
   $change_log = array();
 
   // 1. ldap_user is now required for ldap_authentication and ldap_authorization
-  if (module_exists('ldap_authentication') || module_exists('ldap_authorization')) {
+  if (\Drupal::moduleHandler()->moduleExists('ldap_authentication') || \Drupal::moduleHandler()->moduleExists('ldap_authorization')) {
     module_enable(array('ldap_user'), TRUE);
     $change_log[] = t('LDAP User Module Enabled');
   }
@@ -644,9 +644,8 @@ function ldap_servers_update_7201() {
 
 
   //5. ldap_authentication and ldap_user changes are in variables, not tables
-
-  $ldap_authentication_conf_data = variable_get('ldap_authentication_conf', array());
-  $ldap_user_conf_data = variable_get('ldap_user_conf', array());
+  $ldap_authentication_conf_data = \Drupal::config('ldap_authentication.settings')->get('ldap_authentication_conf');
+  $ldap_user_conf_data = Drupal::config('ldap_user.settings')->get('ldap_user_conf');
 
   $ldap_authentication_sids = array_keys($ldap_authentication_conf_data['sids']);
   if (count($ldap_authentication_sids) == 1) {
@@ -688,19 +687,22 @@ function ldap_servers_update_7201() {
 
   $change_log[] = t('LDAP User configuration populated.');
   $change_log[] = t('LDAP Authentication configuration updated.');
-  variable_set('ldap_authentication_conf', $ldap_authentication_conf_data);
-  variable_set('ldap_user_conf', $ldap_user_conf_data);
+  \Drupal::config('ldap_authentication.settings')->set('ldap_authentication_conf', $ldap_authentication_conf_data);
+  \Drupal::config('ldap_user.settings')->set('ldap_user_conf', $ldap_user_conf_data);
+
+  $item_list = array(
+    '#theme' => 'item_list',
+    '#items' => $change_log,
+      '#title' => 'Changes in 7.x-1.x to 7.x-2.x update',
+  );
+  $list = drupal_render($item_list);
 
   $summary = '<h2>' . t('Please check through all the LDAP module configuration pages.
     The update from 7.x-1.x to 7.x-2.x is not automatable!  The configuration pages
     must be read through and configured.') . '</h2>' .
-    theme('item_list', array(
-      'items' => $change_log,
-      'type' => 'ul',
-      'title' => 'Changes in 7.x-1.x to 7.x-2.x update')
-    );
+    $list;
 
-  watchdog('ldap_servers', $summary, WATCHDOG_INFO);
+  \Drupal::logger('ldap_servers')->notice($summary, []);
   return $summary;
 
 
