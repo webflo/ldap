@@ -17,7 +17,7 @@ function ldap_user_modify($dn, $attributes, $ldap_server) {
   if (!$result) {
     $error = "LDAP Server ldap_modify(%dn) in ldap_user_modify() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
     $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
-    watchdog('ldap_servers', $error, $tokens, WATCHDOG_ERROR);
+    \Drupal::logger('ldap_servers')->error($error, []);
   }
   return $result;
 }
@@ -28,7 +28,7 @@ function ldap_user_modify($dn, $attributes, $ldap_server) {
 function ldap_password_modify($userdn, $new_password, $ldap_server) {
 
   $new_password = "\"" . $new_password . "\"";
-  $len = drupal_strlen($new_password);
+  $len = \Drupal\Component\Utility\Unicode::strlen($new_password);
   $new_pass = NULL;
   for ($i = 0; $i < $len; $i++) {
     $new_pass .= "{$new_password{$i}}\000";
@@ -36,12 +36,7 @@ function ldap_password_modify($userdn, $new_password, $ldap_server) {
 
   $status = ldap_mod_replace($ldap_server->connection, $userdn, array('unicodePwd' => $new_pass));
   if (!$status) {
-    watchdog(
-      'ldap_servers',
-      'Error: password_modify() failed to modify ldap password w/ base DN "!dn"',
-      array('!dn' => $userdn),
-      WATCHDOG_ERROR
-    );
+    \Drupal::logger('ldap_servers')->error('Error: password_modify() failed to modify ldap password w/ base DN "!dn"', array('!dn' => $userdn));
   }
 
   return $status;
@@ -118,7 +113,7 @@ function ldap_servers_attributes_needed($sid, $ldap_context = 'all', $reset = TR
       'sid' => $sid,
       'ldap_context' => $ldap_context,
     );
-    drupal_alter('ldap_attributes_needed', $attributes[$static_cache_id], $params);
+    \Drupal::moduleHandler()->alter('ldap_attributes_needed', $attributes[$static_cache_id], $params);
   }
   $return = $attributes[$static_cache_id];
 
@@ -187,11 +182,11 @@ function ldap_server_massage_text($value, $value_type, $context) {
       case LDAP_SERVER_MASSAGE_STORE_ARRAY:
       case LDAP_SERVER_MASSAGE_STORE_PROPERTY:
         if ($scalar) {
-          $value = drupal_strtolower($value);
+          $value = \Drupal\Component\Utility\Unicode::strtolower($value);
         }
         elseif (is_array($value)) {
           foreach ($value as $i => $val) {
-            $value[$i] = drupal_strtolower($val);
+            $value[$i] = \Drupal\Component\Utility\Unicode::strtolower($val);
           }
         }
         else {

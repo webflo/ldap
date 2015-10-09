@@ -13,6 +13,9 @@ X ldap_servers.info.yml
 X ldap_servers.install
 X ldap_servers.module
 X ldap_servers.encryption.inc
+X ldap_servers.functions.inc
+X ldap_servers.settings.inc
+X ldap_servers.test_form.inc
 
 Files unchanged:
 X ldap_servers.api.php
@@ -33,6 +36,10 @@ REMARKS
 - ldap_servers.module: _theme() line 821 doesn't seems to be the best D8 replacement solution
 
 - ldap_servers.admin.inc: _theme() line 33, 132, 208 doesn't seems to be the best D8 replacement solution (@FIXME)
+
+- ldap_servers.settings.inc: _theme() line 23 doesn't seems to be the best D8 replacement solution (@FIXME)
+
+- ldap_servers.test_form.inc _theme() line 38, 111, 137, 309, 320, 347 doesn't seems to be the best D8 replacement solution (@FIXME)
 
 config : encryption & ldap_servers_encryption are potentially the same and should be merged
 
