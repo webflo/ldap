@@ -3,23 +3,22 @@ ldap_servers.settings:
   title: 'LDAP Configuration'
   description: 'LDAP authentication, authorization, provisioning, etc.'
   parent: user.admin_index
-ldap_servers.edit_index:
-  route_name: ldap_servers.edit_index
+entity.ldap_servers.edit_index:
+  route_name: entity.ldap_servers.edit_index
   title: 'Add LDAP Server Configuration'
-  weight: 3
   parent: ldap_servers.settings
-ldap_servers.admin_form_edit:
-  route_name: ldap_servers.admin_form_edit
-  title: 'Edit LDAP Server Configuration'
+# entity.ldap_servers.edit_form:
+#   route_name: entity.ldap_servers.edit_form
+#   title: 'Edit LDAP Server Configuration'
 ldap_servers.test_form:
   route_name: ldap_servers.test_form
   title: 'Test LDAP Server Configuration'
-ldap_servers.admin_delete:
-  route_name: ldap_servers.admin_delete
-  title: 'Delete LDAP Server'
-ldap_servers.admin_enable_disable:
-  route_name: ldap_servers.admin_enable_disable
-  title: 'Enable LDAP Server'
-ldap_servers.admin_enable_disable_0:
-  route_name: ldap_servers.admin_enable_disable
-  title: 'Enable LDAP Server'
+# entity.ldap_servers.delete_form:
+#   route_name: entity.ldap_servers.delete_form
+#   title: 'Delete LDAP Server'
+# ldap_servers.admin_enable_disable:
+#   route_name: ldap_servers.admin_enable_disable
+#   title: 'Enable LDAP Server'
+# ldap_servers.admin_enable_disable_0:
+#   route_name: ldap_servers.admin_enable_disable
+#   title: 'Enable LDAP Server'

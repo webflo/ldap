@@ -135,9 +135,9 @@ class LdapServer {
     if (!is_scalar($sid)) {
       return;
     }
-    $this->detailed_watchdog_log = config('ldap_help.settings')->get('watchdog_detail');
+    $this->detailed_watchdog_log = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
     $server_record = FALSE;
-    if (module_exists('ctools')) {
+    if (\Drupal::moduleHandler()->moduleExists('ctools')) {
       ctools_include('export');
       $result = ctools_export_load_object('ldap_servers', 'names', array($sid));
       if (isset($result[$sid])) {
@@ -167,7 +167,7 @@ class LdapServer {
     else {
       $this->inDatabase = TRUE;
       $this->sid = $sid;
-      $this->detailedWatchdogLog = config('ldap_help.settings')->get('watchdog_detail');
+      $this->detailedWatchdogLog = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
       foreach ($this->field_to_properties_map() as $db_field_name => $property_name ) {
         if (isset($server_record->$db_field_name)) {
           $this->{$property_name} = $server_record->$db_field_name;
@@ -255,20 +255,20 @@ class LdapServer {
     if ($this->tls) {
       ldap_get_option($con, LDAP_OPT_PROTOCOL_VERSION, $vers);
       if ($vers == -1) {
-        watchdog('user', 'Could not get LDAP protocol version.');
+        \Drupal::logger('user')->notice('Could not get LDAP protocol version.', []);
         return LDAP_PROTOCOL_ERROR;
       }
       if ($vers != 3) {
-        watchdog('user', 'Could not start TLS, only supported by LDAP v3.');
+        \Drupal::logger('user')->notice('Could not start TLS, only supported by LDAP v3.', []);
         return LDAP_CONNECT_ERROR;
       }
       elseif (!function_exists('ldap_start_tls')) {
-        watchdog('user', 'Could not start TLS. It does not seem to be supported by this PHP setup.');
+        \Drupal::logger('user')->notice('Could not start TLS. It does not seem to be supported by this PHP setup.', []);
         return LDAP_CONNECT_ERROR;
       }
       elseif (!ldap_start_tls($con)) {
         $msg =  t("Could not start TLS. (Error %errno: %error).", array('%errno' => ldap_errno($con), '%error' => ldap_error($con)));
-        watchdog('user', $msg);
+        \Drupal::logger('user')->notice($msg, []);
         return LDAP_CONNECT_ERROR;
       }
     }
@@ -294,7 +294,7 @@ class LdapServer {
 
     // Ensure that we have an active server connection.
     if (!$this->connection) {
-      watchdog('ldap', "LDAP bind failure for user %user. Not connected to LDAP server.", array('%user' => $userdn));
+      \Drupal::logger('ldap')->notice("LDAP bind failure for user %user. Not connected to LDAP server.", array('%user' => $userdn));
       return LDAP_CONNECT_ERROR;
     }
 
@@ -304,7 +304,7 @@ class LdapServer {
     if ($anon_bind === TRUE) {
       if (@!ldap_bind($this->connection)) {
         if ($this->detailedWatchdogLog) {
-          watchdog('ldap', "LDAP anonymous bind error. Error %errno: %error", array('%errno' => ldap_errno($this->connection), '%error' => ldap_error($this->connection)));
+          \Drupal::logger('ldap')->notice("LDAP anonymous bind error. Error %errno: %error", array('%errno' => ldap_errno($this->connection), '%error' => ldap_error($this->connection)));
         }
         return ldap_errno($this->connection);
       }
@@ -434,7 +434,7 @@ class LdapServer {
       $error = "LDAP Server ldap_add(%dn) Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
       $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
       debug(t($error, $tokens));
-      watchdog('ldap_server', $error, $tokens, WATCHDOG_ERROR);
+      \Drupal::logger('ldap_server')->error($error, []);
     }
 
     return $result;
@@ -455,7 +455,7 @@ class LdapServer {
 
     foreach ($new_entry as $key => $new_val) {
       $old_value = FALSE;
-      $key_lcase = drupal_strtolower($key);
+      $key_lcase = \Drupal\Component\Utility\Unicode::strtolower($key);
       if (isset($old_entry[$key_lcase])) {
         if ($old_entry[$key_lcase]['count'] == 1) {
           $old_value = $old_entry[$key_lcase][0];
@@ -472,7 +472,7 @@ class LdapServer {
       if (is_array($new_val) && is_array($old_value) && count(array_diff($new_val, $old_value)) == 0) {
         unset($new_entry[$key]);
       }
-      elseif ($old_value_is_scalar && !is_array($new_val) && drupal_strtolower($old_value) == drupal_strtolower($new_val)) {
+      elseif ($old_value_is_scalar && !is_array($new_val) && \Drupal\Component\Utility\Unicode::strtolower($old_value) == \Drupal\Component\Utility\Unicode::strtolower($new_val)) {
         unset($new_entry[$key]); // don't change values that aren't changing to avoid false permission constraints
       }
     }
@@ -505,7 +505,7 @@ class LdapServer {
       if (!$result) {
         $error = "LDAP Server ldap_read(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
         $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
-        watchdog('ldap_server', $error, $tokens, WATCHDOG_ERROR);
+        \Drupal::logger('ldap_server')->error($error, []);
         return FALSE;
       }
 

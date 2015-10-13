@@ -5,8 +5,9 @@ core: 8.x
 package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
-  - entity
-  - number
+stylesheets:
+  all:
+    - ldap_user.css
 
 #files[] = ldap_user.api.php
 #files[] = ldap_user.inc

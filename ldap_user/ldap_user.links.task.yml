@@ -1,0 +1,4 @@
+ldap_user.admin_form:
+  route_name: ldap_user.admin_form
+  title: '3. User'
+  weight: 2

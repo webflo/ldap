@@ -1,0 +1,11 @@
+# All action links for this module
+
+entity.ldap_servers.server_add:
+  # Which route will be called by the link
+  route_name: entity.ldap_servers.server_add
+  title: 'Add Server'
+
+  # Where will the link appear, defined by route name.
+  appears_on:
+    - entity.ldap_servers.edit_index
+

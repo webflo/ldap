@@ -19,12 +19,13 @@ class LdapServerAdmin extends LdapServer {
    */
   public static function getLdapServerObjects($sid = NULL, $type = NULL, $class = 'LdapServer', $reset = FALSE) {
     $servers = array();
-    if (module_exists('ctools')) {
-      ctools_include('export');
-      if ($reset) {
-        ctools_export_load_object_reset('ldap_servers');
-      }
-      $select = ctools_export_load_object('ldap_servers', 'all');
+    if (\Drupal::moduleHandler()->moduleExists('ctools')) {
+      // @FIXME
+      // ctools_include('export');
+      // if ($reset) {
+      //   ctools_export_load_object_reset('ldap_servers');
+      // }
+      // $select = ctools_export_load_object('ldap_servers', 'all');
     }
     else {
       try {
@@ -65,29 +66,29 @@ class LdapServerAdmin extends LdapServer {
     }
     $this->user_dn_expression = trim($values['user_dn_expression']);
     $this->basedn = $this->linesToArray(trim($values['basedn']));
-    $this->user_attr = drupal_strtolower(trim($values['user_attr']));
-    $this->picture_attr = drupal_strtolower(trim($values['picture_attr']));
-    $this->account_name_attr = drupal_strtolower(trim($values['account_name_attr']));
-    $this->mail_attr = drupal_strtolower(trim($values['mail_attr']));
+    $this->user_attr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['user_attr']));
+    $this->picture_attr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['picture_attr']));
+    $this->account_name_attr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['account_name_attr']));
+    $this->mail_attr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['mail_attr']));
     $this->mail_template = trim($values['mail_template']);
-    $this->unique_persistent_attr = drupal_strtolower(trim($values['unique_persistent_attr']));
+    $this->unique_persistent_attr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['unique_persistent_attr']));
     $this->unique_persistent_attr_binary = trim($values['unique_persistent_attr_binary']);
     $this->ldapToDrupalUserPhp = $values['ldap_to_drupal_user'];
     $this->testingDrupalUsername = trim($values['testing_drupal_username']);
     $this->testingDrupalUserDn = trim($values['testing_drupal_user_dn']);
     $this->groupFunctionalityUnused = $values['grp_unused'];
-    $this->groupObjectClass = drupal_strtolower(trim($values['grp_object_cat']));
+    $this->groupObjectClass = \Drupal\Component\Utility\Unicode::strtolower(trim($values['grp_object_cat']));
     $this->groupNested = trim($values['grp_nested']);
 
     $this->groupUserMembershipsAttrExists = trim($values['grp_user_memb_attr_exists']);
-    $this->groupUserMembershipsAttr =  drupal_strtolower(trim($values['grp_user_memb_attr']));
+    $this->groupUserMembershipsAttr =  \Drupal\Component\Utility\Unicode::strtolower(trim($values['grp_user_memb_attr']));
 
-    $this->groupMembershipsAttr = drupal_strtolower(trim($values['grp_memb_attr']));
+    $this->groupMembershipsAttr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['grp_memb_attr']));
 
-    $this->groupMembershipsAttrMatchingUserAttr =  drupal_strtolower(trim($values['grp_memb_attr_match_user_attr']));
+    $this->groupMembershipsAttrMatchingUserAttr =  \Drupal\Component\Utility\Unicode::strtolower(trim($values['grp_memb_attr_match_user_attr']));
 
     $this->groupDeriveFromDn = trim($values['grp_derive_from_dn']);
-    $this->groupDeriveFromDnAttr = drupal_strtolower(trim($values['grp_derive_from_dn_attr']));
+    $this->groupDeriveFromDnAttr = \Drupal\Component\Utility\Unicode::strtolower(trim($values['grp_derive_from_dn_attr']));
     $this->groupTestGroupDn = trim($values['grp_test_grp_dn']);
     $this->groupTestGroupDnWriteable = trim($values['grp_test_grp_dn_writeable']);
 
@@ -106,7 +107,7 @@ class LdapServerAdmin extends LdapServer {
     $values = new stdClass();
 
     foreach ($this->field_to_properties_map() as $field_name => $property_name) {
-      $field_name_lcase = drupal_strtolower($field_name);
+      $field_name_lcase = \Drupal\Component\Utility\Unicode::strtolower($field_name);
       $values->{$field_name_lcase} = $this->{$property_name};
     }
     if (isset($this->bindpw) && $this->bindpw) {
@@ -121,13 +122,14 @@ class LdapServerAdmin extends LdapServer {
 
     $values->tls = (int)$this->tls;
 
-    if (module_exists('ctools')) {
-      ctools_include('export');
-      // Populate our object with ctool's properties
-      $object = ctools_export_crud_new('ldap_servers');
+    if (\Drupal::moduleHandler()->moduleExists('ctools')) {
+      // @FIXME
+      // ctools_include('export');
+
+      // $object = ctools_export_crud_new('ldap_servers');
 
       foreach ($object as $property => $value) {
-        $property_lcase = drupal_strtolower($property);
+        $property_lcase = \Drupal\Component\Utility\Unicode::strtolower($property);
         if (!isset($values->$property) || !isset($values->$property_lcase)) {
           $values->$property_lcase = $value;
         }
@@ -135,22 +137,25 @@ class LdapServerAdmin extends LdapServer {
 
       try {
         $values->export_type = NULL;
-        $result = ctools_export_crud_save('ldap_servers', $values);
+        // @FIXME
+        // $result = ctools_export_crud_save('ldap_servers', $values);
       } catch (Exception $e) {
         $values->export_type = EXPORT_IN_DATABASE;
-        $result = ctools_export_crud_save('ldap_servers', $values);
+        // @FIXME
+        // $result = ctools_export_crud_save('ldap_servers', $values);
       }
       
-      ctools_export_load_object_reset('ldap_servers'); // ctools_export_crud_save doesn't invalidate cache
+      // @FIXME
+      // ctools_export_load_object_reset('ldap_servers'); // ctools_export_crud_save doesn't invalidate cache
 
     }
     else { // directly via db
       unset($values->numeric_sid);
       if ($op == 'add') {
-        $result = drupal_write_record('ldap_servers', $values);
+        $result = \Drupal::database()->insert('ldap_servers')->fields($values)->execute();
       }
       else {
-        $result = drupal_write_record('ldap_servers', $values, 'sid');
+        $result = \Drupal::database()->merge('ldap_servers')->fields($values)->key(['sid'])->execute();
       }
       ldap_servers_cache_clear();
 
@@ -168,9 +173,10 @@ class LdapServerAdmin extends LdapServer {
   public function delete($sid) {
     if ($sid == $this->sid) {
       $result = db_delete('ldap_servers')->condition('sid', $sid)->execute();
-      if (module_exists('ctools')) {
-        ctools_include('export');
-        ctools_export_load_object_reset('ldap_servers'); // invalidate cache
+      if (\Drupal::moduleHandler()->moduleExists('ctools')) {
+        // @FIXME
+        // ctools_include('export');
+        // ctools_export_load_object_reset('ldap_servers'); // invalidate cache
       }
       $this->inDatabase = FALSE;
       return $result;
@@ -182,20 +188,25 @@ class LdapServerAdmin extends LdapServer {
   public function getLdapServerActions() {
     $switch = ($this->status ) ? 'disable' : 'enable';
     $actions = array();
-    $actions[] =  l(t('edit'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/edit/' . $this->sid);
+     // @FIXME
+    // $actions[] =  l(t('edit'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/edit/' . $this->sid);
     if (property_exists($this, 'type')) {
       if ($this->type == 'Overridden') {
-          $actions[] = l(t('revert'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
+         // @FIXME
+          // $actions[] = l(t('revert'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
       }
       if ($this->type == 'Normal') {
-          $actions[] = l(t('delete'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
+         // @FIXME
+          // $actions[] = l(t('delete'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
       }
     }
     else {
-        $actions[] = l(t('delete'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
+       // @FIXME
+        // $actions[] = l(t('delete'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/delete/' . $this->sid);
     }
-    $actions[] = l(t('test'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/test/' . $this->sid);
-    $actions[] = l($switch, LDAP_SERVERS_MENU_BASE_PATH . '/servers/' . $switch . '/' . $this->sid);
+     // @FIXME
+    // $actions[] = l(t('test'), LDAP_SERVERS_MENU_BASE_PATH . '/servers/test/' . $this->sid);
+    // $actions[] = l($switch, LDAP_SERVERS_MENU_BASE_PATH . '/servers/' . $switch . '/' . $this->sid);
     return $actions;
   }
 
@@ -319,7 +330,7 @@ class LdapServerAdmin extends LdapServer {
       if (!$this->sid) {
         $errors['server_id_missing'] = 'Server id missing from delete form.';
       }
-      $warnings = module_invoke_all('ldap_server_in_use', $this->sid, $this->name);
+      $warnings = \Drupal::moduleHandler()->invokeAll('ldap_server_in_use', [$this->sid, $this->name]);
       if (count($warnings)) {
         $errors['status'] = join("<br/>", array_values($warnings));
       }
@@ -350,7 +361,7 @@ class LdapServerAdmin extends LdapServer {
     }
 
     if ($this->status == 0) { // check that no modules use this server
-      $warnings = module_invoke_all('ldap_server_in_use', $this->sid, $this->name);
+      $warnings = \Drupal::moduleHandler()->invokeAll('ldap_server_in_use', [$this->sid, $this->name]);
       if (count($warnings)) {
         $errors['status'] = join("<br/>", array_values($warnings));
       }
@@ -882,7 +893,7 @@ public function drupalFormSubmit($op, $values) {
       'ldap_to_drupal_user' =>  array(
         'form' => array(
           'fieldset' => 'users',
-          '#disabled' => (!module_exists('php')),
+          '#disabled' => (!\Drupal::moduleHandler()->moduleExists('php')),
           '#type' => 'textarea',
           '#cols' => 25,
           '#rows' => 5,

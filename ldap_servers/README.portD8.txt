@@ -19,6 +19,7 @@ X ldap_servers.test_form.inc
 X ldap_servers.theme.inc
 X ldap_servers.tokens.inc
 X ldap_servers.user_data_remove.inc
+X LdapServerAdmin.class.php
 
 Files unchanged:
 X ldap_servers.api.php
@@ -50,6 +51,9 @@ REMARKS
 - ldap_servers.tokens.inc: _theme() line 476 doesn't seems to be the best D8 replacement solution (@FIXME)
 
 - ldap_servers.user_data_remove.inc: user_save() 47, 58 need to be replaced (@FIXME)
+
+- LdapServerAdmin.class.php : line 23, 125, 140 need ctools functions replacement (@FIXME)
+- LdapServerAdmin.class.php : l() line 190 need to be fixed (@FIXME)
 
 config : encryption & ldap_servers_encryption are potentially the same and should be merged
 config : encrypt_key & ldap_servers_encrypt_key are potentially the same and should be merged

@@ -3,8 +3,8 @@ ldap_servers.settings:
   title: '1. Settings'
   weight: -2
   base_route: ldap_servers.settings
-ldap_servers.edit_index:
-  route_name: ldap_servers.edit_index
+entity.ldap_servers.edit_index:
+  route_name: entity.ldap_servers.edit_index
   title: '2. Servers'
   weight: -1
   base_route: ldap_servers.settings

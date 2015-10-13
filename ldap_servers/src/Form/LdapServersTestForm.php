@@ -7,11 +7,12 @@
 
 namespace Drupal\ldap_servers\Form;
 
+use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
-class LdapServersTestForm extends FormBase {
+class LdapServersTestForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}

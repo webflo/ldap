@@ -51,9 +51,10 @@ class LdapServersAdminEnableDisable extends FormBase {
         '#type' => 'hidden',
         '#value' => $action,
       ];
-      return confirm_form($form, t('Are you sure you want to') . t($action) . ' ' . t('the LDAP server named <em><strong>%name</strong></em>?', [
-        '%name' => $ldap_server->name
-        ]), LDAP_SERVERS_MENU_BASE_PATH . '/servers/list', t('<p></p>'), t($action), t('Cancel'));
+      return $form;
+      // return confirm_form($form, t('Are you sure you want to') . t($action) . ' ' . t('the LDAP server named <em><strong>%name</strong></em>?', [
+      //   '%name' => $ldap_server->name
+      //   ]), LDAP_SERVERS_MENU_BASE_PATH . '/servers/list', t('<p></p>'), t($action), t('Cancel'));
     }
 
   }
