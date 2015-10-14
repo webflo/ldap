@@ -21,10 +21,10 @@ function theme_ldap_authentication_user_login_block_links($variables) {
  // the code below modified from user.module user_login_block function
   $items = array();
   if (config('user.settings')->get('register')) {
-    $items[] = l(t('Create new account'), 'user/register', array('attributes' => array('title' => t('Create a new user account.'))));
+    $items[] = \Drupal::l(t('Create new account'), \Drupal\Core\Url::fromRoute('user.register'), array('attributes' => array('title' => t('Create a new user account.'))));
   }
   if ($show_reset_pwd) {
-    $items[] = l(t('Request new password'), 'user/password', array('attributes' => array('title' => t('Request new password via e-mail.'))));
+    $items[] = \Drupal::l(t('Request new password'), \Drupal\Core\Url::fromRoute('user.pass'));
   }
   elseif ($auth_conf->ldapUserHelpLinkUrl) {
     $items[] = l(t($auth_conf->ldapUserHelpLinkText), $auth_conf->ldapUserHelpLinkUrl);

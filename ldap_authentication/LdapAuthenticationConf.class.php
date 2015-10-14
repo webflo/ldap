@@ -206,7 +206,7 @@ class LdapAuthenticationConf {
 
   function load() {
 
-    if ($saved = variable_get("ldap_authentication_conf", FALSE)) {
+    if ($saved = \Drupal::config('ldap_authentication.settings')->get("ldap_authentication_conf")) {
       $this->inDatabase = TRUE;
       foreach ($this->saveable as $property) {
         if (isset($saved[$property])) {
@@ -227,7 +227,7 @@ class LdapAuthenticationConf {
     }
 
     $this->ldapUser = new LdapUserConf();
-    $this->ssoEnabled = module_exists('ldap_sso');
+    $this->ssoEnabled = \Drupal::moduleHandler()->moduleExists('ldap_sso');
     $this->apiPrefs['requireHttps'] = config('ldap_servers.settings')->get('require_ssl_for_credentails');
     $this->apiPrefs['encryption'] = config('ldap_servers.settings')->get('encryption');
 
@@ -269,7 +269,7 @@ class LdapAuthenticationConf {
      */
 
     if ($this->allowTestPhp) {
-      if (module_exists('php')) {
+      if (\Drupal::moduleHandler()->moduleExists('php')) {
         global $_name, $_ldap_user_entry;
         $_name = $name;
         $_ldap_user_entry = $ldap_user;
@@ -284,7 +284,7 @@ class LdapAuthenticationConf {
       else {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
         $tokens = array('!ldap_authentication_config' => l(t('LDAP Authentication Configuration'), 'admin/config/people/ldap/authentication'));
-        watchdog('ldap_authentication', 'LDAP Authentication is configured to deny users based on php execution with php_eval function, but php module is not enabled. Please enable php module or remove php code at !ldap_authentication_config .', $tokens);
+        \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users based on php execution with php_eval function, but php module is not enabled. Please enable php module or remove php code at !ldap_authentication_config .', []);
         return FALSE;
       }
     }
@@ -310,10 +310,10 @@ class LdapAuthenticationConf {
 
     if ($this->excludeIfNoAuthorizations) {
 
-      if (!module_exists('ldap_authorization')) {
+      if (!\Drupal::moduleHandler()->moduleExists('ldap_authorization')) {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
         $tokens = array('!ldap_authentication_config' => l(t('LDAP Authentication Configuration'), 'admin/config/people/ldap/authentication'));
-        watchdog('ldap_authentication', 'LDAP Authentication is configured to deny users without LDAP Authorization mappings, but LDAP Authorization module is not enabled.  Please enable and configure LDAP Authorization or disable this option at !ldap_authentication_config .', $tokens);
+        \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users without LDAP Authorization mappings, but LDAP Authorization module is not enabled.  Please enable and configure LDAP Authorization or disable this option at !ldap_authentication_config .', []);
         return FALSE;
       }
 
@@ -341,7 +341,7 @@ class LdapAuthenticationConf {
       if (!$has_enabled_consumers) {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
         $tokens = array('!ldap_consumer_config' => l(t('LDAP Authorization Configuration'), 'admin/config/people/ldap/authorization'));
-        watchdog('ldap_authentication', 'LDAP Authentication is configured to deny users without LDAP Authorization mappings, but 0 LDAP Authorization consumers are configured:  !ldap_consumer_config .', $tokens);
+        \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users without LDAP Authorization mappings, but 0 LDAP Authorization consumers are configured:  !ldap_consumer_config .', []);
         return FALSE;
       }
       elseif (!$has_ldap_authorizations) {
@@ -352,10 +352,10 @@ class LdapAuthenticationConf {
 
     // allow other modules to hook in and refuse if they like
     $hook_result = TRUE;
-    drupal_alter('ldap_authentication_allowuser_results', $ldap_user, $name, $hook_result);
+    \Drupal::moduleHandler()->alter('ldap_authentication_allowuser_results', $ldap_user, $name, $hook_result);
 
     if ($hook_result === FALSE) {
-      watchdog('ldap_authentication', "Authentication Allow User Result=refused for %name", array('%name' => $name), WATCHDOG_NOTICE);
+      \Drupal::logger('ldap_authentication')->notice("Authentication Allow User Result=refused for %name", array('%name' => $name));
       return FALSE;
     }
 

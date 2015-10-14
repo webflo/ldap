@@ -104,7 +104,7 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
         drupal_map_assoc(array(3600, 86400, 604800, 2592000, 31536000, 315360000, 630720000), 'format_interval');
 
       $values['ssoEnabledDescription'] = '<strong>' . t('Single Sign on is enabled.') .
-        '</strong> ' . t('To disable it, disable the LDAP SSO Module on the') . ' ' . l(t('Modules Form'), 'admin/modules') . '.<p>' .
+        '</strong> ' . t('To disable it, disable the LDAP SSO Module on the') . ' ' . \Drupal::l(t('Modules Form'), \Drupal\Core\Url::fromRoute('system.modules_list')) . '.<p>' .
         t('Single Sign-On enables ' .
         'users of this site to be authenticated by visiting the URL ' .
         '"user/login/sso, or automatically if selecting "automated ' .
@@ -209,18 +209,18 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
     foreach ($this->saveable as $property) {
       $save[$property] = $this->{$property};
     }
-    variable_set('ldap_authentication_conf', $save);
+    \Drupal::configFactory()->getEditable('ldap_authentication.settings')->set('ldap_authentication_conf', $save)->save();
     $this->load();
   }
 
   static public function getSaveableProperty($property) {
-    $ldap_authentication_conf = variable_get('ldap_authentication_conf', array());
+    $ldap_authentication_conf = \Drupal::config('ldap_authentication.settings')->get('ldap_authentication_conf');
     return isset($ldap_authentication_conf[$property]) ? $ldap_authentication_conf[$property] : FALSE;
 
   }
 
   static public function uninstall() {
-    variable_del('ldap_authentication_conf');
+    \Drupal::config('ldap_authentication.settings')->clear('ldap_authentication_conf')->save();
   }
 
   public function __construct() {
@@ -350,10 +350,10 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
       '#cols' => 50,
       '#rows' => 3,
       '#description' => t($this->allowTestPhpDescription, $tokens),
-      '#disabled' => (boolean)(!module_exists('php')),
+      '#disabled' => (boolean)(!\Drupal::moduleHandler()->moduleExists('php')),
     );
 
-    if (!module_exists('php')) {
+    if (!\Drupal::moduleHandler()->moduleExists('php')) {
       $form['restrictions']['allowTestPhp']['#title'] .= ' <em>' . t('php module currently disabled') . '</em>';
     }
 
@@ -364,7 +364,7 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
         Requires LDAP Authorization to be enabled and configured!'),
       '#default_value' =>  $this->excludeIfNoAuthorizations,
       '#description' => t($this->excludeIfNoAuthorizationsDescription, $tokens),
-      '#disabled' => (boolean)(!module_exists('ldap_authorization')),
+      '#disabled' => (boolean)(!\Drupal::moduleHandler()->moduleExists('ldap_authorization')),
     );
 
     $form['email'] = array(
@@ -426,7 +426,7 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
         '#type' => 'markup',
         '#markup' => '<p><em>' . t('LDAP Single Sign-On module must be enabled for options below to work.')
         . ' ' . t('It is currently disabled.')
-        . ' ' . l(t('See modules form'), 'admin/modules') . '</p></em>',
+        . ' ' . \Drupal::l(t('See modules form'), \Drupal\Core\Url::fromRoute('system.modules_list')) . '</p></em>',
       );
     }
 

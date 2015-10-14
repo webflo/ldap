@@ -138,12 +138,12 @@ function ldap_authentication_theme() {
 
 function ldap_authentication_help($path, $arg) {
 
-  $authentication_help = t('LDAP authentication allows authentication against an LDAP server.  It
-        may be used alongside other authentication means such as built in Drupal authentication,
-        open id, etc.  More detailed help is available on drupal.org at !helplink.',
-          array(
-            '!helplink' => l(LDAP_SERVERS_DRUPAL_HELP_URL, LDAP_SERVERS_DRUPAL_HELP_URL),
-          ));
+  // $authentication_help = t('LDAP authentication allows authentication against an LDAP server.  It
+  //       may be used alongside other authentication means such as built in Drupal authentication,
+  //       open id, etc.  More detailed help is available on drupal.org at !helplink.',
+  //         array(
+  //           '!helplink' => l(LDAP_SERVERS_DRUPAL_HELP_URL, LDAP_SERVERS_DRUPAL_HELP_URL),
+  //         ));
 
   switch ($path) {
     case 'admin/config/people/ldap/authentication':
@@ -181,14 +181,14 @@ function ldap_authentication_info($field = 0) {
 function ldap_authentication_ldap_authenticated($user) {
 
   if (is_numeric($user)) {
-    $user = @user_load((int)$user);
+    $user = @\Drupal::entityManager()->getStorage('user')->load((int)$user);
   }
   if (!is_object($user) || $user->uid == 0) {
     return FALSE;
   }
 
-  $authmaps = db_query("SELECT module, authname FROM {authmap} WHERE uid = :uid", array(':uid' => $user->uid))->fetchAllKeyed();
-  return isset($authmaps['ldap_user']);
+  $authname = ldap_user_get_authname($user);
+  return !empty($authname);
 
 }
 
@@ -199,7 +199,7 @@ function ldap_authentication_ldap_authenticated($user) {
  *
  */
 function _ldap_authentication_user_access() {
-  return (boolean)(!$GLOBALS['user']->uid || !empty($GLOBALS['menu_admin']));
+  return (boolean)(!\Drupal::currentUser()->uid || !empty($GLOBALS['menu_admin']));
 }
 
 
@@ -242,10 +242,10 @@ function ldap_authentication_ldap_server_in_use($sid, $server_name) {
 function ldap_authentication_show_reset_pwd($user = NULL) {
 
   if (!$user) {
-    global $user;
+    $user = \Drupal::currentUser();
   }
   $auth_conf = ldap_authentication_get_valid_conf();
-  if (current_path() == 'user/password' || $user->uid == 1 || !$auth_conf) {
+  if (\Drupal\Core\Url::fromRoute("<current>")->toString() == 'user/password' || $user->uid == 1 || !$auth_conf) {
     return TRUE;
    // always show at user/passwordurl. otherwise user 1 will not be able to reset password.
   }
@@ -407,7 +407,7 @@ function ldap_authentication_user_update($edit, $user, $category) {
 }
 
 function ldap_authentication_show_ldap_help_link($user = NULL) {
-  global $user;
+  $user = \Drupal::currentUser();
 
   if (!$auth_conf = ldap_authentication_get_valid_conf()) {
     return FALSE;
