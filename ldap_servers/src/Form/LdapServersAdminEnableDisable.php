@@ -7,17 +7,41 @@
 
 namespace Drupal\ldap_servers\Form;
 
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Entity\ContentEntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Url;
 
-class LdapServersAdminEnableDisable extends FormBase {
+class LdapServersAdminEnableDisable extends ContentEntityConfirmFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'ldap_servers_admin_enable_disable';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQuestion() {
+    return $this->t('Are you sure you want to disable/enable entity %name?', array('%name' => $this->entity->label()));
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * If the delete command is canceled, return to the lti_tool_provider_consumer list.
+   */
+  public function getCancelURL() {
+    return new Url('ldap_servers.settings');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfirmText() {
+    return $this->t('Disable/Enable');
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $action = NULL, $sid = NULL) {
@@ -38,10 +62,10 @@ class LdapServersAdminEnableDisable extends FormBase {
       // @see https://www.drupal.org/node/2195739
       // $form['#prefix'] = "<div>" . theme('ldap_servers_server', $variables) . "</div>";
 
-
+      // var_dump($ldap_server);die();
       $form['sid'] = [
         '#type' => 'hidden',
-        '#value' => $sid,
+        '#value' => $ldap_server->sid,
       ];
       $form['name'] = [
         '#type' => 'hidden',
@@ -51,7 +75,10 @@ class LdapServersAdminEnableDisable extends FormBase {
         '#type' => 'hidden',
         '#value' => $action,
       ];
-      return $form;
+      // return $form;
+
+      return parent::buildForm($form, $form_state);
+
       // return confirm_form($form, t('Are you sure you want to') . t($action) . ' ' . t('the LDAP server named <em><strong>%name</strong></em>?', [
       //   '%name' => $ldap_server->name
       //   ]), LDAP_SERVERS_MENU_BASE_PATH . '/servers/list', t('<p></p>'), t($action), t('Cancel'));
@@ -61,8 +88,10 @@ class LdapServersAdminEnableDisable extends FormBase {
 
   public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     $values = $form_state->getValues();
+    $name = $values['name'];
     $sid = $values['sid'];
     $status = ($values['action'] == 'enable') ? 1 : 0;
+
     if ($values['confirm'] && $sid) {
 
       $form_state->set(['redirect'], LDAP_SERVERS_MENU_BASE_PATH . '/servers');
@@ -81,6 +110,11 @@ class LdapServersAdminEnableDisable extends FormBase {
 
     }
 
+    drupal_set_message(t('Sid: ' . $sid));
+    drupal_set_message(t('Name: ' . $name));
+    drupal_set_message(t('Status: ' . $status));
+
+    $form_state->setRedirect('entity.ldap_servers.edit_index');
   }
 
 }

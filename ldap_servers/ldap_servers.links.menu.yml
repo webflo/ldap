@@ -7,14 +7,14 @@ entity.ldap_servers.edit_index:
   route_name: entity.ldap_servers.edit_index
   title: 'Add LDAP Server Configuration'
   parent: ldap_servers.settings
-# entity.ldap_servers.edit_form:
-#   route_name: entity.ldap_servers.edit_form
+# entity.ldap_server.edit_form:
+#   route_name: entity.ldap_server.edit_form
 #   title: 'Edit LDAP Server Configuration'
-ldap_servers.test_form:
-  route_name: ldap_servers.test_form
-  title: 'Test LDAP Server Configuration'
-# entity.ldap_servers.delete_form:
-#   route_name: entity.ldap_servers.delete_form
+# ldap_servers.test_form:
+#   route_name: ldap_servers.test_form
+#   title: 'Test LDAP Server Configuration'
+# entity.ldap_server.delete_form:
+#   route_name: entity.ldap_server.delete_form
 #   title: 'Delete LDAP Server'
 # ldap_servers.admin_enable_disable:
 #   route_name: ldap_servers.admin_enable_disable

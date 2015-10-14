@@ -27,7 +27,8 @@ use Drupal\user\UserInterface;
  *       "add" = "Drupal\ldap_servers\Form\LdapServersAdminForm",
  *       "edit" = "Drupal\ldap_servers\Form\LdapServersAdminForm",
  *       "delete" = "Drupal\ldap_servers\Form\LdapServersAdminDelete",
- *       "test" = "Drupal\ldap_servers\Form\LdapServersTest",
+ *       "test" = "Drupal\ldap_servers\Form\LdapServersTestForm",
+ *       "enable_disable" = "Drupal\ldap_servers\Form\LdapServersAdminEnableDisable",
  *     },
  *   },
  *   base_table = "ldap_servers",
@@ -36,7 +37,7 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "sid",
  *     "uuid" = "uuid",
- *     "label" = "name"
+ *     "label" = "name",
  *   },
  *   links = {
  *     "edit-form" = "/ldap/servers/edit/{ldap_server}",

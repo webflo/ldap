@@ -198,7 +198,7 @@ class LdapServer {
         $this->basedn = array();
         $token = is_scalar($basedn_unserialized) ? $basedn_unserialized : print_r($basedn_unserialized, TRUE);
         debug("basednb desearialization error". $token);
-        watchdog('ldap_server', 'Failed to deserialize LdapServer::basedn of !basedn', array('!basedn' => $token), WATCHDOG_ERROR);
+        \Drupal::logger('ldap_server')->error('Failed to deserialize LdapServer::basedn of !basedn', array('!basedn' => $token));
       }
 
     }
@@ -244,7 +244,7 @@ class LdapServer {
   function connect() {
 
     if (!$con = ldap_connect($this->address, $this->port)) {
-      watchdog('user', 'LDAP Connect failure to ' . $this->address . ':' . $this->port);
+      \Drupal::logger('user')->notice('LDAP Connect failure to ' . $this->address . ':' . $this->port, []);
       return LDAP_CONNECT_ERROR;
     }
 
@@ -313,13 +313,13 @@ class LdapServer {
       $userdn = ($userdn != NULL) ? $userdn : $this->binddn;
       $pass = ($pass != NULL) ? $pass : $this->bindpw;
 
-      if (drupal_strlen($pass) == 0 || drupal_strlen($userdn) == 0) {
-        watchdog('ldap', "LDAP bind failure for user userdn=%userdn, pass=%pass.", array('%userdn' => $userdn, '%pass' => $pass));
+      if (\Drupal\Component\Utility\Unicode::strlen($pass) == 0 || \Drupal\Component\Utility\Unicode::strlen($userdn) == 0) {
+        \Drupal::logger('ldap')->notice("LDAP bind failure for user userdn=%userdn, pass=%pass.", array('%userdn' => $userdn, '%pass' => $pass));
         return LDAP_LOCAL_ERROR;
       }
       if (@!ldap_bind($this->connection, $userdn, $pass)) {
         if ($this->detailedWatchdogLog) {
-          watchdog('ldap', "LDAP bind failure for user %user. Error %errno: %error", array('%user' => $userdn, '%errno' => ldap_errno($this->connection), '%error' => ldap_error($this->connection)));
+          \Drupal::logger('ldap')->notice("LDAP bind failure for user %user. Error %errno: %error", array('%user' => $userdn, '%errno' => ldap_errno($this->connection), '%error' => ldap_error($this->connection)));
         }
         return ldap_errno($this->connection);
       }
@@ -518,7 +518,7 @@ class LdapServer {
 
     foreach ($attributes as $key => $cur_val) {
       $old_value = FALSE;
-      $key_lcase = drupal_strtolower($key);
+      $key_lcase = \Drupal\Component\Utility\Unicode::strtolower($key);
       if (isset($old_attributes[$key_lcase])) {
         if ($old_attributes[$key_lcase]['count'] == 1) {
           $old_value = $old_attributes[$key_lcase][0];
@@ -535,7 +535,7 @@ class LdapServer {
         if (!$result) {
           $error = "LDAP Server ldap_mod_del(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
           $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
-          watchdog('ldap_server', $error, $tokens, WATCHDOG_ERROR);
+          \Drupal::logger('ldap_server')->error($error, []);
           return FALSE;
         }
       }
@@ -556,7 +556,7 @@ class LdapServer {
       if (!$result) {
         $error = "LDAP Server ldap_modify(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
         $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
-        watchdog('ldap_server', $error, $tokens, WATCHDOG_ERROR);
+        \Drupal::logger('ldap_server')->error($error, []);
         return FALSE;
       }
     }
@@ -582,7 +582,7 @@ class LdapServer {
     if (!$result) {
       $error = "LDAP Server delete(%dn) in LdapServer::delete() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
       $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
-      watchdog('ldap_server', $error, $tokens, WATCHDOG_ERROR);
+      \Drupal::logger('ldap_server')->error($error, []);
     }
     return $result;
   }
@@ -689,7 +689,7 @@ class LdapServer {
       )
     );
     if ($this->detailed_watchdog_log) {
-      watchdog('ldap_server', $query, array());
+      \Drupal::logger('ldap_server')->notice($query, array());
     }
 
     // When checking multiple servers, there's a chance we might not be connected yet.
@@ -719,15 +719,15 @@ class LdapServer {
       $result = $this->ldapQuery($scope, $ldap_query_params);
       if ($result && ($this->countEntries($result) !== FALSE) ) {
         $entries = ldap_get_entries($this->connection, $result);
-        drupal_alter('ldap_server_search_results', $entries, $ldap_query_params);
+        \Drupal::moduleHandler()->alter('ldap_server_search_results', $entries, $ldap_query_params);
         return (is_array($entries)) ? $entries : FALSE;
       }
       elseif ($this->ldapErrorNumber()) {
         $watchdog_tokens =  array('%basedn' => $ldap_query_params['base_dn'], '%filter' => $ldap_query_params['filter'],
           '%attributes' => print_r($ldap_query_params['attributes'], TRUE), '%errmsg' => $this->errorMsg('ldap'),
           '%errno' => $this->ldapErrorNumber());
-        watchdog('ldap', "LDAP ldap_search error. basedn: %basedn| filter: %filter| attributes:
-          %attributes| errmsg: %errmsg| ldap err no: %errno|", $watchdog_tokens);
+        \Drupal::logger('ldap')->notice("LDAP ldap_search error. basedn: %basedn| filter: %filter| attributes:
+          %attributes| errmsg: %errmsg| ldap err no: %errno|", []);
         return FALSE;
       }
       else {
@@ -761,9 +761,9 @@ class LdapServer {
   public function pagedLdapQuery($ldap_query_params) {
 
     if (!($this->searchPagination && $this->paginationEnabled)) {
-      watchdog('ldap', "LDAP server pagedLdapQuery() called when functionality not available in php install or
+       \Drupal::logger('ldap')->notice("LDAP server pagedLdapQuery() called when functionality not available in php install or
         not enabled in ldap server configuration.  error. basedn: %basedn| filter: %filter| attributes:
-         %attributes| errmsg: %errmsg| ldap err no: %errno|", $watchdog_tokens);
+         %attributes| errmsg: %errmsg| ldap err no: %errno|", []);
       RETURN FALSE;
     }
 
@@ -792,8 +792,8 @@ class LdapServer {
           $watchdog_tokens =  array('%basedn' => $ldap_query_params['base_dn'], '%filter' => $ldap_query_params['filter'],
             '%attributes' => print_r($ldap_query_params['attributes'], TRUE), '%errmsg' => $this->errorMsg('ldap'),
             '%errno' => $this->ldapErrorNumber());
-          watchdog('ldap', "LDAP ldap_search error. basedn: %basedn| filter: %filter| attributes:
-            %attributes| errmsg: %errmsg| ldap err no: %errno|", $watchdog_tokens);
+          \Drupal::logger('ldap')->notice("LDAP ldap_search error. basedn: %basedn| filter: %filter| attributes:
+            %attributes| errmsg: %errmsg| ldap err no: %errno|", []);
           RETURN FALSE;
         }
         else {
@@ -808,9 +808,7 @@ class LdapServer {
         // false positive error thrown.  do not set result limit error when $sizelimit specified
       }
       elseif ($this->hasError()) {
-        watchdog('ldap_server', 'ldap_control_paged_result_response() function error. LDAP Error: %message, ldap_list() parameters: %query',
-          array('%message' => $this->errorMsg('ldap'), '%query' => $ldap_query_params['query_display']),
-          WATCHDOG_ERROR);
+        \Drupal::logger('ldap_server')->error('ldap_control_paged_result_response() function error. LDAP Error: %message, ldap_list() parameters: %query', array('%message' => $this->errorMsg('ldap'), '%query' => $ldap_query_params['query_display']));
       }
 
       if (isset($ldap_query_params['sizelimit']) && $ldap_query_params['sizelimit'] && $aggregated_entries_count >= $ldap_query_params['sizelimit']) {
@@ -850,9 +848,7 @@ class LdapServer {
           // false positive error thrown.  do not return result limit error when $sizelimit specified
         }
         elseif ($this->hasError()) {
-          watchdog('ldap_server', 'ldap_search() function error. LDAP Error: %message, ldap_search() parameters: %query',
-            array('%message' => $this->errorMsg('ldap'), '%query' => $params['query_display']),
-            WATCHDOG_ERROR);
+          \Drupal::logger('ldap_server')->error('ldap_search() function error. LDAP Error: %message, ldap_search() parameters: %query', array('%message' => $this->errorMsg('ldap'), '%query' => $params['query_display']));
         }
         break;
 
@@ -863,9 +859,7 @@ class LdapServer {
           // false positive error thrown.  do not result limit error when $sizelimit specified
         }
         elseif ($this->hasError()) {
-          watchdog('ldap_server', 'ldap_read() function error.  LDAP Error: %message, ldap_read() parameters: %query',
-            array('%message' => $this->errorMsg('ldap'), '%query' => @$params['query_display']),
-            WATCHDOG_ERROR);
+          \Drupal::logger('ldap_server')->error('ldap_read() function error.  LDAP Error: %message, ldap_read() parameters: %query', array('%message' => $this->errorMsg('ldap'), '%query' => @$params['query_display']));
         }
         break;
 
@@ -876,9 +870,7 @@ class LdapServer {
           // false positive error thrown.  do not result limit error when $sizelimit specified
         }
         elseif ($this->hasError()) {
-          watchdog('ldap_server', 'ldap_list() function error. LDAP Error: %message, ldap_list() parameters: %query',
-            array('%message' => $this->errorMsg('ldap'), '%query' => $params['query_display']),
-            WATCHDOG_ERROR);
+          \Drupal::logger('ldap_server')->error('ldap_list() function error. LDAP Error: %message, ldap_list() parameters: %query', array('%message' => $this->errorMsg('ldap'), '%query' => $params['query_display']));
         }
         break;
     }
@@ -905,20 +897,20 @@ class LdapServer {
     ->fieldCondition('ldap_user_puid_sid', 'value', $this->sid, '=')
     ->fieldCondition('ldap_user_puid', 'value', $puid, '=')
     ->fieldCondition('ldap_user_puid_property', 'value', $this->unique_persistent_attr, '=')
-    ->addMetaData('account', user_load(1)); // run the query as user 1
+    ->addMetaData('account', \Drupal::entityManager()->getStorage('user')->load(1)); // run the query as user 1
 
     $result = $query->execute();
 
     if (isset($result['user'])) {
       $uids = array_keys($result['user']);
       if (count($uids) == 1) {
-        $user = entity_load('user', array_keys($result['user']));
+        $user = \Drupal::entityManager()->getStorage('user');
         return $user[$uids[0]];
       }
       else {
         $uids = join(',', $uids);
         $tokens = array('%uids' => $uids, '%puid' => $puid, '%sid' =>  $this->sid, '%ldap_user_puid_property' =>  $this->unique_persistent_attr);
-        watchdog('ldap_server', 'multiple users (uids: %uids) with same puid (puid=%puid, sid=%sid, ldap_user_puid_property=%ldap_user_puid_property)', $tokens, WATCHDOG_ERROR);
+        \Drupal::logger('ldap_server')->error('multiple users (uids: %uids) with same puid (puid=%puid, sid=%sid, ldap_user_puid_property=%ldap_user_puid_property)', []);
         return FALSE;
       }
     }
@@ -929,7 +921,7 @@ class LdapServer {
   }
 
   function userUsernameToLdapNameTransform($drupal_username, &$watchdog_tokens) {
-    if ($this->ldapToDrupalUserPhp && module_exists('php')) {
+    if ($this->ldapToDrupalUserPhp && \Drupal::moduleHandler()->moduleExists('php')) {
       global $name;
       $old_name_value = $name;
       $name = $drupal_username;
@@ -941,7 +933,7 @@ class LdapServer {
       $watchdog_tokens['%ldap_username'] = $ldap_username;
       $name = $old_name_value;  // important because of global scope of $name
       if ($this->detailedWatchdogLog) {
-        watchdog('ldap_server', '%drupal_user_name tansformed to %ldap_username by applying code <code>%code</code>', $watchdog_tokens, WATCHDOG_DEBUG);
+        \Drupal::logger('ldap_server')->debug('%drupal_user_name tansformed to %ldap_username by applying code <code>%code</code>', []);
       }
     }
     else {
@@ -1054,7 +1046,7 @@ class LdapServer {
           }
         }
         elseif (isset($account->data['ldap_user']['init']['thumb5md'])) {
-          watchdog('ldap_server', "Some error happened during thumbnailPhoto sync");
+          \Drupal::logger('ldap_server')->notice("Some error happened during thumbnailPhoto sync", []);
           return false;
         }
       }
@@ -1081,7 +1073,7 @@ class LdapServer {
 			}
       else {
 				foreach ($errors as $err => $err_val){
-					watchdog('ldap_server', "Error storing picture: %$err", "%$err_val", WATCHDOG_ERROR );
+          \Drupal::logger('ldap_server')->error("Error storing picture: %$err", []);
 				}
 				return FALSE;
 			}
@@ -1194,8 +1186,8 @@ class LdapServer {
       if (isset($match[$name_attr][0])) {
         // leave name
       }
-      elseif (isset($match[drupal_strtolower($name_attr)][0])) {
-        $name_attr = drupal_strtolower($name_attr);
+      elseif (isset($match[\Drupal\Component\Utility\Unicode::strtolower($name_attr)][0])) {
+        $name_attr = \Drupal\Component\Utility\Unicode::strtolower($name_attr);
 
       }
       else {
@@ -1222,7 +1214,7 @@ class LdapServer {
       // Clarence "sparr" Risher on http://drupal.org/node/102008, so we
       // loop through all possible options.
       foreach ($match[$name_attr] as $value) {
-        if (drupal_strtolower(trim($value)) == drupal_strtolower($ldap_username)) {
+        if (\Drupal\Component\Utility\Unicode::strtolower(trim($value)) == \Drupal\Component\Utility\Unicode::strtolower($ldap_username)) {
           $result = array(
             'dn' =>  $match['dn'],
             'mail' => $this->userEmailFromLdapEntry($match),
@@ -1252,7 +1244,7 @@ class LdapServer {
     $group_dns = $this->groupMembershipsFromUser($user, 'group_dns', $nested);
     // while list of group dns is going to be in correct mixed case, $group_dn may not since it may be derived from user entered values
     // so make sure in_array() is case insensitive
-    return (is_array($group_dns) && in_array(drupal_strtolower($group_dn), $this->dnArrayToLowerCase($group_dns)));
+    return (is_array($group_dns) && in_array(\Drupal\Component\Utility\Unicode::strtolower($group_dn), $this->dnArrayToLowerCase($group_dns)));
   }
 
 
@@ -1290,7 +1282,7 @@ class LdapServer {
       'corresponding_drupal_data_type' => 'group',
     );
     $ldap_entries = array($group_dn => $attributes);
-    drupal_alter('ldap_entry_pre_provision', $ldap_entries, $this, $context);
+    \Drupal::moduleHandler()->alter('ldap_entry_pre_provision', $ldap_entries, $this, $context);
     $attributes = $ldap_entries[$group_dn];
 
 
@@ -1306,7 +1298,7 @@ class LdapServer {
      *   @todo how is error handling done here?
      */
     if ($ldap_entry_created) {
-      module_invoke_all('ldap_entry_post_provision', $ldap_entries, $this, $context);
+      \Drupal::moduleHandler()->invokeAll('ldap_entry_post_provision', [$ldap_entries, $this, $context]);
       return TRUE;
     }
     else {

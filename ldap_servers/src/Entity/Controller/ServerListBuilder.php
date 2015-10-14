@@ -70,20 +70,20 @@ class ServerListBuilder extends EntityListBuilder {
        $operations['test'] = array(
         'title' => $this->t('Test'),
         'weight' => 10,
-        'url' => \Drupal\Core\Url::fromRoute('ldap_servers.test_form', ['ldap_server' => $entity->sid->value]),
+        'url' => \Drupal\Core\Url::fromRoute('entity.ldap_server.test_form', ['ldap_server' => $entity->sid->value]),
       );
     }
-    if ( $entity->sid->value ) {       
+    if ( $entity->status->value == 1 ) {       
       $operations['disable'] = array(
         'title' => $this->t('Disable'),
         'weight' => 15,
-        'url' => \Drupal\Core\Url::fromRoute('ldap_servers.admin_enable_disable', ['action' => 'disable', 'ldap_server' => $entity->sid->value]),
+        'url' => \Drupal\Core\Url::fromRoute('entity.ldap_server.admin_enable_disable', ['action' => 'disable', 'sid' => $entity->sid->value]),
       );
     } else {
       $operations['enable'] = array(
         'title' => $this->t('Enable'),
         'weight' => 15,
-        'url' => \Drupal\Core\Url::fromRoute('ldap_servers.admin_enable_disable', ['action' => 'enable', 'ldap_server' => $entity->sid->value]),
+        'url' => \Drupal\Core\Url::fromRoute('entity.ldap_server.admin_enable_disable', ['action' => 'enable', 'sid' => $entity->sid->value]),
       );      
     }
     return $operations;
