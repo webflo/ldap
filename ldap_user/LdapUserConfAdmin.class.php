@@ -52,12 +52,12 @@ class LdapUserConfAdmin extends LdapUserConf {
     foreach ($this->saveable as $property) {
       $save[$property] = $this->{$property};
     }
-    variable_set('ldap_user_conf', $save);
+    \Drupal::configFactory()->getEditable('ldap_user.settings')->set('ldap_user_conf', $save)->save();
     ldap_user_conf_cache_clear();
   }
 
   static public function uninstall() {
-    variable_del('ldap_user_conf');
+    \Drupal::config('ldap_user.settings')->clear('ldap_user_conf')->save();
   }
 
   public function __construct() {
@@ -182,7 +182,8 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#title' => t('Action to perform on Drupal account that no longer have a
         corresponding LDAP entry'),
       '#required' => 0,
-      '#default_value' => $this->orphanedDrupalAcctBehavior,
+      // @FIX ME
+      // '#default_value' => $this->orphanedDrupalAcctBehavior,
       '#options' => $account_options,
       '#description' => t($this->orphanedDrupalAcctBehaviorDescription),
     );
@@ -1016,8 +1017,7 @@ EOT;
     /**
     *  Drupal Account Provisioning and Synching
     */
-    $values['userConflictResolveDescription'] = t('What should be done if a local Drupal or other external
-      user account already exists with the same login name.');
+    $values['userConflictResolveDescription'] = 'What should be done if a local Drupal or other external user account already exists with the same login name.';
     $values['userConflictOptions'] = array(
       LDAP_USER_CONFLICT_LOG => t('Don\'t associate Drupal account with LDAP.  Require user to use Drupal password. Log the conflict'),
       LDAP_USER_CONFLICT_RESOLVE => t('Associate Drupal account with the LDAP entry.  This option

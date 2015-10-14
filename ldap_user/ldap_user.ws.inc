@@ -44,7 +44,7 @@ function _ldap_user_ws_urls_item_list() {
 
 function ldap_user_ws($action, $direction_tag, $drupal_user_name_or_dn, $key) {
 
-  $action = check_plain($action);
+  $action = \Drupal\Component\Utility\SafeMarkup::checkPlain($action);
   $key = urldecode($key);
 
 
@@ -75,7 +75,7 @@ function ldap_user_ws($action, $direction_tag, $drupal_user_name_or_dn, $key) {
   }
 
   if (strpos($drupal_user_name_or_dn, '=') === FALSE) {
-    $drupal_user_name = check_plain($drupal_user_name_or_dn);
+    $drupal_user_name = \Drupal\Component\Utility\SafeMarkup::checkPlain($drupal_user_name_or_dn);
   }
   else {
     $drupal_user_name = ($ldap_server) ? $ldap_server->userUsernameFromDn($drupal_user_name_or_dn) : FALSE;
@@ -126,7 +126,7 @@ function ldap_user_ws($action, $direction_tag, $drupal_user_name_or_dn, $key) {
 
     case 'delete':
       if ($direction = LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) {
-        user_delete($drupal_user->uid);
+        $drupal_user->uid->delete();
         return ldap_user_ws_out(array(1, 'Deleted Account ' . $drupal_user_name));
       }
       elseif ($direction = LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY) {

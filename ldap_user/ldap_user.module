@@ -116,13 +116,14 @@ function ldap_user_init() {
 /**
  * Implements hook_theme().
  */
-function ldap_user_theme() {
-  return array('ldap_user_conf_form' => array(
-    'render element' => 'form',
-    'file' => 'ldap_user.theme.inc'
-    ),
-  );
-}
+// @ FIXME: uncommenting crash the page rendering
+// function ldap_user_theme() {
+//   return array('ldap_user_conf_form' => array(
+//     'render element' => 'form',
+//     'file' => 'ldap_user.theme.inc'
+//     ),
+//   );
+// }
 
 /**
  * Implements hook_cron().
@@ -133,7 +134,7 @@ function ldap_user_cron() {
     module_load_include('inc', 'ldap_user', 'ldap_user.cron');
     $result = _ldap_user_orphans($ldap_user_conf);
     if ($result !== TRUE) {
-      watchdog('ldap_user', 'LDAP User check for orphaned ldap provisioned Drupal accounts failed', array(), WATCHDOG_ERROR);
+      \Drupal::logger('ldap_user')->error('LDAP User check for orphaned ldap provisioned Drupal accounts failed', array());
     }
   }
 }
@@ -334,21 +335,24 @@ function ldap_user_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) 
   );
 
   // 2. Drupal user fields
-  $user_fields = field_info_instances('user', 'user');
+  // @FIXME
+  // $user_fields = field_info_instances('user', 'user');
+  $user_fields = \Drupal::entityManager()->getFieldStorageDefinitions('user');
+  
   foreach ($user_fields as $field_name => $field_instance) {
     $field_id = "[field.$field_name]";
     if (!isset($available_user_attrs[$field_id]) || !is_array($available_user_attrs[$field_id])) {
       $available_user_attrs[$field_id] = array();
     }
-
-    $available_user_attrs[$field_id] = $available_user_attrs[$field_id] + array(
-      'name' => t('Field') . ': ' . $field_instance['label'],
-      'configurable_to_drupal' => 1,
-      'configurable_to_ldap' => 1,
-      'enabled' => FALSE,
-      'config_module' => 'ldap_user',
-      'prov_module' => 'ldap_user',
-    );
+    // @FIXME: not working with entityManager() replacement of field_info_instances
+    // $available_user_attrs[$field_id] = $available_user_attrs[$field_id] + array(
+    //   'name' => t('Field') . ': ' . $field_instance['label'],
+    //   'configurable_to_drupal' => 1,
+    //   'configurable_to_ldap' => 1,
+    //   'enabled' => FALSE,
+    //   'config_module' => 'ldap_user',
+    //   'prov_module' => 'ldap_user',
+    // );
   }
 
 
@@ -426,13 +430,13 @@ function ldap_user_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) 
  */
 
 function ldap_user_help($path, $arg) {
-
-  $ldap_user_help = t('LDAP user configuration determines how and when
-    Drupal accounts are created based on LDAP data and which user fields
-    are derived and synched to and from LDAP. See !helplink.',
-    array(
-      '!helplink' => l(LDAP_USER_DRUPAL_HELP_URL, LDAP_USER_DRUPAL_HELP_URL),
-    ));
+  // @FIXME
+  // $ldap_user_help = t('LDAP user configuration determines how and when
+  //   Drupal accounts are created based on LDAP data and which user fields
+  //   are derived and synched to and from LDAP. See !helplink.',
+  //   array(
+  //     '!helplink' => l(LDAP_USER_DRUPAL_HELP_URL, LDAP_USER_DRUPAL_HELP_URL),
+  //   ));
 
   switch ($path) {
     case 'admin/config/people/ldap/user':
@@ -503,7 +507,7 @@ function ldap_user_form_user_register_form_alter(&$form, $form_state) {
 
   array_unshift($form['#submit'], 'ldap_user_grab_password_validate');
 
-  if (!user_access('administer users')) {
+  if (!\Drupal::currentUser()->hasPermission('administer users')) {
     return;
   }
   $ldap_user_conf = ldap_user_conf();
@@ -633,7 +637,7 @@ function ldap_user_form_register_form_submit2($form, &$form_state) {
  * @return boolean TRUE if user should be excluded from ldap provision/synching
  */
 
-function ldap_user_ldap_exclude($account = NULL, $edit = NULL, $direction = LDAP_USER_PROV_DIRECTION_ALL) {
+function ldap_user_ldap_exclude(\Drupal\user\UserInterface $account = NULL, $edit = NULL, $direction = LDAP_USER_PROV_DIRECTION_ALL) {
   // always exclude user 1
   if (is_object($account) && isset($account->uid) && $account->uid == 1) {
     return TRUE;
@@ -641,13 +645,13 @@ function ldap_user_ldap_exclude($account = NULL, $edit = NULL, $direction = LDAP
   
   // exclude users who have the field ldap_user_ldap_exclude set to 1
   if (is_object($account) && isset($account->ldap_user_ldap_exclude['und'][0]['value']) 
-    && $account->ldap_user_ldap_exclude[LANGUAGE_NONE][0]['value'] == 1) {
+    && $account->ldap_user_ldap_exclude[\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] == 1) {
     return TRUE;
   }
 
   // exclude new users who have the value set to 1 in their $edit array
   if (is_array($edit) && isset($edit['ldap_user_ldap_exclude']['und'][0]['value'])
-    && $edit['ldap_user_ldap_exclude'][LANGUAGE_NONE][0]['value'] == 1) {
+    && $edit['ldap_user_ldap_exclude'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] == 1) {
     return TRUE;
   }
 
@@ -1181,10 +1185,10 @@ function ldap_user_token_tokenize_entry($account, $token_keys, $pre = LDAP_SERVE
       $account = user_load_by_name($user_id);
     }
     else {
-      $account = user_load($user_id);
+      $account = \Drupal::entityManager()->getStorage('user')->load($user_id);
     }
     if ($account) {
-      $user_entities = entity_load('user', array($account->uid));
+      $user_entities = \Drupal::entityManager()->getStorage('user', array($account->uid));
       $user_entity = $user_entities[$account->uid];
     }
     else {

@@ -22,14 +22,26 @@ function ldap_user_requirements($phase) {
       $requirements['ldap_user']['severity'] = REQUIREMENT_ERROR;
       $requirements['ldap_user']['value'] = NULL;
 
+      // @FIXME
+      $item_list = array(
+        '#type' => 'item_list',
+        '#items' => $missing_fields,
+      );
+      $list = drupal_render($item_list);
+
+      // $requirements['ldap_user']['description'] = t('Fields are added to the
+      //   Drupal User entity for LDAP User module functionality.  These fields should
+      //   have been created in LDAP User update 7203. The following userfields are missing:') .
+      //   theme('item_list', array(
+      //     'items' => $missing_fields,
+      //     'type' => 'ul',
+      //     'title' => NULL,
+      //   )) .
+      //   t('Rerun update 7203 to correct this; it will not write over destroy existing fields.');
       $requirements['ldap_user']['description'] = t('Fields are added to the
         Drupal User entity for LDAP User module functionality.  These fields should
         have been created in LDAP User update 7203. The following userfields are missing:') .
-        _theme('item_list', array(
-          'items' => $missing_fields,
-          'type' => 'ul',
-          'title' => NULL,
-        )) .
+        $list .
         t('Rerun update 7203 to correct this; it will not write over destroy existing fields.');
     }
   }
@@ -511,8 +523,9 @@ function ldap_user_update_check_user_fields($query = FALSE) {
         field_create_field($field_conf['field']);
       }
     }
+    // @FIXME
     // $field_instance_info = field_info_instance('user', $field_id, 'user');
-    $field_instance_info = Field::fieldInfo()->getBundleInstance('user', 'user', $field_id);
+    // Eventually D8 -> $field_instance_info = Field::fieldInfo()->getBundleInstance('user', 'user', $field_id);
     if (!$field_instance_info) {
       $fields_added[] = $field_id . " instance";
       if (!$query) {

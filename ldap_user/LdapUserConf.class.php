@@ -213,12 +213,12 @@ class LdapUserConf {
       );
 
     $this->setSynchMapping(TRUE);
-    $this->detailedWatchdog = config('ldap_help.settings')->get('watchdog_detail');
+    $this->detailedWatchdog = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
   }
 
   function load() {
 
-    if ($saved = variable_get("ldap_user_conf", FALSE)) {
+    if ($saved = \Drupal::config('ldap_user.settings')->get("ldap_user_conf")) {
       $this->inDatabase = TRUE;
       foreach ($this->saveable as $property) {
         if (isset($saved[$property])) {
@@ -230,7 +230,9 @@ class LdapUserConf {
       $this->inDatabase = FALSE;
     }
     // determine account creation configuration
-    $user_register = variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+    // @FIXME
+    // $user_register = variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+    $user_register = \Drupal::config('user.settings')->get("register_no_approval_required");
     if ($this->acctCreation == LDAP_USER_ACCT_CREATION_LDAP_BEHAVIOR_DEFAULT || $user_register == USER_REGISTER_VISITORS) {
       $this->createLDAPAccounts = TRUE;
       $this->createLDAPAccountsAdminApproval = FALSE;
@@ -411,7 +413,7 @@ class LdapUserConf {
    */
 
   function setSynchMapping($reset = TRUE) {  // @todo change default to false after development
-    $synch_mapping_cache = cache_get('ldap_user_synch_mapping');
+    $synch_mapping_cache = \Drupal::cache()->get('ldap_user_synch_mapping');
     if (!$reset && $synch_mapping_cache) {
       $this->synchMapping = $synch_mapping_cache->data;
     }
@@ -428,12 +430,12 @@ class LdapUserConf {
           'direction' => $direction,
         );
 
-        drupal_alter('ldap_user_attrs_list', $available_user_attrs[$direction], $params);
+        \Drupal::moduleHandler()->alter('ldap_user_attrs_list', $available_user_attrs[$direction], $params);
       }
     }
     $this->synchMapping = $available_user_attrs;
 
-    cache_set('ldap_user_synch_mapping',  $this->synchMapping);
+    \Drupal::cache()->set('ldap_user_synch_mapping', $this->synchMapping);
   }
 
   /**
@@ -540,7 +542,7 @@ class LdapUserConf {
 
     list($proposed_ldap_entry, $error) = $this->drupalUserToLdapEntry($account, $ldap_server, $params, $ldap_user);
     $proposed_dn = (is_array($proposed_ldap_entry) && isset($proposed_ldap_entry['dn']) && $proposed_ldap_entry['dn']) ? $proposed_ldap_entry['dn'] : NULL;
-    $proposed_dn_lcase = drupal_strtolower($proposed_dn);
+    $proposed_dn_lcase = \Drupal\Component\Utility\Unicode::strtolower($proposed_dn);
     $existing_ldap_entry = ($proposed_dn) ? $ldap_server->dnExists($proposed_dn, 'ldap_entry') : NULL;
 
     if ($error == LDAP_USER_PROV_RESULT_NO_PWD) {
@@ -576,13 +578,13 @@ class LdapUserConf {
         'corresponding_drupal_data' => array($proposed_dn_lcase => $account),
         'corresponding_drupal_data_type' => 'user',
       );
-      drupal_alter('ldap_entry_pre_provision', $ldap_entries, $ldap_server, $context);
+      \Drupal::moduleHandler()->alter('ldap_entry_pre_provision', $ldap_entries, $ldap_server, $context);
       // remove altered $proposed_ldap_entry from $ldap_entries array
       $proposed_ldap_entry = $ldap_entries[$proposed_dn_lcase];
 
       $ldap_entry_created = $ldap_server->createLdapEntry($proposed_ldap_entry, $proposed_dn);
       if ($ldap_entry_created) {
-        module_invoke_all('ldap_entry_post_provision', $ldap_entries, $ldap_server, $context);
+        \Drupal::moduleHandler()->invokeAll('ldap_entry_post_provision', [$ldap_entries, $ldap_server, $context]);
         $result['status'] = 'success';
         $result['description'] = 'ldap account created';
         $result['proposed'] = $proposed_ldap_entry;
@@ -609,7 +611,7 @@ class LdapUserConf {
           $edit = array(
             'ldap_user_prov_entries' => $user_entity->ldap_user_prov_entries,
           );
-          $account = user_load($account->uid);
+          $account = \Drupal::entityManager()->getStorage('user')->load($account->uid);
           $account = user_save($account, $edit);
         }
 
@@ -633,16 +635,16 @@ class LdapUserConf {
     if (!$test_query && isset($result['status'])) {
       if ($result['status'] == 'success') {
         if ($this->detailedWatchdog) {
-          watchdog('ldap_user', 'LDAP entry on server %sid created dn=%dn.  %description. username=%username, uid=%uid', $tokens, WATCHDOG_INFO);
+          \Drupal::logger('ldap_user')->info('LDAP entry on server %sid created dn=%dn.  %description. username=%username, uid=%uid', []);
         }
       }
       elseif ($result['status'] == 'conflict') {
         if ($this->detailedWatchdog) {
-          watchdog('ldap_user', 'LDAP entry on server %sid not created because of existing ldap entry. %description. username=%username, uid=%uid', $tokens, WATCHDOG_WARNING);
+          \Drupal::logger('ldap_user')->warning('LDAP entry on server %sid not created because of existing ldap entry. %description. username=%username, uid=%uid', []);
         }
       }
       elseif ($result['status'] == 'fail') {
-        watchdog('ldap_user', 'LDAP entry on server %sid not created because error.  %description. username=%username, uid=%uid', $tokens, WATCHDOG_ERROR);
+        \Drupal::logger('ldap_user')->error('LDAP entry on server %sid not created because error.  %description. username=%username, uid=%uid', []);
       }
     }
     return $result;
@@ -711,19 +713,19 @@ class LdapUserConf {
         else {
          //  //debug('modifyLdapEntry,dn=' . $proposed_ldap_entry['dn']);  //debug($attributes);
               // stick $proposed_ldap_entry in $ldap_entries array for drupal_alter call
-          $proposed_dn_lcase = drupal_strtolower($proposed_ldap_entry['dn']);
+          $proposed_dn_lcase = \Drupal\Component\Utility\Unicode::strtolower($proposed_ldap_entry['dn']);
           $ldap_entries = array($proposed_dn_lcase => $attributes);
           $context = array(
             'action' => 'update',
             'corresponding_drupal_data' => array($proposed_dn_lcase => $attributes),
             'corresponding_drupal_data_type' => 'user',
           );
-          drupal_alter('ldap_entry_pre_provision', $ldap_entries, $ldap_server, $context);
+          \Drupal::moduleHandler()->alter('ldap_entry_pre_provision', $ldap_entries, $ldap_server, $context);
           // remove altered $proposed_ldap_entry from $ldap_entries array
           $attributes = $ldap_entries[$proposed_dn_lcase];
           $result = $ldap_server->modifyLdapEntry($proposed_ldap_entry['dn'], $attributes);
           if ($result) { // success
-            module_invoke_all('ldap_entry_post_provision', $ldap_entries, $ldap_server, $context);
+            \Drupal::moduleHandler()->invokeAll('ldap_entry_post_provision', [$ldap_entries, $ldap_server, $context]);
           }
         }
       }
@@ -740,10 +742,10 @@ class LdapUserConf {
     );
 
     if ($result) {
-      watchdog('ldap_user', 'LDAP entry on server %sid synched dn=%dn. username=%username, uid=%uid', $tokens, WATCHDOG_INFO);
+      \Drupal::logger('ldap_user')->info('LDAP entry on server %sid synched dn=%dn. username=%username, uid=%uid', []);
     }
     else {
-      watchdog('ldap_user', 'LDAP entry on server %sid not synched because error. username=%username, uid=%uid', $tokens, WATCHDOG_ERROR);
+      \Drupal::logger('ldap_user')->error('LDAP entry on server %sid not synched because error. username=%username, uid=%uid', []);
     }
 
     return $result;
@@ -794,7 +796,7 @@ class LdapUserConf {
     }
 
     if ($save) {
-      $account = user_load($drupal_user->uid);
+      $account = \Drupal::entityManager()->getStorage('user')->load($drupal_user->uid);
       $result = user_save($account, $user_edit, 'ldap_user');
       return $result;
     }
@@ -813,7 +815,7 @@ class LdapUserConf {
   public function deleteDrupalAccount($username) {
     $user = user_load_by_name($username);
     if (is_object($user)) {
-      user_delete($user->uid);
+      $user->uid->delete();
       return TRUE;
     }
     else {
@@ -879,10 +881,10 @@ class LdapUserConf {
             $boolean_result = $ldap_server->delete($dn);
             $tokens = array('%sid' => $sid, '%dn' => $dn, '%username' => $account->name, '%uid' => $account->uid);
             if ($boolean_result) {
-              watchdog('ldap_user', 'LDAP entry on server %sid deleted dn=%dn. username=%username, uid=%uid', $tokens, WATCHDOG_INFO);
+              \Drupal::logger('ldap_user')->info('LDAP entry on server %sid deleted dn=%dn. username=%username, uid=%uid', []);
             }
             else {
-              watchdog('ldap_user', 'LDAP entry on server %sid not deleted because error. username=%username, uid=%uid', $tokens, WATCHDOG_ERROR);
+              \Drupal::logger('ldap_user')->error('LDAP entry on server %sid not deleted because error. username=%username, uid=%uid', []);
             }
           }
           else {
@@ -976,7 +978,7 @@ class LdapUserConf {
      * 4. call drupal_alter() to allow other modules to alter $ldap_user
      */
 
-    drupal_alter('ldap_entry', $ldap_user_entry, $params);
+    \Drupal::moduleHandler()->alter('ldap_entry', $ldap_user_entry, $params);
 
     return array($ldap_user_entry, $result);
 
@@ -1023,7 +1025,7 @@ class LdapUserConf {
       }
       if (!$ldap_user) {
         if ($this->detailedWatchdog) {
-          watchdog('ldap_user', '%username : failed to find associated ldap entry for username in provision.', $watchdog_tokens, WATCHDOG_DEBUG);
+          \Drupal::logger('ldap_user')->debug('%username : failed to find associated ldap entry for username in provision.', []);
         }
         return FALSE;
       }
@@ -1046,7 +1048,7 @@ class LdapUserConf {
         'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
       );
 
-      drupal_alter('ldap_entry', $ldap_user, $params);
+      \Drupal::moduleHandler()->alter('ldap_entry', $ldap_user, $params);
 
       // look for existing drupal account with same puid.  if so update username and attempt to synch in current context
       $puid = $ldap_server->userPuidFromLdapEntry($ldap_user['attr']);
@@ -1069,27 +1071,19 @@ class LdapUserConf {
           $watchdog_tokens = array('%drupal_username' =>  $user_edit['name']);
           if (empty($user_edit['name'])) {
             drupal_set_message(t('User account creation failed because of invalid, empty derived Drupal username.'), 'error');
-            watchdog('ldap_user',
-              'Failed to create Drupal account %drupal_username because drupal username could not be derived.',
-              $tokens,
-              WATCHDOG_ERROR
-            );
+            \Drupal::logger('ldap_user')->error('Failed to create Drupal account %drupal_username because drupal username could not be derived.', []);
             return FALSE;
           }
           if (!isset($user_edit['mail']) || !$user_edit['mail']) {
             drupal_set_message(t('User account creation failed because of invalid, empty derived email address.'), 'error');
-            watchdog('ldap_user',
-              'Failed to create Drupal account %drupal_username because email address could not be derived by LDAP User module',
-              $tokens,
-              WATCHDOG_ERROR
-            );
+            \Drupal::logger('ldap_user')->error('Failed to create Drupal account %drupal_username because email address could not be derived by LDAP User module', []);
             return FALSE;
           }
           if ($account_with_same_email = user_load_by_mail($user_edit['mail'])) {
             $watchdog_tokens['%email'] = $user_edit['mail'];
             $watchdog_tokens['%duplicate_name'] = $account_with_same_email->name;
-            watchdog('ldap_user', 'LDAP user %drupal_username has email address
-              (%email) conflict with a drupal user %duplicate_name', $watchdog_tokens, WATCHDOG_ERROR);
+            \Drupal::logger('ldap_user')->error('LDAP user %drupal_username has email address
+              (%email) conflict with a drupal user %duplicate_name', []);
             drupal_set_message(t('Another user already exists in the system with the same email address. You should contact the system administrator in order to solve this conflict.'), 'error');
             return FALSE;
           }
@@ -1123,21 +1117,11 @@ class LdapUserConf {
       $account = user_load_by_name($drupal_username);
       $ldap_user = ldap_servers_get_user_ldap_data($drupal_username, $this->drupalAcctProvisionServer, 'ldap_user_prov_to_drupal');
       if (!$account) {
-        watchdog(
-          'ldap_user',
-          'Failed to LDAP associate drupal account %drupal_username because account not found',
-          array('%drupal_username' => $drupal_username),
-          WATCHDOG_ERROR
-        );
+        \Drupal::logger('ldap_user')->error('Failed to LDAP associate drupal account %drupal_username because account not found', array('%drupal_username' => $drupal_username));
         return FALSE;
       }
       elseif (!$ldap_user) {
-        watchdog(
-          'ldap_user',
-          'Failed to LDAP associate drupal account %drupal_username because corresponding LDAP entry not found',
-          array('%drupal_username' => $drupal_username),
-          WATCHDOG_ERROR
-        );
+        \Drupal::logger('ldap_user')->error('Failed to LDAP associate drupal account %drupal_username because corresponding LDAP entry not found', array('%drupal_username' => $drupal_username));
         return FALSE;
       }
       else {
@@ -1149,11 +1133,11 @@ class LdapUserConf {
         );
         $ldap_user_puid = $ldap_server->userPuidFromLdapEntry($ldap_user['attr']);
         if ($ldap_user_puid) {
-          $user_edit['ldap_user_puid'][LANGUAGE_NONE][0]['value'] = $ldap_user_puid; //
+          $user_edit['ldap_user_puid'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_user_puid; //
         }
-        $user_edit['ldap_user_puid_property'][LANGUAGE_NONE][0]['value'] = $ldap_server->unique_persistent_attr;
-        $user_edit['ldap_user_puid_sid'][LANGUAGE_NONE][0]['value'] = $ldap_server->sid;
-        $user_edit['ldap_user_current_dn'][LANGUAGE_NONE][0]['value'] = $ldap_user['dn'];
+        $user_edit['ldap_user_puid_property'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_server->unique_persistent_attr;
+        $user_edit['ldap_user_puid_sid'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_server->sid;
+        $user_edit['ldap_user_current_dn'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_user['dn'];
         $account = user_save($account, $user_edit, 'ldap_user');
         return (boolean)$account;
       }
@@ -1225,17 +1209,17 @@ class LdapUserConf {
     if ($this->isSynched('[field.ldap_user_puid]', $prov_events, $direction)) {
       $ldap_user_puid = $ldap_server->userPuidFromLdapEntry($ldap_user['attr']);
       if ($ldap_user_puid) {
-        $edit['ldap_user_puid'][LANGUAGE_NONE][0]['value'] = $ldap_user_puid; //
+        $edit['ldap_user_puid'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_user_puid; //
       }
     }
     if ($this->isSynched('[field.ldap_user_puid_property]', $prov_events, $direction)) {
-      $edit['ldap_user_puid_property'][LANGUAGE_NONE][0]['value'] = $ldap_server->unique_persistent_attr;
+      $edit['ldap_user_puid_property'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_server->unique_persistent_attr;
     }
     if ($this->isSynched('[field.ldap_user_puid_sid]', $prov_events, $direction)) {
-      $edit['ldap_user_puid_sid'][LANGUAGE_NONE][0]['value'] = $ldap_server->sid;
+      $edit['ldap_user_puid_sid'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_server->sid;
     }
     if ($this->isSynched('[field.ldap_user_current_dn]', $prov_events, $direction)) {
-      $edit['ldap_user_current_dn'][LANGUAGE_NONE][0]['value'] = $ldap_user['dn'];
+      $edit['ldap_user_current_dn'][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED][0]['value'] = $ldap_user['dn'];
     }
 
     // Get any additional mappings.
@@ -1279,7 +1263,7 @@ class LdapUserConf {
           }
         }
         // Add them to our edited item.
-        $edit[$value_name][LANGUAGE_NONE] = $items;
+        $edit[$value_name][\Drupal\Core\Language\Language::LANGCODE_NOT_SPECIFIED] = $items;
       }
       elseif ($value_type == 'property') {
         // Straight property.
@@ -1289,7 +1273,7 @@ class LdapUserConf {
 
     // Allow other modules to have a say.
 
-    drupal_alter('ldap_user_edit_user', $edit, $ldap_user, $ldap_server, $prov_events);
+    \Drupal::moduleHandler()->alter('ldap_user_edit_user', $edit, $ldap_user, $ldap_server, $prov_events);
     if (isset($edit['name']) && $edit['name'] == '') {  // don't let empty 'name' value pass for user
       unset($edit['name']);
     }
