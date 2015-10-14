@@ -1079,8 +1079,7 @@ function ldap_servers_no_enabled_servers_msg($action) {
   $servers = ldap_servers_get_servers(NULL, 'enabled');
   if (count($servers) == 0) {
 
-    // use Drupal\Core\Url;
-    $url = Url::fromRoute('ldap_servers.edit_index');
+    $url = \Drupal\Core\Url::fromRoute('ldap_servers.edit_index');
     $edit_server_link = \Drupal::l(t('@path', array('@path' => $url)), $url);
 
     $message = t('At least one ldap server must configured and <em>enabled</em> before') .
