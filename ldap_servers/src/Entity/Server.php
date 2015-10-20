@@ -249,8 +249,16 @@ class Server extends ContentEntityBase {
 
 
 
-    // $fields['bind_method'] = BaseFieldDefinition::create('integer')
-    //   ->setLabel(t('LDAP Server type'))
+    $fields['bind_method'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Binding Method for Searches (such as finding user object or their group memberships)'))
+      ->setSettings(array(
+        'allowed_values' => array(
+          'default' => 'Default LDAP',
+          'ad' => 'Active Directory',
+          'novell_edir' => 'Novell',
+          'openldap' => 'Open LDAP',
+          'opendir' => 'Apple Open Directory',
+        ),
     //   ->setDescription(t('This field is informative. It\'s purpose is to assist with default values and give validation warnings.'))
     //   ->setSettings(array(
     //     'options' => array(
@@ -296,15 +304,16 @@ class Server extends ContentEntityBase {
     //         <em>This option will not work on most LDAPS connections.</em>'),
     //       ),
     //     ),
-    //   ))
+      ))
     //   ->setDisplayOptions('view', array(
     //     'label' => 'above',
     //     'weight' => -5,
     //   ))
-    //   ->setDisplayOptions('form', array(
-    //     'label' => 'above',
-    //     'weight' => -5,
-    //   ));
+      ->setDisplayOptions('form', array(
+        'label' => 'above',
+        'type' => 'radio',
+        'weight' => -5,
+      ));
 
     $fields['binddn'] = BaseFieldDefinition::create('string')
       ->setLabel(t('DN for non-anonymous search'))
