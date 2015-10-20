@@ -65,7 +65,7 @@ class LdapServersAdminEnableDisable extends ContentEntityConfirmFormBase {
       // var_dump($ldap_server);die();
       $form['sid'] = [
         '#type' => 'hidden',
-        '#value' => $ldap_server->sid,
+        '#value' => $sid,
       ];
       $form['name'] = [
         '#type' => 'hidden',

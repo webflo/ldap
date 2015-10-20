@@ -21,8 +21,7 @@ class LdapServersTestForm extends ContentEntityForm {
     return 'ldap_servers_test_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $op = NULL, $sid = NULL) {
-
+  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $ldap_server = NULL, $sid = NULL) {
     $ldap_server = ldap_servers_get_servers($sid, 'all', TRUE);
 
     // @FIXME
@@ -183,6 +182,7 @@ class LdapServersTestForm extends ContentEntityForm {
 
   public function validateForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     $values = $form_state->getValues();
+    // var_dump($values); die();
     if (!$values['sid']) {
       $form_state->setErrorByName(NULL, t('No server id found in form'));
     }

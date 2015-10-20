@@ -13,9 +13,9 @@ entity.ldap_servers.edit_index:
 # ldap_servers.test_form:
 #   route_name: ldap_servers.test_form
 #   title: 'Test LDAP Server Configuration'
-# entity.ldap_server.delete_form:
-#   route_name: entity.ldap_server.delete_form
-#   title: 'Delete LDAP Server'
+entity.ldap_server.delete_form:
+  route_name: entity.ldap_server.delete_form
+  title: 'Delete LDAP Server'
 # ldap_servers.admin_enable_disable:
 #   route_name: ldap_servers.admin_enable_disable
 #   title: 'Enable LDAP Server'
