@@ -74,7 +74,6 @@ class Server extends ContentEntityBase {
       ->setReadOnly(TRUE)
       ->setRequired(TRUE)
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 20,
         'size' => 20,
         'text_processing' => 0,
@@ -108,7 +107,6 @@ class Server extends ContentEntityBase {
       ->setDescription(t('Choose a unique <strong><em>name</em></strong> for this server configuration.'))
       ->setRequired(TRUE)
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 255,
         'text_processing' => 0,
       ))
@@ -155,6 +153,7 @@ class Server extends ContentEntityBase {
           'opendir' => 'Apple Open Directory',
         ),
       ))
+      ->setDefaultValue('default')
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
@@ -186,9 +185,9 @@ class Server extends ContentEntityBase {
       ->setLabel(t('LDAP port'))
       ->setDescription(t('The TCP/IP port on the above server which accepts LDAP connections. Must be an integer.'))
       ->setSettings(array(
-        'default_value' => '389',
         'length' => 11,
       ))
+      ->setDefaultValue(389)
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
@@ -243,11 +242,8 @@ class Server extends ContentEntityBase {
     ->setDefaultValue(0)
     ->setDisplayOptions('view', array(
       'label' => 'hidden',
-      'type' => 'integer',
       'weight' => 0,
     ));
-
-
 
     $fields['bind_method'] = BaseFieldDefinition::create('list_integer')
       ->setLabel(t('Binding Method for Searches (such as finding user object or their group memberships)'))
@@ -272,33 +268,6 @@ class Server extends ContentEntityBase {
           LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind: Use no credentials to bind to LDAP server.<br/>
           <em>This option will not work on most LDAPS connections.</em>'),
         ),
-    //   ->setDescription(t('This field is informative. It\'s purpose is to assist with default values and give validation warnings.'))
-    //   ->setSettings(array(
-    //     'options' => array(
-     //     ),
-    //     '#type' => 'radios',
-    //     'form' => array(
-    //       '#options' => array(
-    //         LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT => t('Service Account Bind: Use credentials in the
-    //         <strong>Service Account</strong> field to bind to LDAP.  <em>This option is usually a best practice.</em>'),
-
-    //         LDAP_SERVERS_BIND_METHOD_USER => t('Bind with Users Credentials: Use user\'s entered credentials
-    //         to bind to LDAP.<br/> This is only useful for modules that execute during user logon such
-    //         as LDAP Authentication and LDAP Authorization.  <em>This option is not a best practice in most cases.</em>
-    //         This option skips the initial anonymous bind and anonymous search to determine the LDAP user DN, but you
-    //         can only use this option if your user DNs follow a consistent pattern, for example all of them being of
-    //         the form "cn=[username],[base dn]", or all of them being of the form "uid=[username],ou=accounts,[base dn]".
-    //         You specify the pattern under "Expression for user DN" in the next configuration block below.'),
-
-    //         LDAP_SERVERS_BIND_METHOD_ANON_USER => t('Anonymous Bind for search, then Bind with Users Credentials:
-    //         Searches for user dn then uses user\'s entered credentials to bind to LDAP.<br/> This is only useful for
-    //         modules that work during user logon such as LDAP Authentication and LDAP Authorization.
-    //         The user\'s dn must be discovered by an anonymous search for this option to work.'),
-
-    //         LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind: Use no credentials to bind to LDAP server.<br/>
-    //         <em>This option will not work on most LDAPS connections.</em>'),
-    //       ),
-    //     ),
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
@@ -313,7 +282,6 @@ class Server extends ContentEntityBase {
     $fields['binddn'] = BaseFieldDefinition::create('string')
       ->setLabel(t('DN for non-anonymous search'))
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 511,
         'text_processing' => 0,
       ))
@@ -329,6 +297,13 @@ class Server extends ContentEntityBase {
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    // $fields['bindpw'] = BaseFieldDefinition::create('password')
+    $fields['bindpw'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Password for non-anonymous search'))
+      ->setDisplayOptions('form', array(
+        'weight' => 1,
+      ));
 
     $fields['basedn'] = BaseFieldDefinition::create('string_long')
     ->setLabel(t('Base DNs for LDAP users, groups, and other entries.'))
@@ -348,31 +323,23 @@ class Server extends ContentEntityBase {
       ),
     ));
 
-    $fields['bindpw'] = BaseFieldDefinition::create('password')
-      ->setLabel(t('Password for non-anonymous search'))
-      ->setDescription(t('The password of this user (hashed).'))
-      ->addConstraint('ProtectedUserField')
-      ->setDisplayOptions('form', array(
-        'weight' => 2,
-      ));
 
     $fields['user_attr'] = BaseFieldDefinition::create('string')
       ->setLabel(t('AuthName attribute'))
       ->setDescription(t('The attribute that holds the users\' login name. (eg. <code>cn</code> for eDir or <code>sAMAccountName</code> for Active Directory).'))
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 2,
+        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 2,
+        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -381,19 +348,18 @@ class Server extends ContentEntityBase {
       ->setLabel(t('AccountName attribute'))
       ->setDescription(t('The attribute that holds the unique account name. Defaults to the same as the AuthName attribute.'))
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 3,
+        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 3,
+        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -402,19 +368,18 @@ class Server extends ContentEntityBase {
       ->setLabel(t('Email attribute'))
       ->setDescription(t('The attribute that holds the users\' email address. (eg. <code>mail</code>). Leave empty if no such attribute exists'))
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 4,
+        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 4,
+        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -427,22 +392,767 @@ class Server extends ContentEntityBase {
             such as <code>[cn]@mycompany.com</code>.
             See http://drupal.org/node/997082 for additional documentation on ldap tokens.'))
       ->setSettings(array(
-        'default_value' => '',
         'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 5,
+        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 5,
+        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['picture_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Thumbnail attribute'))
+      ->setDescription(t('The attribute that holds the users\' thumnail image. (eg. <code>thumbnailPhoto</code>). Leave empty if no such attribute exists'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['unique_persistent_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Persistent and Unique User ID Attribute'))
+      ->setDescription(t('In some LDAPs, a user\'s DN, CN, or mail value may
+              change when a user\'s name changes or for other reasons.
+              In order to avoid creation of multiple accounts for that user or other ambiguities,
+              enter a unique and persistent ldap attribute for users.  In cases
+              where DN does not change, enter "dn" here.
+              If no such attribute exists, leave this blank.'))
+      ->setSettings(array(
+        'max_length' => 64,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+
+    //   'unique_persistent_attr_binary' => array(
+    //     'form' => array(
+    //       'fieldset' => 'users',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('Does PUID hold a binary value?'),
+    //       '#description' => t(''),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['unique_persistent_attr_binary'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Does PUID hold a binary value?'))
+      ->setDefaultValue(0)
+      ->setSettings(array(
+        'on_label' => t('Does PUID hold a binary value?'),
+      ));
+
+
+    //   'user_dn_expression' => array(
+    //     'form' => array(
+    //       'fieldset' => 'users',
+    //       '#type' => 'textfield',
+    //       '#size' => 80,
+    //       '#title' => t('Expression for user DN. Required when "Bind with Users Credentials" method selected.'),
+    //       '#description' => t('%username and %basedn are valid tokens in the expression.
+    //         Typically it will be:<br/> <code>cn=%username,%basedn</code>
+    //          which might evaluate to <code>cn=jdoe,ou=campus accounts,dc=ad,dc=mycampus,dc=edu</code>
+    //          Base DNs are entered above.'),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['user_dn_expression'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Expression for user DN. Required when "Bind with Users Credentials" method selected.'))
+      ->setDescription(t('%username and %basedn are valid tokens in the expression.
+            Typically it will be:<br/> <code>cn=%username,%basedn</code>
+            which might evaluate to <code>cn=jdoe,ou=campus accounts,dc=ad,dc=mycampus,dc=edu</code>
+            Base DNs are entered above.'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 80,
+        'weight' => 1,
+      ))
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+
+    //   'ldap_to_drupal_user' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'users',
+    //       '#disabled' => (!\Drupal::moduleHandler()->moduleExists('php')),
+    //       '#type' => 'textarea',
+    //       '#cols' => 25,
+    //       '#rows' => 5,
+    //       '#title' => t('PHP to transform Drupal login username to LDAP UserName attribute.'),
+    //       '#description' => t('This will appear as disabled unless the "PHP filter" core module is enabled. Enter PHP to transform Drupal username to the value of the UserName attribute.
+    //         The code should print the UserName attribute.
+    //         PHP filter module must be enabled for this to work.
+    //         The variable $name is available and is the user\'s login username.
+    //         Careful, bad PHP code here will break your site. If left empty, no name transformation will be done.
+    //         <br/>Example:<br/>Given the user will logon with jdoe@xyz.com and you want the ldap UserName attribute to be
+    //         jdoe.<br/><code>$parts = explode(\'@\', $name); if (count($parts) == 2) {print $parts[0]};</code>'),
+    //       ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 1024,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['ldap_to_drupal_user'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('PHP to transform Drupal login username to LDAP UserName attribute.'))
+      ->setDescription(t('This will appear as disabled unless the "PHP filter" core module is enabled. Enter PHP to transform Drupal username to the value of the UserName attribute.
+            The code should print the UserName attribute.
+            PHP filter module must be enabled for this to work.
+            The variable $name is available and is the user\'s login username.
+            Careful, bad PHP code here will break your site. If left empty, no name transformation will be done.
+            <br/>Example:<br/>Given the user will logon with jdoe@xyz.com and you want the ldap UserName attribute to be
+            jdoe.<br/><code>$parts = explode(\'@\', $name); if (count($parts) == 2) {print $parts[0]};</code>'))
+      ->setSettings(array(
+        'max_length' => 1024,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textarea',
+        'size' => 80,
+        'weight' => 1,
+        'cols' => 25,
+        'rows' => 5,
+      ));
+
+    //  'testing_drupal_username' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'users',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('Testing Drupal Username'),
+    //       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['ldap_to_drupal_user'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('PHP to transform Drupal login username to LDAP UserName attribute.'))
+      ->setDescription(t('This will appear as disabled unless the "PHP filter" core module is enabled. Enter PHP to transform Drupal username to the value of the UserName attribute.
+            The code should print the UserName attribute.
+            PHP filter module must be enabled for this to work.
+            The variable $name is available and is the user\'s login username.
+            Careful, bad PHP code here will break your site. If left empty, no name transformation will be done.
+            <br/>Example:<br/>Given the user will logon with jdoe@xyz.com and you want the ldap UserName attribute to be
+            jdoe.<br/><code>$parts = explode(\'@\', $name); if (count($parts) == 2) {print $parts[0]};</code>'))
+      ->setSettings(array(
+        'max_length' => 1024,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string_textarea',
+        'size' => 80,
+        'weight' => 1,
+        'cols' => 25,
+        'rows' => 5,
+      ));
+
+    //  'testing_drupal_user_dn' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'users',
+    //       '#type' => 'textfield',
+    //       '#size' => 120,
+    //       '#title' => t('DN of testing username, e.g. cn=hpotter,ou=people,dc=hogwarts,dc=edu'),
+    //       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['testing_drupal_user_dn'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('DN of testing username, e.g. cn=hpotter,ou=people,dc=hogwarts,dc=edu'))
+      ->setDescription(t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 120,
+        'weight' => 1,
+      ));
+
+    //   'grp_unused' => array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('Groups are not relevant to this Drupal site.  This is generally true if LDAP Groups, LDAP Authorization, etc are not it use.'),
+    //       '#disabled' => FALSE,
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['grp_unused'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Groups are not relevant to this Drupal site.  This is generally true if LDAP Groups, LDAP Authorization, etc are not it use.'))
+      ->setSettings(array(
+        'on_label' => t('Groups are not relevant to this Drupal site.  This is generally true if LDAP Groups, LDAP Authorization, etc are not it use.'),
+      ))
+      ->setDefaultValue(TRUE)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'weight' => 1,
+      ));
+
+    //  'grp_object_cat' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('Name of Group Object Class'),
+    //       '#description' => t('e.g. groupOfNames, groupOfUniqueNames, group.'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 64,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_object_cat'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Name of Group Object Class'))
+      ->setDescription(t('e.g. groupOfNames, groupOfUniqueNames, group.'))
+      ->setSettings(array(
+        'max_length' => 64,
+        'text_processing' => 0,
+      ))
+      // ->setConstraints(array(
+      //   'grp_unused' => array('checked' => FALSE),
+      // ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ));
+
+    //   'grp_nested' => array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('Nested groups are used in my LDAP'),
+    //       '#disabled' => FALSE,
+    //       '#description' => t('If a user is a member of group A and group A is a member of group B,
+    //          user should be considered to be in group A and B.  If your LDAP has nested groups, but you
+    //          want to ignore nesting, leave this unchecked.'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['grp_nested'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Nested groups are used in my LDAP'))
+      ->setDescription(t('If a user is a member of group A and group A is a member of group B,
+              user should be considered to be in group A and B.  If your LDAP has nested groups, but you
+              want to ignore nesting, leave this unchecked.'))
+      ->setSettings(array(
+        'on_label' => t('Nested groups are used in my LDAP'),
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'weight' => 1,
+      ));
+
+    //   'grp_user_memb_attr_exists' => array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('A user LDAP attribute such as <code>memberOf</code> exists that contains a list of their groups.
+    //         Active Directory and openLdap with memberOf overlay fit this model.'),
+    //       '#disabled' => FALSE,
+    //       '#states' => array(
+    //          'visible' => array(   // action to take.
+    //            ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['grp_user_memb_attr_exists'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('A user LDAP attribute such as <code>memberOf</code> exists that contains a list of their groups.
+            Active Directory and openLdap with memberOf overlay fit this model.'))
+      ->setSettings(array(
+        'on_label' => t('A user LDAP attribute such as <code>memberOf</code> exists that contains a list of their groups.
+            Active Directory and openLdap with memberOf overlay fit this model.'),
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'weight' => 1,
+      ));
+
+    //   'grp_user_memb_attr' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('Attribute in User Entry Containing Groups'),
+    //       '#description' => t('e.g. memberOf'),
+    //       '#states' => array(
+    //         'enabled' => array(   // action to take.
+    //           ':input[name=grp_user_memb_attr_exists]' => array('checked' => TRUE),
+    //         ),
+    //           'visible' => array(   // action to take.
+    //           ':input[name=grp_unused]' => array('checked' => FALSE),
+    //         ),
+    //       ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_user_memb_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Attribute in User Entry Containing Groups'))
+      ->setDescription(t('e.g. memberOf'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ));
+
+    //   'grp_memb_attr' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('LDAP Group Entry Attribute Holding User\'s DN, CN, etc.'),
+    //       '#description' => t('e.g uniquemember, memberUid'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_memb_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('LDAP Group Entry Attribute Holding User\'s DN, CN, etc.'))
+      ->setDescription(t('e.g uniquemember, memberUid'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ));
+
+    //   'grp_memb_attr_match_user_attr' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('User attribute held in "LDAP Group Entry Attribute Holding..."'),
+    //       '#description' => t('This is almost always "dn" (which technically isn\'t an attribute).  Sometimes its "cn".'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_memb_attr_match_user_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('User attribute held in "LDAP Group Entry Attribute Holding..."'))
+      ->setDescription(t('This is almost always "dn" (which technically isn\'t an attribute).  Sometimes its "cn".'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ));
+
+    //   'grp_derive_from_dn' => array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('Groups are derived from user\'s LDAP entry DN.') . '<em>' .
+    //         t('This
+    //         group definition has very limited functionality and most modules will
+    //         not take this into account.  LDAP Authorization will.') . '</em>',
+    //       '#disabled' => FALSE,
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['grp_derive_from_dn'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Groups are derived from user\'s LDAP entry DN.')  . '<em>' .
+            t('This
+            group definition has very limited functionality and most modules will
+            not take this into account.  LDAP Authorization will.') . '</em>')
+      ->setSettings(array(
+        'on_label' => t('Groups are derived from user\'s LDAP entry DN.')  . '<em>' . t('This
+            group definition has very limited functionality and most modules will
+            not take this into account.  LDAP Authorization will.') . '</em>',
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'weight' => 1,
+      ));
+
+    //   'grp_derive_from_dn_attr' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 30,
+    //       '#title' => t('Attribute of the User\'s LDAP Entry DN which contains the group'),
+    //       '#description' => t('e.g. ou'),
+    //       '#states' => array(
+    //         'enabled' => array(   // action to take.
+    //           ':input[name=grp_derive_from_dn]' => array('checked' => TRUE),
+    //         ),
+    //           'visible' => array(   // action to take.
+    //           ':input[name=grp_unused]' => array('checked' => FALSE),
+    //         ),
+    //       ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_derive_from_dn_attr'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Attribute of the User\'s LDAP Entry DN which contains the group'))
+      ->setDescription(t('e.g. ou'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 30,
+        'weight' => 1,
+      ));
+
+    //  'grp_test_grp_dn' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 120,
+    //       '#title' => t('Testing LDAP Group DN'),
+    //       '#description' => t('This is optional and can be useful for debugging and validating forms.'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_test_grp_dn'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Testing LDAP Group DN'))
+      ->setDescription(t('This is optional and can be useful for debugging and validating forms.'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 120,
+        'weight' => 1,
+      ));
+
+    //  'grp_test_grp_dn_writeable' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'groups',
+    //       '#type' => 'textfield',
+    //       '#size' => 120,
+    //       '#title' => t('Testing LDAP Group DN that is writable.  WARNING the test script for the server will create, delete, and add members to this group!'),
+    //       '#description' => t('This is optional and can be useful for debugging and validating forms.'),
+    //       '#states' => array(
+    //           'visible' => array(   // action to take.
+    //             ':input[name=grp_unused]' => array('checked' => FALSE),
+    //           ),
+    //         ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'varchar',
+    //       'length' => 255,
+    //       'not null' => FALSE,
+    //     ),
+    //   ),
+
+    $fields['grp_test_grp_dn_writeable'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Testing LDAP Group DN that is writable.  WARNING the test script for the server will create, delete, and add members to this group!'))
+      ->setDescription(t('This is optional and can be useful for debugging and validating forms.'))
+      ->setSettings(array(
+        'max_length' => 255,
+        'text_processing' => 0,
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'size' => 120,
+        'weight' => 1,
+      ));
+
+    //   'search_pagination' => array(
+    //     'form' => array(
+    //       'fieldset' => 'pagination',
+    //       '#type' => 'checkbox',
+    //       '#title' => t('Use LDAP Pagination.'),
+    //       '#disabled' => !ldap_servers_php_supports_pagination(),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'tiny',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+
+    $fields['search_pagination'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Use LDAP Pagination.'))
+      ->setSettings(array(
+        'on_label' => t('Use LDAP Pagination.'),
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => 1,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+        'weight' => 1,
+      ));
+
+    //  'search_page_size' =>  array(
+    //     'form' => array(
+    //       'fieldset' => 'pagination',
+    //       '#type' => 'textfield',
+    //       '#size' => 10,
+    //       '#disabled' => !ldap_servers_php_supports_pagination(),
+    //       '#title' => t('Pagination size limit.'),
+    //       '#description' => t('This should be equal to or smaller than the max
+    //         number of entries returned at a time by your ldap server.
+    //         1000 is a good guess when unsure. Other modules such as LDAP Query
+    //         or LDAP Feeds will be allowed to set a smaller page size, but not
+    //         a larger one.'),
+    //       '#states' => array(
+    //         'visible' => array(   // action to take.
+    //           ':input[name="search_pagination"]' => array('checked' => TRUE),
+    //         ),
+    //   ),
+    //     ),
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'size' => 'medium',
+    //       'not null' => FALSE,
+    //       'default' => 1000,
+    //     ),
+    //   ),
+
+    //   'weight' =>  array(
+    //     'schema' => array(
+    //       'type' => 'int',
+    //       'not null' => FALSE,
+    //       'default' => 0,
+    //     ),
+    //   ),
+    // );
+
+    $fields['search_page_size'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Pagination size limit.'))
+      ->setDescription(t('This should be equal to or smaller than the max
+             number of entries returned at a time by your ldap server.
+             1000 is a good guess when unsure. Other modules such as LDAP Query
+             or LDAP Feeds will be allowed to set a smaller page size, but not
+             a larger one.'))
+      ->setSettings(array(
+        'length' => 11,
+      ))
+      ->setDefaultValue(1000)
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
+      ));
 
 
     return $fields;
