@@ -249,38 +249,33 @@ class Server extends ContentEntityBase {
 
 
 
-    $fields['bind_method'] = BaseFieldDefinition::create('integer')
+    $fields['bind_method'] = BaseFieldDefinition::create('list_integer')
       ->setLabel(t('Binding Method for Searches (such as finding user object or their group memberships)'))
       ->setSettings(array(
         'allowed_values' => array(
-          'default' => 'Default LDAP',
-          'ad' => 'Active Directory',
-          'novell_edir' => 'Novell',
-          'openldap' => 'Open LDAP',
-          'opendir' => 'Apple Open Directory',
+          LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT => t('Service Account Bind: Use credentials in the
+          <strong>Service Account</strong> field to bind to LDAP.  <em>This option is usually a best practice.</em>'),
+
+          LDAP_SERVERS_BIND_METHOD_USER => t('Bind with Users Credentials: Use user\'s entered credentials
+          to bind to LDAP.<br/> This is only useful for modules that execute during user logon such
+          as LDAP Authentication and LDAP Authorization.  <em>This option is not a best practice in most cases.</em>
+          This option skips the initial anonymous bind and anonymous search to determine the LDAP user DN, but you
+          can only use this option if your user DNs follow a consistent pattern, for example all of them being of
+          the form "cn=[username],[base dn]", or all of them being of the form "uid=[username],ou=accounts,[base dn]".
+          You specify the pattern under "Expression for user DN" in the next configuration block below.'),
+
+          LDAP_SERVERS_BIND_METHOD_ANON_USER => t('Anonymous Bind for search, then Bind with Users Credentials:
+          Searches for user dn then uses user\'s entered credentials to bind to LDAP.<br/> This is only useful for
+          modules that work during user logon such as LDAP Authentication and LDAP Authorization.
+          The user\'s dn must be discovered by an anonymous search for this option to work.'),
+
+          LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind: Use no credentials to bind to LDAP server.<br/>
+          <em>This option will not work on most LDAPS connections.</em>'),
         ),
     //   ->setDescription(t('This field is informative. It\'s purpose is to assist with default values and give validation warnings.'))
     //   ->setSettings(array(
     //     'options' => array(
-    //       LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT => t('Service Account Bind: Use credentials in the
-    //       <strong>Service Account</strong> field to bind to LDAP.  <em>This option is usually a best practice.</em>'),
-
-    //       LDAP_SERVERS_BIND_METHOD_USER => t('Bind with Users Credentials: Use user\'s entered credentials
-    //       to bind to LDAP.<br/> This is only useful for modules that execute during user logon such
-    //       as LDAP Authentication and LDAP Authorization.  <em>This option is not a best practice in most cases.</em>
-    //       This option skips the initial anonymous bind and anonymous search to determine the LDAP user DN, but you
-    //       can only use this option if your user DNs follow a consistent pattern, for example all of them being of
-    //       the form "cn=[username],[base dn]", or all of them being of the form "uid=[username],ou=accounts,[base dn]".
-    //       You specify the pattern under "Expression for user DN" in the next configuration block below.'),
-
-    //       LDAP_SERVERS_BIND_METHOD_ANON_USER => t('Anonymous Bind for search, then Bind with Users Credentials:
-    //       Searches for user dn then uses user\'s entered credentials to bind to LDAP.<br/> This is only useful for
-    //       modules that work during user logon such as LDAP Authentication and LDAP Authorization.
-    //       The user\'s dn must be discovered by an anonymous search for this option to work.'),
-
-    //       LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind: Use no credentials to bind to LDAP server.<br/>
-    //       <em>This option will not work on most LDAPS connections.</em>'),
-    //     ),
+     //     ),
     //     '#type' => 'radios',
     //     'form' => array(
     //       '#options' => array(
@@ -305,14 +300,14 @@ class Server extends ContentEntityBase {
     //       ),
     //     ),
       ))
-    //   ->setDisplayOptions('view', array(
-    //     'label' => 'above',
-    //     'weight' => -5,
-    //   ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'weight' => 1,
+      ))
       ->setDisplayOptions('form', array(
         'label' => 'above',
-        'type' => 'radio',
-        'weight' => -5,
+        'type' => 'options_buttons',
+        'weight' => 1,
       ));
 
     $fields['binddn'] = BaseFieldDefinition::create('string')
