@@ -22,13 +22,11 @@ class LdapServersTestForm extends ContentEntityForm {
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $ldap_server = NULL, $sid = NULL) {
-    $ldap_server = ldap_servers_get_servers($sid, 'all', TRUE);
-
     // @FIXME
     // drupal_set_title() has been removed. There are now a few ways to set the title
     // dynamically, depending on the situation.
-    // 
-    // 
+    //
+    //
     // @see https://www.drupal.org/node/2067859
     // drupal_set_title(t('Test LDAP Server Configuration: !server', array('!server' => $ldap_server->name)));
 
@@ -58,7 +56,8 @@ class LdapServersTestForm extends ContentEntityForm {
 
     $form['sid'] = [
       '#type' => 'hidden',
-      '#default_value' => $sid,
+      '#title' => t('Machine name for this server'),
+      '#default_value' => $ldap_server->sid->value,
     ];
 
     $form['binding']['bindpw'] = [
@@ -72,16 +71,16 @@ class LdapServersTestForm extends ContentEntityForm {
     $form['testing_drupal_username'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Drupal Username'),
-      '#default_value' => $ldap_server->testingDrupalUsername,
+      '#default_value' => $ldap_server->testing_drupal_username->value,
       '#size' => 30,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
     ];
 
-    $form['testingDrupalUserDn'] = [
+    $form['testing_drupal_user_dn'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Drupal DN'),
-      '#default_value' => $ldap_server->testingDrupalUserDn,
+      '#default_value' => $ldap_server->testing_drupal_user_dn->value,
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
@@ -90,7 +89,7 @@ class LdapServersTestForm extends ContentEntityForm {
     $form['grp_test_grp_dn'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Group DN'),
-      '#default_value' => $ldap_server->groupTestGroupDn,
+      '#default_value' => $ldap_server->grp_test_grp_dn->value,
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s group configuration.'),
@@ -99,7 +98,7 @@ class LdapServersTestForm extends ContentEntityForm {
     $form['grp_test_grp_dn_writeable'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Group DN that is writeable. Warning!  In test, this group will be deleted, created, have members added to it!'),
-      '#default_value' => $ldap_server->groupTestGroupDnWriteable,
+      '#default_value' => $ldap_server->grp_test_grp_dn_writeable->value,
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s group configuration.'),

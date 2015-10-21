@@ -34,7 +34,7 @@ entity.ldap_server.edit_form:
     _permission: 'administer site configuration'
 
 entity.ldap_server.test_form:
-  path: '/admin/config/people/ldap/servers/test/{sid}'
+  path: '/admin/config/people/ldap/servers/test/{ldap_server}'
   defaults:
     sid: id
     ldap_server: null
