@@ -53,13 +53,21 @@ class LdapServersTestForm extends ContentEntityForm {
     // $form['server_variables'] = array(
     //     '#markup' => theme('ldap_servers_server', $variables),
     //   );
-    // $settings = array(
-    //   '#type' => 'ldap_servers_server'
-    //   // $variables
-    // );
-    // $form['server_variables'] = array(
-    //   '#markup' => drupal_render($settings),
-    // );
+
+    // Iterate over Entity fields
+    $entity_type_id = 'ldap_server';
+    $properties = array();
+    foreach (\Drupal::entityManager()->getFieldDefinitions($entity_type_id) as $field_name => $field_definition) {
+      $properties[] = "$field_name = " . print_r($ldap_server->$field_name->value, TRUE);
+    }
+    $settings = array(
+      '#theme' => 'item_list',
+      '#items' => $properties,
+      '#type' => 'ul',
+    );
+    $form['server_variables'] = array(
+      '#markup' => drupal_render($settings),
+    );
 
     $form['sid'] = [
       '#type' => 'hidden',
@@ -402,7 +410,7 @@ class LdapServersTestForm extends ContentEntityForm {
           // @see https://www.drupal.org/node/2195739
           // $result = theme('item_list', array('items' => $memberships, 'type' => 'ul'));
             $settings = array(
-              '#type' => 'item_list',
+              '#theme' => 'item_list',
               '#items' => $memberships,
               '#type' => 'ul',
             );
@@ -432,7 +440,7 @@ class LdapServersTestForm extends ContentEntityForm {
             // @see https://www.drupal.org/node/2195739
             // $result = theme('item_list', array('items' => $groupusermembershipsfromuserattr, 'type' => 'ul'));
             $settings = array(
-              '#type' => 'item_list',
+              '#theme' => 'item_list',
               '#items' => $groupusermembershipsfromuserattr,
               '#type' => 'ul',
             );
@@ -459,7 +467,7 @@ class LdapServersTestForm extends ContentEntityForm {
             // @see https://www.drupal.org/node/2195739
             // $result = theme('item_list', array('items' => $groupusermembershipsfromentry, 'type' => 'ul'));
             $settings = array(
-              '#type' => 'item_list',
+              '#theme' => 'item_list',
               '#items' => $groupusermembershipsfromentry,
               '#type' => 'ul',
             );
@@ -488,7 +496,7 @@ class LdapServersTestForm extends ContentEntityForm {
             // @see https://www.drupal.org/node/2195739
             // $result1 = theme('item_list', array('items' => $diff1, 'type' => 'ul'));
             $settings = array(
-              '#type' => 'item_list',
+              '#theme' => 'item_list',
               '#items' => $diff1,
               '#type' => 'ul',
             );
@@ -504,7 +512,7 @@ class LdapServersTestForm extends ContentEntityForm {
             // @see https://www.drupal.org/node/2195739
             // $result2 = theme('item_list', array('items' => $diff2, 'type' => 'ul'));
             $settings = array(
-              '#type' => 'item_list',
+              '#theme' => 'item_list',
               '#items' => $diff2,
               '#type' => 'ul',
             );
@@ -534,7 +542,7 @@ class LdapServersTestForm extends ContentEntityForm {
 // @see https://www.drupal.org/node/2195739
 // $results_tables['groupfromDN'][] = array("Groups from DN", theme('item_list', array('items' => $groups_from_dn, 'type' => 'ul')));
         $settings = array(
-          '#type' => 'item_list',
+          '#theme' => 'item_list',
           '#items' => $groups_from_dn,
           '#type' => 'ul',
         );
