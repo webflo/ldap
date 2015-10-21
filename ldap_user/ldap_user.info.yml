@@ -1,4 +1,4 @@
-name: 'LDAP User Module'
+name: 'LDAP Users'
 description: 'Module for ldap identified users.  User may be associated via ldap authentication, ldap authorization, or from account provisioning.  Configures synching of ldap entries to drupal user properties, fields and the opposite direction.'
 type: module
 core: 8.x

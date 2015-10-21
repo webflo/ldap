@@ -548,10 +548,9 @@ function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $
  * see ldap_servers_get_servers()
  */
 function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
-  error_log('_ldap_servers_get_servers');
-  return Server::load($sid);
+  if ( $sid )
+    return Server::load($sid);
 
- // dpm('_ldap_servers_get_servers params'); dpm(array($sid, $type, $flatten, $reset));
   ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   static $servers;
   $type = ($type) ? $type : 'all';

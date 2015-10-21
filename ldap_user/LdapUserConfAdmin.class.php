@@ -2,7 +2,7 @@
 
 /**
  * @file
- * This classextends by LdapUserConf for configuration and other admin functions
+ * This class extends LdapUserConf for configuration and other admin functions
  */
 
 module_load_include('php', 'ldap_user', 'LdapUserConf.class');
@@ -965,7 +965,7 @@ EOT;
 
     $values['drupalAcctProvisionServerDescription'] = t('Check ONE LDAP server configuration to use
       in provisioning Drupal users and their user fields.');
-    $values['ldapEntryProvisionServerDescription'] = t('Check ONE LDAP server configuration to create ldap entries on.');
+    $values['ldapEntryProvisionServerDescription'] = t('Check ONE LDAP server configuration to create LDAP entries on.');
 
     $values['drupalAccountProvisionEventsDescription'] = t('Which user fields and properties are synched on create or synch is determined in the
       "Provisioning from LDAP to Drupal mappings" table below in the right two columns.');
