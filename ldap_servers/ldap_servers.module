@@ -139,12 +139,14 @@ define('LDAP_REFERRAL_LIMIT_EXCEEDED', 0x61);
 require_once('ldap_servers.functions.inc');
 require_once('ldap_servers.tokens.inc');
 
+use \Drupal\ldap_servers\Entity\Server;
+
 /**
  * Implements hook_init().
  */
 function ldap_servers_init() {
   $stylesheet = array(
-    '#attached' => array(   
+    '#attached' => array(
       'css' => array(
         drupal_get_path('module', 'ldap_servers') . '/ldap_servers.admin.css' => array(),
       ),
@@ -544,9 +546,11 @@ function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $
 
 /**
  * see ldap_servers_get_servers()
- */ 
+ */
 function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
   error_log('_ldap_servers_get_servers');
+  return Server::load($sid);
+
  // dpm('_ldap_servers_get_servers params'); dpm(array($sid, $type, $flatten, $reset));
   ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   static $servers;

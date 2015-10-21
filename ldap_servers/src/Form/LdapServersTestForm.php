@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 // use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\ldap_servers\Entity\Server;
 
 class LdapServersTestForm extends ContentEntityForm {
 
@@ -197,7 +198,7 @@ class LdapServersTestForm extends ContentEntityForm {
     //Pass data back to form builder
     $form_state->setRebuild(TRUE);
 
-    ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
+    // ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
     $errors = FALSE;
     $has_errors = FALSE;
     $values = $form_state->getValues();
@@ -216,7 +217,7 @@ class LdapServersTestForm extends ContentEntityForm {
       $bindpw_type = t('stored in configuration');
     }
 
-    if ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
+    if ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
       $results_tables['basic'][] = [
         t('Binding with DN for non-anonymous search (%bind_dn).  Using password ', [
           '%bind_dn' => $ldap_server->binddn
@@ -321,10 +322,11 @@ class LdapServersTestForm extends ContentEntityForm {
     }
 
     // connect to ldap
-    list($has_errors, $more_results) = ldap_servers_test_binding_credentials($ldap_server, $bindpw, $results_tables);
+    list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw);
+
     $results = array_merge($results, $more_results);
     if ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
-      list($has_errors, $more_results, $ldap_user) = ldap_servers_test_user_mapping($values['testing_drupal_username'], $ldap_server);
+      list($has_errors, $more_results, $ldap_user) = $ldap_server->testUserMapping($values['testing_drupal_username']);
       $results = array_merge($results, $more_results);
       if (!$has_errors) {
         $mapping[] = "dn = " . $ldap_user['dn'];
@@ -491,7 +493,7 @@ class LdapServersTestForm extends ContentEntityForm {
 
     }
 
-    list($has_errors, $more_results, $ldap_user) = ldap_servers_test_user_mapping($values['testing_drupal_username'], $ldap_server);
+    list($has_errors, $more_results, $ldap_user) = $ldap_server->testUserMapping($values['testing_drupal_username']);
 
     $tokens = ($ldap_user && isset($ldap_user['attr'])) ? ldap_servers_token_tokenize_entry($ldap_user['attr'], 'all') : [];
     foreach ($tokens as $key => $value) {
