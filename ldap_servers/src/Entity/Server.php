@@ -81,11 +81,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -7,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -7,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
@@ -113,11 +111,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -6,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -6,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -132,11 +128,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -5,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -5,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -157,11 +151,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -4,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'options_select',
-        'weight' => -4,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -172,11 +164,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -3,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -3,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -191,11 +181,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -2,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -2,
       ));
 
     $fields['tls'] = BaseFieldDefinition::create('boolean')
@@ -208,11 +196,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => -1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => -1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -227,11 +213,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 0,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -242,7 +226,6 @@ class Server extends ContentEntityBase {
     ->setDefaultValue(0)
     ->setDisplayOptions('view', array(
       'label' => 'hidden',
-      'weight' => 0,
     ));
 
     $fields['bind_method'] = BaseFieldDefinition::create('list_integer')
@@ -271,12 +254,10 @@ class Server extends ContentEntityBase {
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'label' => 'above',
         'type' => 'options_buttons',
-        'weight' => 1,
       ));
 
     $fields['binddn'] = BaseFieldDefinition::create('string')
@@ -288,12 +269,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 80,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -302,7 +281,8 @@ class Server extends ContentEntityBase {
     $fields['bindpw'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Password for non-anonymous search'))
       ->setDisplayOptions('form', array(
-        'weight' => 1,
+        'label' => 'above',
+        'type' => 'string',
       ));
 
     $fields['basedn'] = BaseFieldDefinition::create('string_long')
@@ -316,7 +296,6 @@ class Server extends ContentEntityBase {
     ->setDefaultValue('')
     ->setDisplayOptions('form', array(
       'type' => 'string_textarea',
-      'weight' => 1,
       'settings' => array(
         'rows' => 6,
         'cols' => 50,
@@ -334,12 +313,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -354,12 +331,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -374,12 +349,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -398,12 +371,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -418,12 +389,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -443,12 +412,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -471,11 +438,17 @@ class Server extends ContentEntityBase {
 
     $fields['unique_persistent_attr_binary'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Does PUID hold a binary value?'))
-      ->setDefaultValue(0)
+      ->setDefaultValue(FALSE)
       ->setSettings(array(
         'on_label' => t('Does PUID hold a binary value?'),
+      ))
+      ->setDisplayOptions('view', array(
+        'label' => 'above',
+        'type' => 'string',
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'string',
       ));
-
 
     //   'user_dn_expression' => array(
     //     'form' => array(
@@ -508,12 +481,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 80,
-        'weight' => 1,
       ))
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -558,12 +529,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textarea',
         'size' => 80,
-        'weight' => 1,
         'cols' => 25,
         'rows' => 5,
       ));
@@ -583,30 +552,20 @@ class Server extends ContentEntityBase {
     //     ),
     //   ),
 
-    $fields['ldap_to_drupal_user'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('PHP to transform Drupal login username to LDAP UserName attribute.'))
-      ->setDescription(t('This will appear as disabled unless the "PHP filter" core module is enabled. Enter PHP to transform Drupal username to the value of the UserName attribute.
-            The code should print the UserName attribute.
-            PHP filter module must be enabled for this to work.
-            The variable $name is available and is the user\'s login username.
-            Careful, bad PHP code here will break your site. If left empty, no name transformation will be done.
-            <br/>Example:<br/>Given the user will logon with jdoe@xyz.com and you want the ldap UserName attribute to be
-            jdoe.<br/><code>$parts = explode(\'@\', $name); if (count($parts) == 2) {print $parts[0]};</code>'))
+    $fields['testing_drupal_username'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Testing Drupal Username'))
+      ->setDescription(t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'))
       ->setSettings(array(
-        'max_length' => 1024,
+        'max_length' => 255,
         'text_processing' => 0,
       ))
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'string_textarea',
-        'size' => 80,
-        'weight' => 1,
-        'cols' => 25,
-        'rows' => 5,
+        'type' => 'string',
+        'size' => 30,
       ));
 
     //  'testing_drupal_user_dn' =>  array(
@@ -634,12 +593,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 120,
-        'weight' => 1,
       ));
 
     //   'grp_unused' => array(
@@ -666,11 +623,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 1,
       ));
 
     //  'grp_object_cat' =>  array(
@@ -706,12 +661,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ));
 
     //   'grp_nested' => array(
@@ -748,11 +701,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 1,
       ));
 
     //   'grp_user_memb_attr_exists' => array(
@@ -786,11 +737,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 1,
       ));
 
     //   'grp_user_memb_attr' =>  array(
@@ -826,12 +775,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ));
 
     //   'grp_memb_attr' =>  array(
@@ -864,12 +811,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ));
 
     //   'grp_memb_attr_match_user_attr' =>  array(
@@ -902,12 +847,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ));
 
     //   'grp_derive_from_dn' => array(
@@ -946,11 +889,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 1,
       ));
 
     //   'grp_derive_from_dn_attr' =>  array(
@@ -986,12 +927,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 30,
-        'weight' => 1,
       ));
 
     //  'grp_test_grp_dn' =>  array(
@@ -1024,12 +963,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 120,
-        'weight' => 1,
       ));
 
     //  'grp_test_grp_dn_writeable' =>  array(
@@ -1062,12 +999,10 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
         'size' => 120,
-        'weight' => 1,
       ));
 
     //   'search_pagination' => array(
@@ -1093,11 +1028,9 @@ class Server extends ContentEntityBase {
       ->setDisplayOptions('view', array(
         'label' => 'above',
         'type' => 'string',
-        'weight' => 1,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string',
-        'weight' => 1,
       ));
 
     //  'search_page_size' =>  array(
