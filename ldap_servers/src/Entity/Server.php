@@ -1182,7 +1182,6 @@ class Server extends ContentEntityBase {
       $anon_bind = TRUE;
     }
     if ($anon_bind === TRUE) {
-      drupal_set_message("anon bind");
       if (@!ldap_bind($this->connection)) {
         if ($this->detailedWatchdogLog) {
           \Drupal::logger('ldap')->notice("LDAP anonymous bind error. Error %errno: %error", array('%errno' => ldap_errno($this->connection), '%error' => ldap_error($this->connection)));
@@ -1604,16 +1603,16 @@ class Server extends ContentEntityBase {
    *   a particular set of pages is desired
    *
    * @param array $ldap_query_params of form:
-      'base_dn' => base_dn,
-      'filter' =>  filter,
-      'attributes' => attributes,
-      'attrsonly' => attrsonly,
-      'sizelimit' => sizelimit,
-      'timelimit' => timelimit,
-      'deref' => deref,
-      'scope' => scope,
-
-      (this array of parameters is primarily passed on to ldapQuery() method)
+   *  'base_dn' => base_dn,
+   *  'filter' =>  filter,
+   *  'attributes' => attributes,
+   *  'attrsonly' => attrsonly,
+   *  'sizelimit' => sizelimit,
+   *  'timelimit' => timelimit,
+   *  'deref' => deref,
+   *  'scope' => scope,
+   *
+   *  (this array of parameters is primarily passed on to ldapQuery() method)
    *
    * @return array of ldap entries or FALSE on error.
    *
@@ -2023,13 +2022,15 @@ class Server extends ContentEntityBase {
     }
 
     foreach ($this->basedn as $basedn) {
+      $basedn = $basedn->value;
+
       if (empty($basedn)) continue;
-      $filter = '(' . $this->user_attr . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
+      $filter = '(' . $this->user_attr->value . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
+
       $result = $this->search($basedn, $filter, $attributes);
       if (!$result || !isset($result['count']) || !$result['count']) continue;
 
       // Must find exactly one user for authentication to work.
-
       if ($result['count'] != 1) {
         $count = $result['count'];
         watchdog('ldap_servers', "Error: !count users found with $filter under $basedn.", array('!count' => $count), WATCHDOG_ERROR);
@@ -2041,14 +2042,13 @@ class Server extends ContentEntityBase {
       // characters' case.
       // This was contributed by Dan "Gribnif" Wilga, and described
       // here: http://drupal.org/node/87833
-      $name_attr = $this->user_attr;
+      $name_attr = $this->user_attr->value;
 
       if (isset($match[$name_attr][0])) {
         // leave name
       }
       elseif (isset($match[\Drupal\Component\Utility\Unicode::strtolower($name_attr)][0])) {
         $name_attr = \Drupal\Component\Utility\Unicode::strtolower($name_attr);
-
       }
       else {
         if ($this->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
@@ -2705,10 +2705,10 @@ class Server extends ContentEntityBase {
     if (!$errors) {
       $bind_result = self::bind(self::get('binddn')->value, $bindpw, FALSE);
       if ($bind_result == LDAP_SUCCESS) {
-        $results_tables['basic'][] =  array(t('Successfully bound to server'));
+        $results_tables['basic'][] =  array(t('Successfully bound to server'), t('PASS'));
       }
       else {
-        $results_tables['basic'][] = array(t('Failed to bind to server. ldap error #') . $bind_result . ' ' .self::errorMsg('ldap')) ;
+        $results_tables['basic'][] = array(t('Failed to bind to server. ldap error #') . $bind_result . ' ' .self::errorMsg('ldap'), t('FAIL')) ;
         $errors = TRUE;
       }
     }
@@ -2730,7 +2730,7 @@ class Server extends ContentEntityBase {
     }
     else {
       $results[] = t('Found test user %username by searching on  %user_attr = %username.',
-        array('%username' => $drupal_username, '%user_attr' => self::user_attr ));
+        array('%username' => $drupal_username, '%user_attr' => $this->user_attr->value ));
     }
     return array($errors, $results, $ldap_user);
   }

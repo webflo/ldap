@@ -149,17 +149,23 @@ class LdapServersTestForm extends ContentEntityForm {
         'tokens' => 'User Token Samples',
         'groupfromDN' => 'Groups Derived From User DN',
       ];
+
       foreach ($test_data['results_tables'] as $table_name => $table_data) {
         // @FIXME
 // theme() has been renamed to _theme() and should NEVER be called directly.
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $form['#prefix'] .= '<h2>' . $titles[$table_name] . '</h2>' . theme('table', array('header' => array('Test', 'Result'), 'rows' => $table_data));
-
+        $settings = array(
+          '#type' => 'table',
+          '#header' => array('Test', 'Result'),
+          '#rows' => $table_data,
+        );
+        $form['#prefix'] .= '<h2>' . $titles[$table_name] . '</h2>' . drupal_render($settings);
       }
 
       if (function_exists('dpm') && !empty($test_data['username'])) {
@@ -221,12 +227,14 @@ class LdapServersTestForm extends ContentEntityForm {
       $results_tables['basic'][] = [
         t('Binding with DN for non-anonymous search (%bind_dn).  Using password ', [
           '%bind_dn' => $ldap_server->binddn->value
-          ]) . ' ' . $bindpw_type
+          ]) . ' ' . $bindpw_type . '.',
+        ''
         ];
     }
     else {
       $results_tables['basic'][] = [
-        t('Binding with null DN for anonymous search.')
+        t('Binding with null DN for anonymous search.'),
+        ''
         ];
     }
 
@@ -325,9 +333,7 @@ class LdapServersTestForm extends ContentEntityForm {
     list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw, $results_tables);
 
     $results = array_merge($results, $more_results);
-    // drupal_set_message("ldap_server->bind_method " . $ldap_server->bind_method->value);
 
-    drupal_set_message(print_r($results_tables, TRUE));
     if ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
       drupal_set_message('LDAP_SERVERS_BIND_METHOD_ANON_USER');
       list($has_errors, $more_results, $ldap_user) = $ldap_server->testUserMapping($values['testing_drupal_username']);
@@ -357,12 +363,12 @@ class LdapServersTestForm extends ContentEntityForm {
         ];
       $result = $ldap_server->bind($ldap_user['dn'], $values['testing_drupal_userpw'], FALSE);
       if ($result == LDAP_SUCCESS) {
-        $results_tables['basic'][] = [t('Successfully bound to server'), 'PASS'];
+        $results_tables['basic'][] = [t('Successfully bound to server'), t('PASS'),];
       }
       else {
         $results_tables['basic'][] = [
           t('Failed to bind to server. ldap error #') . $result . ' ' . $ldap_server->errorMsg('ldap'),
-          'FAIL',
+          t('FAIL'),
         ] ;
       }
     }
@@ -385,13 +391,19 @@ class LdapServersTestForm extends ContentEntityForm {
           // Calling _theme() directly can alter the expected output and potentially
           // introduce security issues (see https://www.drupal.org/node/2195739). You
           // should use renderable arrays instead.
-          // 
-          // 
+          //
+          //
           // @see https://www.drupal.org/node/2195739
           // $result = theme('item_list', array('items' => $memberships, 'type' => 'ul'));
+            $settings = array(
+              '#type' => 'item_list',
+              '#items' => $memberships,
+              '#type' => 'ul',
+            );
+            $result = drupal_render($settings);
 
           $results_tables['group2'][] = [
-            "ldap_server->groupMembershipsFromUser($user, 'group_dns', nested=$nested_display)<br/>count=" . count($memberships),
+            "ldap_server->groupMembershipsFromUser($user, 'group_dns', nested=$nested_display)<br>count=" . count($memberships),
             $result,
           ];
 
@@ -409,18 +421,23 @@ class LdapServersTestForm extends ContentEntityForm {
             // Calling _theme() directly can alter the expected output and potentially
             // introduce security issues (see https://www.drupal.org/node/2195739). You
             // should use renderable arrays instead.
-            // 
-            // 
+            //
+            //
             // @see https://www.drupal.org/node/2195739
             // $result = theme('item_list', array('items' => $groupusermembershipsfromuserattr, 'type' => 'ul'));
-
+            $settings = array(
+              '#type' => 'item_list',
+              '#items' => $groupusermembershipsfromuserattr,
+              '#type' => 'ul',
+            );
+            $result = drupal_render($settings);
           }
           else {
             $groupusermembershipsfromuserattr = [];
             $result = "'A user LDAP attribute such as memberOf exists that contains a list of their group' is not configured.";
           }
           $results_tables['group2'][] = [
-            "ldap_server->groupUserMembershipsFromUserAttr($user, nested=$nested_display)<br/> count=" . count($groupusermembershipsfromuserattr),
+            "ldap_server->groupUserMembershipsFromUserAttr($user, nested=$nested_display)<br> count=" . count($groupusermembershipsfromuserattr),
             $result,
           ];
 
@@ -431,10 +448,16 @@ class LdapServersTestForm extends ContentEntityForm {
             // Calling _theme() directly can alter the expected output and potentially
             // introduce security issues (see https://www.drupal.org/node/2195739). You
             // should use renderable arrays instead.
-            // 
-            // 
+            //
+            //
             // @see https://www.drupal.org/node/2195739
             // $result = theme('item_list', array('items' => $groupusermembershipsfromentry, 'type' => 'ul'));
+            $settings = array(
+              '#type' => 'item_list',
+              '#items' => $groupusermembershipsfromentry,
+              '#type' => 'ul',
+            );
+            $result = drupal_render($settings);
 
           }
           else {
@@ -442,7 +465,7 @@ class LdapServersTestForm extends ContentEntityForm {
             $result = "Groups by entry not configured.";
           }
           $results_tables['group2'][] = [
-            "ldap_server->groupUserMembershipsFromEntry($user, nested=$nested_display)<br/>count=" . count($groupusermembershipsfromentry),
+            "ldap_server->groupUserMembershipsFromEntry($user, nested=$nested_display)<br>count=" . count($groupusermembershipsfromentry),
             $result,
           ];
 
@@ -454,20 +477,32 @@ class LdapServersTestForm extends ContentEntityForm {
             // Calling _theme() directly can alter the expected output and potentially
             // introduce security issues (see https://www.drupal.org/node/2195739). You
             // should use renderable arrays instead.
-            // 
-            // 
+            //
+            //
             // @see https://www.drupal.org/node/2195739
             // $result1 = theme('item_list', array('items' => $diff1, 'type' => 'ul'));
+            $settings = array(
+              '#type' => 'item_list',
+              '#items' => $diff1,
+              '#type' => 'ul',
+            );
+            $result1 = drupal_render($settings);
 
             // @FIXME
             // theme() has been renamed to _theme() and should NEVER be called directly.
             // Calling _theme() directly can alter the expected output and potentially
             // introduce security issues (see https://www.drupal.org/node/2195739). You
             // should use renderable arrays instead.
-            // 
-            // 
+            //
+            //
             // @see https://www.drupal.org/node/2195739
             // $result2 = theme('item_list', array('items' => $diff2, 'type' => 'ul'));
+            $settings = array(
+              '#type' => 'item_list',
+              '#items' => $diff2,
+              '#type' => 'ul',
+            );
+            $result2 = drupal_render($settings);
 
             $results_tables['group2'][] = [
               "groupUserMembershipsFromEntry and FromUserAttr Diff)",
@@ -488,10 +523,17 @@ class LdapServersTestForm extends ContentEntityForm {
 // Calling _theme() directly can alter the expected output and potentially
 // introduce security issues (see https://www.drupal.org/node/2195739). You
 // should use renderable arrays instead.
-// 
-// 
+//
+//
 // @see https://www.drupal.org/node/2195739
 // $results_tables['groupfromDN'][] = array("Groups from DN", theme('item_list', array('items' => $groups_from_dn, 'type' => 'ul')));
+        $settings = array(
+          '#type' => 'item_list',
+          '#items' => $groups_from_dn,
+          '#type' => 'ul',
+        );
+        $result = drupal_render($settings);
+        $results_tables['groupfromDN'][] = array("Groups from DN", $result);
 
       }
 
