@@ -42,18 +42,7 @@ class LdapServersTestForm extends ContentEntityForm {
       'type' => 'detail',
     ];
 
-    // @FIXME
-    // theme() has been renamed to _theme() and should NEVER be called directly.
-    // Calling _theme() directly can alter the expected output and potentially
-    // introduce security issues (see https://www.drupal.org/node/2195739). You
-    // should use renderable arrays instead.
-    //
-    //
-    // @see https://www.drupal.org/node/2195739
-    // $form['server_variables'] = array(
-    //     '#markup' => theme('ldap_servers_server', $variables),
-    //   );
-
+    // This used to be done by ldap_servers_server
     // Iterate over Entity fields
     $entity_type_id = 'ldap_server';
     $properties = array();
@@ -139,21 +128,46 @@ class LdapServersTestForm extends ContentEntityForm {
       $test_data = $form_state->get(['ldap_server_test_data']);
 
       if (isset($test_data['username']) && isset($test_data['ldap_user'])) {
-        // @FIXME
-// theme() has been renamed to _theme() and should NEVER be called directly.
-// Calling _theme() directly can alter the expected output and potentially
-// introduce security issues (see https://www.drupal.org/node/2195739). You
-// should use renderable arrays instead.
-// 
-// 
-// @see https://www.drupal.org/node/2195739
-// $form['#prefix'] = theme('ldap_server_ldap_entry_table',
-//         array(
-//           'entry' => $test_data['ldap_user']['attr'],
-//           'username' => $test_data['username'],
-//           'dn' => $test_data['ldap_user']['dn'],
-//         ));
+        // This used to be done by theme_ldap_server_ldap_entry_table
+        $header = array('Attribute Name', 'Instance', 'Value', 'Token');
+        $rows = array();
+        foreach ($test_data['ldap_user']['attr'] as $key => $value) {
+          if (is_numeric($key) || $key == 'count') {
+          }
+          elseif (count($value) > 1) {
+            $count = (int)$value['count'];
+            foreach ($value as $i => $value2) {
 
+              if ((string)$i == 'count') {
+                continue;
+              }
+              elseif ($i == 0 && $count == 1) {
+                $token = LDAP_SERVERS_TOKEN_PRE . $key . LDAP_SERVERS_TOKEN_POST;
+              }
+              elseif ($i == 0 && $count > 1) {
+                $token = LDAP_SERVERS_TOKEN_PRE . $key . LDAP_SERVERS_TOKEN_DEL . '0' . LDAP_SERVERS_TOKEN_POST;
+              }
+              elseif (($i == $count - 1) && $count > 1) {
+                $token = LDAP_SERVERS_TOKEN_PRE . $key . LDAP_SERVERS_TOKEN_DEL . 'last' . LDAP_SERVERS_TOKEN_POST;
+              }
+              elseif ($count > 1) {
+                $token = LDAP_SERVERS_TOKEN_PRE . $key . LDAP_SERVERS_TOKEN_DEL . $i . LDAP_SERVERS_TOKEN_POST;
+              }
+              else {
+                $token = "";
+              }
+              $rows[] = array('data' => array($key, $i, $value2, $token));
+            }
+          }
+        }
+
+        $settings = array(
+          '#theme' => 'table',
+          '#header' => $header,
+          '#rows' => $rows,
+        );
+
+        $form['#prefix']  = '<div class="content"><h2>' . t('LDAP Entry for %username (dn: %dn)', array('%dn' => $test_data['ldap_user']['dn'], '%username' => $test_data['username'])) . '</h2>' . drupal_render($settings) . '</div>';
       }
 
       $titles = [
