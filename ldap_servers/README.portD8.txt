@@ -63,7 +63,7 @@ TODO:
 - remove: TO REMOVE notes
 - Update config/settings to get rid of useless
 - Update config/schema to get all variables in the mapping
-- replace "ldap_servers_require_ssl_for_credentails" by "require_ssl_for_credentails"
+- replace "ldap_servers_require_ssl_for_credentials" by "require_ssl_for_credentials"
 - replace "ldap_servers_encryption" by "encryption"
 
 

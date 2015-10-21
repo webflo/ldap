@@ -18,7 +18,7 @@ function ldap_servers_install() {
  */
 function ldap_servers_uninstall() {
   // \Drupal::config('ldap_servers.settings')->clear('encryption')->save();
-  // \Drupal::config('ldap_servers.settings')->clear('require_ssl_for_credentails')->save();
+  // \Drupal::config('ldap_servers.settings')->clear('require_ssl_for_credentials')->save();
   // \Drupal::config('ldap_servers.settings')->clear('encrypt_key')->save();
 }
 
@@ -65,6 +65,6 @@ function ldap_servers_requirements($phase) {
 function ldap_servers_update_8000() {
   update_variables_to_config('ldap_servers.settings', array(
     'ldap_servers_encryption' => 'encryption',
-    'ldap_servers_require_ssl_for_credentails' => 'require_ssl_for_credentails',
+    'ldap_servers_require_ssl_for_credentials' => 'require_ssl_for_credentials',
   ));
 }

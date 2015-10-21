@@ -817,7 +817,7 @@ function ldap_servers_convert_attribute($value, $conversion = NULL) {
  */
 function ldap_servers_disable_http_check(&$form) {
 
-  if (\Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentails') == 1 && @$_SERVER['HTTPS'] != 'on') {
+  if (\Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentials') == 1 && @$_SERVER['HTTPS'] != 'on') {
 
     $tokens = array(
       'site_name' => \Drupal::config('system.site')->get('name'),
