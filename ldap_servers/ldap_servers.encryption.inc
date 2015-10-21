@@ -37,12 +37,12 @@ function _ldap_servers_encrypt_types($type = 'all') {
   if (extension_loaded('mcrypt')) {  // only support with extension
 
     /**
-      LDAP_SERVERS_ENC_TYPE_MD5C => 'MD5 Crypt',
-      LDAP_SERVERS_ENC_TYPE_SALTED_MD5 => 'Salted MD5',
-      LDAP_SERVERS_ENC_TYPE_SHA => 'SHA',
-      LDAP_SERVERS_ENC_TYPE_SALTED_SHA => 'SHA Salted',
-    );
-    */
+     *  LDAP_SERVERS_ENC_TYPE_MD5C => 'MD5 Crypt',
+     *  LDAP_SERVERS_ENC_TYPE_SALTED_MD5 => 'Salted MD5',
+     *  LDAP_SERVERS_ENC_TYPE_SHA => 'SHA',
+     *  LDAP_SERVERS_ENC_TYPE_SALTED_SHA => 'SHA Salted',
+     *);
+     */
 
    /** $encrypts = array(
       LDAP_SERVERS_ENC_TYPE_EXTENDED_DES => 'Extended DES',
@@ -51,9 +51,8 @@ function _ldap_servers_encrypt_types($type = 'all') {
     ); */
 
     $encrypts = array(
-      LDAP_SERVERS_ENC_TYPE_CLEARTEXT => 'No Encyption',
+      LDAP_SERVERS_ENC_TYPE_CLEARTEXT => 'No Encryption',
       LDAP_SERVERS_ENC_TYPE_BLOWFISH => 'Blowfish'
-
     );
   }
 

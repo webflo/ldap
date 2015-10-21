@@ -3,9 +3,9 @@ ldap_servers.settings:
   label: Settings
   mapping:
     encryption:
-      type: boolean
+      type: integer
       label: 'Require HTTPS on credential pages'
     encrypt_key:
       type: boolean
     require_ssl_for_credentials:
-      type: integer
+      type: boolean

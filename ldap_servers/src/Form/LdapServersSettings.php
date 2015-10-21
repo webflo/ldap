@@ -25,7 +25,6 @@ class LdapServersSettings extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
-
     $this->config('ldap_servers.settings')
       ->set('require_ssl_for_credentials', $values['require_ssl_for_credentials'])
       ->set('encryption', $values['encryption'])
@@ -74,7 +73,6 @@ class LdapServersSettings extends ConfigFormBase {
       );
 
     $options = ldap_servers_encrypt_types('encrypt');
-
     // @FIXME
     // Could not extract the default value because it is either indeterminate, or
     // not scalar. You'll need to provide a default value in
@@ -123,16 +121,16 @@ class LdapServersSettings extends ConfigFormBase {
    */
   public function _submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     if ($form_state->isSubmitted()) {
-      $new_encyption = $form_state->getValue(['encryption']);
-      $old_encyption = $form_state->getValue(['previous_encryption']);
+      $new_encryption = $form_state->getValue(['encryption']);
+      $old_encryption = $form_state->getValue(['previous_encryption']);
 
       // use db instead of functions to avoid classes encryption and decryption
-      if ($new_encyption != $old_encyption) {
+      if ($new_encryption != $old_encryption) {
         $servers = db_query("SELECT sid, bindpw FROM {ldap_servers} WHERE bindpw is not NULL AND bindpw <> ''")->fetchAllAssoc('sid');
         foreach ($servers as $sid => $server) {
           if ($server->bindpw != '') {
-            $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw->value, $old_encyption);
-            $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encyption);
+            $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw->value, $old_encryption);
+            $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encryption);
           }
           else {
             $rencrypted = '';

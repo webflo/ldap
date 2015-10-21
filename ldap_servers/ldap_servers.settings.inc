@@ -79,15 +79,15 @@ function ldap_servers_settings() {
 
 function ldap_servers_settings_submit($form, &$form_state) {
   if ($form_state['submitted']) {
-    $new_encyption = $form_state['values']['ldap_servers_encryption'];
-    $old_encyption = $form_state['values']['previous_encryption'];
+    $new_encryption = $form_state['values']['ldap_servers_encryption'];
+    $old_encryption = $form_state['values']['previous_encryption'];
 
     // use db instead of functions to avoid classes encryption and decryption
-    if ($new_encyption != $old_encyption) {
+    if ($new_encryption != $old_encryption) {
       $servers = db_query("SELECT sid, bindpw FROM {ldap_servers} WHERE bindpw is not NULL AND bindpw <> ''")->fetchAllAssoc('sid');
       foreach ($servers as $sid => $server) {
-        $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw, $old_encyption);
-        $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encyption);
+        $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw, $old_encryption);
+        $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encryption);
         db_query("UPDATE {ldap_servers} SET bindpw = :bindpw WHERE sid = :sid", array(':bindpw' => $rencrypted, ':sid' => $sid));
       }
     }
