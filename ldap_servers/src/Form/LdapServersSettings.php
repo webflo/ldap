@@ -24,26 +24,17 @@ class LdapServersSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // $config = $this->config('ldap_servers.settings');
     $values = $form_state->getValues();
 
     $this->config('ldap_servers.settings')
-      ->set('require_ssl_for_credentials', $values['ssl']['require_ssl_for_credentials'])
-      ->set('encryption', $values['encryption']['encryption'])
+      ->set('require_ssl_for_credentials', $values['require_ssl_for_credentials'])
+      ->set('encryption', $values['encryption'])
       // ->set('previous_encryption', $values['previous_encryption'])
-      // ->set('ssl', $values['ssl'])
       ->save();
-
-    // foreach (Element::children($form) as $variable) {
-    //   $config->set($variable, $values[$variable]);
-    // }
-    // $config->save();
 
     if (method_exists($this, '_submitForm')) {
       $this->_submitForm($form, $form_state);
     }
-
-    // parent::submitForm($form, $form_state);
   }
 
   /**
@@ -54,8 +45,6 @@ class LdapServersSettings extends ConfigFormBase {
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    // ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
-
     if (!ldap_servers_ldap_extension_loaded()) {
       drupal_set_message(t('PHP LDAP Extension is not loaded.'), "warning");
     }
@@ -76,7 +65,6 @@ class LdapServersSettings extends ConfigFormBase {
       '#items' => $https_approaches,
       '#type' => 'ul',
     );
-    drupal_set_message("ssl " . \Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials'));
     $form['ssl']['require_ssl_for_credentials'] = array(
         '#type' => 'checkbox',
         '#title' => t('If checked, modules using LDAP will not allow credentials to
@@ -133,16 +121,6 @@ class LdapServersSettings extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  // public function submitForm(array &$form, FormStateInterface $form_state) {
-  //   $values = $form_state->getValues();
-  //   $this->config('ldap_servers.settings')
-  //     ->set('encryption', $values['encryption'])
-  //     ->set('previous_encryption', $values['previous_encryption'])
-  //     ->set('ssl', $values['ssl'])
-  //     ->save();
-  // }
-
-
   public function _submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     if ($form_state->isSubmitted()) {
       $new_encyption = $form_state->getValue(['encryption']);
