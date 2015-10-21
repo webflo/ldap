@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains Drupal\lti_tool_provider\Entity\Controller\ConsumerListBuilder.
+ * Contains Drupal\ldap_servers\Entity\Controller\ConsumerListBuilder.
  */
 
 namespace Drupal\ldap_servers\Entity\Controller;
@@ -11,9 +11,9 @@ use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Url;
 
 /**
- * Provides a list controller for lti_tool_provider entity.
+ * Provides a list controller for ldap_servers entity.
  *
- * @ingroup lti_tool_provider
+ * @ingroup ldap_servers
  */
 class ServerListBuilder extends EntityListBuilder {
 
@@ -44,6 +44,7 @@ class ServerListBuilder extends EntityListBuilder {
     $header['name'] = $this->t('Name');
     $header['type'] = $this->t('Type');
     $header['status'] = $this->t('Enabled');
+    $header['address'] = $this->t('Server address');
     return $header + parent::buildHeader();
   }
 
@@ -52,15 +53,10 @@ class ServerListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row = array();
-    /* @var $entity \Drupal\lti_tool_provider\Entity\LTIToolProviderConsumer */
-    // $row['sid'] = $entity->id();
     $row['name'] = $entity->name->value;
     $row['type'] = $entity->type->value;
-    $row['status'] = $entity->status->value;
-    // $row['lti_tool_provider_consumer_key'] = $entity->lti_tool_provider_consumer_key->value;
-    // $row['lti_tool_provider_consumer_secret'] = $entity->lti_tool_provider_consumer_secret->value;
-    // $row['domain'] = $entity->domain->value;
-    // $row['date_joined'] = format_date($entity->date_joined->value);
+    $row['status'] = $entity->status->value ? 'Yes' : 'No';
+    $row['address'] = $entity->address->value;
     return $row + parent::buildRow($entity);
   }
 
@@ -73,7 +69,7 @@ class ServerListBuilder extends EntityListBuilder {
         'url' => \Drupal\Core\Url::fromRoute('entity.ldap_server.test_form', ['ldap_server' => $entity->sid->value]),
       );
     }
-    if ( $entity->status->value == 1 ) {       
+    if ( $entity->status->value == 1 ) {
       $operations['disable'] = array(
         'title' => $this->t('Disable'),
         'weight' => 15,
@@ -84,7 +80,7 @@ class ServerListBuilder extends EntityListBuilder {
         'title' => $this->t('Enable'),
         'weight' => 15,
         'url' => \Drupal\Core\Url::fromRoute('entity.ldap_server.admin_enable_disable', ['action' => 'enable', 'sid' => $entity->sid->value]),
-      );      
+      );
     }
     return $operations;
   }

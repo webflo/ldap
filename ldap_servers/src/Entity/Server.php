@@ -177,6 +177,7 @@ class Server extends ContentEntityBase {
       ->setSettings(array(
         'length' => 11,
       ))
+      // ->addConstraint('Range', array('min' => 1, 'max' => 65024))
       ->setDefaultValue(389)
       ->setDisplayOptions('view', array(
         'label' => 'above',
@@ -252,6 +253,7 @@ class Server extends ContentEntityBase {
           <em>This option will not work on most LDAPS connections.</em>'),
         ),
       ))
+      ->setDefaultValue(LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT)
       ->setDisplayOptions('view', array(
         'label' => 'above',
       ))
