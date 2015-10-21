@@ -27,11 +27,9 @@ class LdapServersSettings extends ConfigFormBase {
     // $config = $this->config('ldap_servers.settings');
     $values = $form_state->getValues();
 
-    // drupal_set_message(print_r(array_keys($form_state), TRUE));
-
     $this->config('ldap_servers.settings')
-      ->set('ldap_servers_require_ssl_for_credentials', $values['ssl']['ldap_servers_require_ssl_for_credentials'])
-      ->set('ldap_servers_encryption', $values['encryption']['ldap_servers_encryption'])
+      ->set('require_ssl_for_credentials', $values['ssl']['require_ssl_for_credentials'])
+      ->set('encryption', $values['encryption']['encryption'])
       // ->set('previous_encryption', $values['previous_encryption'])
       // ->set('ssl', $values['ssl'])
       ->save();
@@ -78,13 +76,13 @@ class LdapServersSettings extends ConfigFormBase {
       '#items' => $https_approaches,
       '#type' => 'ul',
     );
-    drupal_set_message("ssl " . \Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentials'));
-    $form['ssl']['ldap_servers_require_ssl_for_credentials'] = array(
+    drupal_set_message("ssl " . \Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials'));
+    $form['ssl']['require_ssl_for_credentials'] = array(
         '#type' => 'checkbox',
         '#title' => t('If checked, modules using LDAP will not allow credentials to
           be entered on or submitted to HTTP pages, only HTTPS. This option should be used with an
           approach to get all logon forms to be https, such as:') . drupal_render($settings),
-        '#default_value' => \Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentials'),
+        '#default_value' => \Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials'),
       );
 
     $options = ldap_servers_encrypt_types('encrypt');
@@ -98,18 +96,18 @@ class LdapServersSettings extends ConfigFormBase {
      */
     $form['previous_encryption'] = [
       '#type' => 'text',
-      '#default_value' => \Drupal::config('ldap_servers.settings')->get('ldap_servers_encryption'),
+      '#default_value' => \Drupal::config('ldap_servers.settings')->get('encryption'),
     ];
     $form['encryption'] = ['#type' => 'fieldset', '#title' => t('Encryption')];
     // @FIXME
     // Could not extract the default value because it is either indeterminate, or
     // not scalar. You'll need to provide a default value in
     // config/install/ldap_servers.settings.yml and config/schema/ldap_servers.schema.yml.
-    $form['encryption']['ldap_servers_encryption'] = [
+    $form['encryption']['encryption'] = [
       '#type' => 'select',
       '#options' => $options,
       '#title' => t('Encrypt Stored LDAP Passwords?'),
-      '#default_value' => \Drupal::config('ldap_servers.settings')->get('ldap_servers_encryption'),
+      '#default_value' => \Drupal::config('ldap_servers.settings')->get('encryption'),
       '#description' => t('With encryption, passwords will be stored in encrypted form.
     This is two way encryption because the actual password needs to used to bind to LDAP.
     So it offers minimal defense if someone gets in the filespace.  It mainly helps avoid the accidental
@@ -120,11 +118,11 @@ class LdapServersSettings extends ConfigFormBase {
     // $options will be empty if server does not support mcrypt.
     // Disable the form field and explain this to the user.
     if (empty($options)) {
-      $form['encryption']['ldap_servers_encryption']['#options'] = [
+      $form['encryption']['encryption']['#options'] = [
         LDAP_SERVERS_ENC_TYPE_CLEARTEXT => t('Not available.')
         ];
-      $form['encryption']['ldap_servers_encryption']['#disabled'] = TRUE;
-      $form['encryption']['ldap_servers_encryption']['#description'] .= ' <strong>' . t('Encryption is not supported on this web server.') . '</strong>';
+      $form['encryption']['encryption']['#disabled'] = TRUE;
+      $form['encryption']['encryption']['#description'] .= ' <strong>' . t('Encryption is not supported on this web server.') . '</strong>';
     }
 
     $form = parent::buildForm($form, $form_state);
@@ -147,7 +145,7 @@ class LdapServersSettings extends ConfigFormBase {
 
   public function _submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     if ($form_state->isSubmitted()) {
-      $new_encyption = $form_state->getValue(['ldap_servers_encryption']);
+      $new_encyption = $form_state->getValue(['encryption']);
       $old_encyption = $form_state->getValue(['previous_encryption']);
 
       // use db instead of functions to avoid classes encryption and decryption
