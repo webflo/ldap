@@ -220,7 +220,7 @@ class LdapServersTestForm extends ContentEntityForm {
     if ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
       $results_tables['basic'][] = [
         t('Binding with DN for non-anonymous search (%bind_dn).  Using password ', [
-          '%bind_dn' => $ldap_server->binddn
+          '%bind_dn' => $ldap_server->binddn->value
           ]) . ' ' . $bindpw_type
         ];
     }
@@ -235,7 +235,7 @@ class LdapServersTestForm extends ContentEntityForm {
       $group_create_test_dn = $values['grp_test_grp_dn_writeable'];
       $group_create_test_attr = [
         'objectClass' => [
-          $ldap_server->groupObjectClass,
+          $ldap_server->grp_object_cat->value,
           'top',
         ]
         ];
@@ -322,10 +322,14 @@ class LdapServersTestForm extends ContentEntityForm {
     }
 
     // connect to ldap
-    list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw);
+    list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw, $results_tables);
 
     $results = array_merge($results, $more_results);
-    if ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+    // drupal_set_message("ldap_server->bind_method " . $ldap_server->bind_method->value);
+
+    drupal_set_message(print_r($results_tables, TRUE));
+    if ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+      drupal_set_message('LDAP_SERVERS_BIND_METHOD_ANON_USER');
       list($has_errors, $more_results, $ldap_user) = $ldap_server->testUserMapping($values['testing_drupal_username']);
       $results = array_merge($results, $more_results);
       if (!$has_errors) {
@@ -339,7 +343,7 @@ class LdapServersTestForm extends ContentEntityForm {
           theme_item_list([
             'items' => $mapping,
             'title' => t('Attributes available to anonymous search', [
-              '%bind_dn' => $ldap_server->binddn
+              '%bind_dn' => $ldap_server->binddn->value,
               ]),
             'type' => 'ul',
             'attributes' => [],

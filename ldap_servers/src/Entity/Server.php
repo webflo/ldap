@@ -49,6 +49,28 @@ use Drupal\user\UserInterface;
  */
 class Server extends ContentEntityBase {
 
+  public $detailed_watchdog_log;
+  public $editPath;
+  public $queriableWithoutUserCredentials = FALSE; // can this server be queried without user credentials provided?
+  public $userAttributeNeededCache = array(); // array of attributes needed keyed on $op such as 'user_update'
+
+  public $groupUserMembershipsConfigured = FALSE; // user attribute containing memberships is configured enough to use
+  public $groupGroupEntryMembershipsConfigured = FALSE; // are groupMembershipsAttrMatchingUserAttr and groupGroupEntryMembershipsConfigured populated
+
+  public $groupTestGroupDn = NULL;
+  public $groupTestGroupDnWriteable = NULL;
+
+  private $group_properties = array(
+    'groupObjectClass', 'groupNested', 'groupDeriveFromDn', 'groupDeriveFromDnAttr', 'groupUserMembershipsAttrExists',
+    'groupUserMembershipsAttr', 'groupMembershipsAttrMatchingUserAttr', 'groupTestGroupDn', 'groupTestGroupDnWriteable'
+  );
+
+  public $searchPageStart = 0;
+  public $searchPageEnd = NULL;
+
+  public $inDatabase = FALSE;
+  public $connection;
+
   /**
    * {@inheritdoc}
    *
@@ -2668,7 +2690,7 @@ class Server extends ContentEntityBase {
    * {@inheritdoc}
    *
    */
-  public function testBindingCredentials(string $bindpw=NULL) {
+  public function testBindingCredentials(string $bindpw=NULL, &$results_tables) {
     $errors = FALSE;
     $results = array();
 
