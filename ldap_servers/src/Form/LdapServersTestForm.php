@@ -47,13 +47,19 @@ class LdapServersTestForm extends ContentEntityForm {
     // Calling _theme() directly can alter the expected output and potentially
     // introduce security issues (see https://www.drupal.org/node/2195739). You
     // should use renderable arrays instead.
-    // 
-    // 
+    //
+    //
     // @see https://www.drupal.org/node/2195739
     // $form['server_variables'] = array(
     //     '#markup' => theme('ldap_servers_server', $variables),
     //   );
-
+    // $settings = array(
+    //   '#type' => 'ldap_servers_server'
+    //   // $variables
+    // );
+    // $form['server_variables'] = array(
+    //   '#markup' => drupal_render($settings),
+    // );
 
     $form['sid'] = [
       '#type' => 'hidden',
