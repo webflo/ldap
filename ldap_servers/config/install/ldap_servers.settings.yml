@@ -1,5 +1,5 @@
-ldap_servers_encryption: false
+# ldap_servers_encryption: false
 ldap_servers_encrypt_key: false
 ldap_servers_require_ssl_for_credentails: 0
 encryption:  LDAP_SERVERS_ENC_TYPE_CLEARTEXT
-require_ssl_for_credentails: 0
+# require_ssl_for_credentails: 0

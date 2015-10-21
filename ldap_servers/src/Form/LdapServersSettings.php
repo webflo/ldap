@@ -24,18 +24,28 @@ class LdapServersSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = $this->config('ldap_servers.settings');
+    // $config = $this->config('ldap_servers.settings');
+    $values = $form_state->getValues();
 
-    foreach (Element::children($form) as $variable) {
-      $config->set($variable, $form_state->getValue($form[$variable]['#parents']));
-    }
-    $config->save();
+    // drupal_set_message(print_r(array_keys($form_state), TRUE));
+
+    $this->config('ldap_servers.settings')
+      ->set('ldap_servers_require_ssl_for_credentails', $values['ssl']['ldap_servers_require_ssl_for_credentails'])
+      ->set('ldap_servers_encryption', $values['encryption']['ldap_servers_encryption'])
+      // ->set('previous_encryption', $values['previous_encryption'])
+      // ->set('ssl', $values['ssl'])
+      ->save();
+
+    // foreach (Element::children($form) as $variable) {
+    //   $config->set($variable, $values[$variable]);
+    // }
+    // $config->save();
 
     if (method_exists($this, '_submitForm')) {
       $this->_submitForm($form, $form_state);
     }
 
-    parent::submitForm($form, $form_state);
+    // parent::submitForm($form, $form_state);
   }
 
   /**
@@ -46,7 +56,7 @@ class LdapServersSettings extends ConfigFormBase {
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
+    // ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
 
     if (!ldap_servers_ldap_extension_loaded()) {
       drupal_set_message(t('PHP LDAP Extension is not loaded.'), "warning");
@@ -62,23 +72,20 @@ class LdapServersSettings extends ConfigFormBase {
       '#type' => 'fieldset',
       '#title' => t('Require HTTPS on Credential Pages'),
     ];
-    // @FIXME
-    // theme() has been renamed to _theme() and should NEVER be called directly.
-    // Calling _theme() directly can alter the expected output and potentially
-    // introduce security issues (see https://www.drupal.org/node/2195739). You
-    // should use renderable arrays instead.
-    // 
-    // 
-    // @see https://www.drupal.org/node/2195739
-    // $form['ssl']['ldap_servers_require_ssl_for_credentails'] = array(
-    //     '#type' => 'checkbox',
-    //     '#title' => t('If checked, modules using LDAP will not allow credentials to
-    //       be entered on or submitted to HTTP pages, only HTTPS. This option should be used with an
-    //       approach to get all logon forms to be https, such as:') .
-    //       theme('item_list', array('items' => $https_approaches)),
-    //     '#default_value' => variable_get('ldap_servers_require_ssl_for_credentails', 0),
-    //   );
 
+    $settings = array(
+      '#theme' => 'item_list',
+      '#items' => $https_approaches,
+      '#type' => 'ul',
+    );
+    drupal_set_message("ssl " . \Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentails'));
+    $form['ssl']['ldap_servers_require_ssl_for_credentails'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('If checked, modules using LDAP will not allow credentials to
+          be entered on or submitted to HTTP pages, only HTTPS. This option should be used with an
+          approach to get all logon forms to be https, such as:') . drupal_render($settings),
+        '#default_value' => \Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentails'),
+      );
 
     $options = ldap_servers_encrypt_types('encrypt');
 
@@ -90,7 +97,7 @@ class LdapServersSettings extends ConfigFormBase {
      *   ... thus default needs to be "No Encryption" to avoid confusion.
      */
     $form['previous_encryption'] = [
-      '#type' => 'hidden',
+      '#type' => 'text',
       '#default_value' => \Drupal::config('ldap_servers.settings')->get('ldap_servers_encryption'),
     ];
     $form['encryption'] = ['#type' => 'fieldset', '#title' => t('Encryption')];
@@ -125,6 +132,19 @@ class LdapServersSettings extends ConfigFormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  // public function submitForm(array &$form, FormStateInterface $form_state) {
+  //   $values = $form_state->getValues();
+  //   $this->config('ldap_servers.settings')
+  //     ->set('encryption', $values['encryption'])
+  //     ->set('previous_encryption', $values['previous_encryption'])
+  //     ->set('ssl', $values['ssl'])
+  //     ->save();
+  // }
+
+
   public function _submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     if ($form_state->isSubmitted()) {
       $new_encyption = $form_state->getValue(['ldap_servers_encryption']);
@@ -135,7 +155,7 @@ class LdapServersSettings extends ConfigFormBase {
         $servers = db_query("SELECT sid, bindpw FROM {ldap_servers} WHERE bindpw is not NULL AND bindpw <> ''")->fetchAllAssoc('sid');
         foreach ($servers as $sid => $server) {
           if ($server->bindpw != '') {
-            $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw, $old_encyption);
+            $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw->value, $old_encyption);
             $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encyption);
           }
           else {

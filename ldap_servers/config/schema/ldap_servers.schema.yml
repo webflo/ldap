@@ -4,6 +4,7 @@ ldap_servers.settings:
   mapping:
     ldap_servers_encryption:
       type: boolean
+      label: 'Require HTTPS on credential pages'
     ldap_servers_encrypt_key:
       type: boolean
     ldap_servers_require_ssl_for_credentails:

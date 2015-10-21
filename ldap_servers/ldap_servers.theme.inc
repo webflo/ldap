@@ -59,7 +59,7 @@ function theme_ldap_servers_list($variables) {
   // $output = theme('table', $table);
   $output = drupal_render($table_theme);
 
-  
+
 
   return $output;
 }
