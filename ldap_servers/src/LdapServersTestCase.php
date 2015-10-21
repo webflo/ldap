@@ -156,20 +156,20 @@ class LdapServersTestCase extends LdapTestCase {
     foreach ($install_tables as $table) {
       $this->assertTrue(db_table_exists($table), $table . ' table creates', $group);
     }
-    $var_created = $this->assertTrue(TRUE, 'ldap_servers_encryption variable initialized', $group);
+    $var_created = $this->assertTrue(TRUE, 'encryption variable initialized', $group);
     // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/ldap_servers.settings.yml and config/schema/ldap_servers.schema.yml.
-$var_created = $this->assertTrue(\Drupal::config('ldap_servers.settings')->get('ldap_servers_encrypt_key'), 'ldap_servers_encrypt_key variable initialized', $group);
+    // Could not extract the default value because it is either indeterminate, or
+    // not scalar. You'll need to provide a default value in
+    // config/install/ldap_servers.settings.yml and config/schema/ldap_servers.schema.yml.
+    $var_created = $this->assertTrue(\Drupal::config('ldap_servers.settings')->get('encrypt_key'), 'encrypt_key variable initialized', $group);
 
     module_disable($modules, TRUE); // disable dependent modules
     drupal_uninstall_modules($modules, TRUE); // unistall dependent modules
     foreach ($install_tables as $table) {
       $this->assertFalse(db_table_exists($table), $table . ' table removed', $group);
     }
-    $var_created = $this->assertFalse(\Drupal::config('ldap_servers.settings')->get('ldap_servers_encryption'), 'ldap_servers_encryption variable removed', $group);
-    $var_created = $this->assertFalse(\Drupal::config('ldap_servers.settings')->get('ldap_servers_encrypt_key'), 'ldap_servers_encrypt_key variable removed', $group);
+    $var_created = $this->assertFalse(\Drupal::config('ldap_servers.settings')->get('encryption'), 'encryption variable removed', $group);
+    $var_created = $this->assertFalse(\Drupal::config('ldap_servers.settings')->get('encrypt_key'), 'encrypt_key variable removed', $group);
 
 
     // test tokens, see http://drupal.org/node/1245736
