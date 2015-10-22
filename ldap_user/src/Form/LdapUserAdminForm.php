@@ -7,12 +7,11 @@
 
 namespace Drupal\ldap_user\Form;
 
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Render\Element;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class LdapUserAdminForm extends FormBase {
+class LdapUserAdminForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -21,9 +20,16 @@ class LdapUserAdminForm extends FormBase {
     return 'ldap_user_admin_form';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getEditableConfigNames() {
+    return ['ldap_user_admin.settings'];
+  }
+
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    $ldap_user_conf = ldap_user_conf('admin');
-    $form = $ldap_user_conf->drupalForm();
+    $ldap_user_conf_admin = ldap_user_conf('admin');
+    $form = $ldap_user_conf_admin->drupalForm();
     return $form;
   }
 
@@ -42,15 +48,16 @@ class LdapUserAdminForm extends FormBase {
 
   public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
 
-    $ldap_user_conf = ldap_user_conf('admin');
-    $result = $ldap_user_conf->drupalFormSubmit($form_state->getValues(), $form['#storage']); // add form data to object and save or create
-    if ($result === TRUE) {
+    $ldap_user_conf_admin = ldap_user_conf('admin');
+    $ldap_user_conf_admin->drupalFormSubmit($form_state->getValues(), $form['#storage']); // add form data to object and save or create
+
+    if ($ldap_user_conf_admin->hasError == FALSE) {
       drupal_set_message(t('LDAP user configuration saved'), 'status');
       return new RedirectResponse(\Drupal::url('ldap_user.admin_form'));
     }
     else {
-      drupal_set_message($result->getMessage(), 'error');
-      $ldap_user_conf->clearError();
+      $form_state->setErrorByName($conf->errorName, $conf->errorMsg);
+      $ldap_user_conf_admin->clearError();
     }
 
   }
