@@ -228,8 +228,8 @@ class LdapAuthenticationConf {
 
     $this->ldapUser = new LdapUserConf();
     $this->ssoEnabled = \Drupal::moduleHandler()->moduleExists('ldap_sso');
-    $this->apiPrefs['requireHttps'] = config('ldap_servers.settings')->get('require_ssl_for_credentials');
-    $this->apiPrefs['encryption'] = config('ldap_servers.settings')->get('encryption');
+    $this->apiPrefs['requireHttps'] = Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials');
+    $this->apiPrefs['encryption'] = Drupal::config('ldap_servers.settings')->get('encryption');
 
   }
 
@@ -256,7 +256,7 @@ class LdapAuthenticationConf {
      */
     $ldap_user_conf = ldap_user_conf();
     // if user does not already exists and deferring to user settings AND user settings only allow
-    $user_register = config('user.settings')->get('register');
+    $user_register = Drupal::config('user.settings')->get('register');
 
     foreach ($this->excludeIfTextInDn as $test) {
       if (stripos($ldap_user['dn'], $test) !== FALSE) {
@@ -283,7 +283,10 @@ class LdapAuthenticationConf {
       }
       else {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
-        $tokens = array('!ldap_authentication_config' => l(t('LDAP Authentication Configuration'), 'admin/config/people/ldap/authentication'));
+        $url = Url::fromRoute('ldap_authentication.admin_form');
+        $internal_link = \Drupal::l(t('LDAP Authentication Configuration'), $url);
+        $tokens = array('!ldap_authentication_config' => $internal_link);
+
         \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users based on php execution with php_eval function, but php module is not enabled. Please enable php module or remove php code at !ldap_authentication_config .', []);
         return FALSE;
       }
@@ -312,7 +315,9 @@ class LdapAuthenticationConf {
 
       if (!\Drupal::moduleHandler()->moduleExists('ldap_authorization')) {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
-        $tokens = array('!ldap_authentication_config' => l(t('LDAP Authentication Configuration'), 'admin/config/people/ldap/authentication'));
+        $url = Url::fromRoute('ldap_authentication.admin_form');
+        $internal_link = \Drupal::l(t('LDAP Authentication Configuration'), $url);
+        $tokens = array('!ldap_authentication_config' => $internal_link);
         \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users without LDAP Authorization mappings, but LDAP Authorization module is not enabled.  Please enable and configure LDAP Authorization or disable this option at !ldap_authentication_config .', []);
         return FALSE;
       }
@@ -340,7 +345,8 @@ class LdapAuthenticationConf {
 
       if (!$has_enabled_consumers) {
         drupal_set_message(t(LDAP_AUTHENTICATION_DISABLED_FOR_BAD_CONF_MSG), 'warning');
-        $tokens = array('!ldap_consumer_config' => l(t('LDAP Authorization Configuration'), 'admin/config/people/ldap/authorization'));
+        // @FIXME
+        // $tokens = array('!ldap_consumer_config' => l(t('LDAP Authorization Configuration'), 'admin/config/people/ldap/authorization'));
         \Drupal::logger('ldap_authentication')->notice('LDAP Authentication is configured to deny users without LDAP Authorization mappings, but 0 LDAP Authorization consumers are configured:  !ldap_consumer_config .', []);
         return FALSE;
       }

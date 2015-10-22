@@ -8,7 +8,6 @@
 ldap_servers_module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConf.class');
 
 class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
-
   protected function setTranslatableProperties() {
 
     /**
@@ -95,55 +94,65 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
      *  Single Sign-On / Seamless Sign-On
      */
 
-      $values['ldapImplementationOptions'] = array(
-        'mod_auth_sspi' => t('mod_auth_sspi'),
-        'mod_auth_kerb' => t('mod_auth_kerb'),
-        );
+    $values['ldapImplementationOptions'] = array(
+      'mod_auth_sspi' => t('mod_auth_sspi'),
+      'mod_auth_kerb' => t('mod_auth_kerb'),
+      );
 
-      $values['cookieExpirePeriod'] = array(-1 => t('Session'), 0 => t('Immediately')) +
-        drupal_map_assoc(array(3600, 86400, 604800, 2592000, 31536000, 315360000, 630720000), 'format_interval');
+    $values['cookieExpirePeriod'] = array(-1 => t('Session'), 0 => t('Immediately')) +
+      array_combine(array(3600, 86400, 604800, 2592000, 31536000, 315360000, 630720000), 'format_interval');
 
-      $values['ssoEnabledDescription'] = '<strong>' . t('Single Sign on is enabled.') .
-        '</strong> ' . t('To disable it, disable the LDAP SSO Module on the') . ' ' . \Drupal::l(t('Modules Form'), \Drupal\Core\Url::fromRoute('system.modules_list')) . '.<p>' .
-        t('Single Sign-On enables ' .
-        'users of this site to be authenticated by visiting the URL ' .
-        '"user/login/sso, or automatically if selecting "automated ' .
-        'single sign-on" below. Set up of LDAP authentication must be ' .
-        'performed on the web server. Please review the !readme file ' .
-        'for more information.', array('!readme' =>
-        l(t('README.txt'), drupal_get_path('module', 'ldap_sso') . '/README.txt')))
-        . '</p>';
+    // @FIXME
+    // $values['ssoEnabledDescription'] = '<strong>' . t('Single Sign on is enabled.') .
+    //   '</strong> ' . t('To disable it, disable the LDAP SSO Module on the') . ' ' . \Drupal::l(t('Modules Form'), \Drupal\Core\Url::fromRoute('system.modules_list')) . '.<p>' .
+    //   t('Single Sign-On enables ' .
+    //   'users of this site to be authenticated by visiting the URL ' .
+    //   '"user/login/sso, or automatically if selecting "automated ' .
+    //   'single sign-on" below. Set up of LDAP authentication must be ' .
+    //   'performed on the web server. Please review the !readme file ' .
+    //   'for more information.', array('!readme' =>
+    //   l(t('README.txt'), drupal_get_path('module', 'ldap_sso') . '/README.txt')))
+    //   . '</p>';
 
-      $values['ssoExcludedPathsDescription'] = '<p>' .
-        t("Which paths will not check for SSO? cron.php is common example.  Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard.
-          Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.",
-          array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>'));
-        '</p>';
+    $values['ssoEnabledDescription'] = '<strong>' . t('Single Sign on is enabled.') .
+      '</strong> ' . t('To disable it, disable the LDAP SSO Module on the') . ' ' . \Drupal::l(t('Modules Form'), \Drupal\Core\Url::fromRoute('system.modules_list')) . '.<p>' .
+      t('Single Sign-On enables ' .
+      'users of this site to be authenticated by visiting the URL ' .
+      '"user/login/sso, or automatically if selecting "automated ' .
+      'single sign-on" below. Set up of LDAP authentication must be ' .
+      'performed on the web server. Please review the readme file ' .
+      'for more information.') . '</p>';
 
-      $values['ssoExcludedHostsDescription'] = '<p>' .
-        t('If your site is accessible via multiple hostnames, you may only want
-          the LDAP SSO module to authenticate against some of them. To exclude
-          any hostnames from SSO, enter them here. Enter one host per line.');
-        '</p>';
+    $values['ssoExcludedPathsDescription'] = '<p>' .
+      t("Which paths will not check for SSO? cron.php is common example.  Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard.
+        Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.",
+        array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>'));
+      '</p>';
 
-      $values['ssoRemoteUserStripDomainNameDescription'] = t('Useful when the ' .
-        'WWW server provides authentication in the form of user@realm and you ' .
-        'want to have both SSO and regular forms based authentication ' .
-        'available. Otherwise duplicate accounts with conflicting e-mail ' .
-        'addresses may be created.');
-      $values['seamlessLogInDescription'] = t('This requires that you ' .
-        'have operational NTLM or Kerberos authentication turned on for at least ' .
-        'the path user/login/sso, or for the whole domain.');
-      $values['cookieExpireDescription'] = t('If using the seamless login, a ' .
-        'cookie is necessary to prevent automatic login after a user ' .
-        'manually logs out. Select the lifetime of the cookie.');
-      $values['ldapImplementationDescription'] = t('Select the type of ' .
-        'authentication mechanism you are using.');
+    $values['ssoExcludedHostsDescription'] = '<p>' .
+      t('If your site is accessible via multiple hostnames, you may only want
+        the LDAP SSO module to authenticate against some of them. To exclude
+        any hostnames from SSO, enter them here. Enter one host per line.');
+      '</p>';
 
-      foreach ($values as $property => $default_value) {
-        $this->$property = $default_value;
-      }
+    $values['ssoRemoteUserStripDomainNameDescription'] = t('Useful when the ' .
+      'WWW server provides authentication in the form of user@realm and you ' .
+      'want to have both SSO and regular forms based authentication ' .
+      'available. Otherwise duplicate accounts with conflicting e-mail ' .
+      'addresses may be created.');
+    $values['seamlessLogInDescription'] = t('This requires that you ' .
+      'have operational NTLM or Kerberos authentication turned on for at least ' .
+      'the path user/login/sso, or for the whole domain.');
+    $values['cookieExpireDescription'] = t('If using the seamless login, a ' .
+      'cookie is necessary to prevent automatic login after a user ' .
+      'manually logs out. Select the lifetime of the cookie.');
+    $values['ldapImplementationDescription'] = t('Select the type of ' .
+      'authentication mechanism you are using.');
+
+    foreach ($values as $property => $default_value) {
+      $this->$property = $default_value;
     }
+  }
 
   /**
    * 0.  Logon Options
@@ -236,7 +245,6 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
 
 
   public function drupalForm() {
-
     if (count($this->authenticationServersOptions) == 0) {
       $message = ldap_servers_no_enabled_servers_msg('configure LDAP Authentication');
       $form['intro'] = array(

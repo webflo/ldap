@@ -12,3 +12,10 @@ ldap_authentication.admin_form:
     _form: \Drupal\ldap_authentication\Form\LdapAuthenticationAdminForm
   requirements:
     _permission: 'administer site configuration'
+# entity.ldap_authentication.admin_form:
+#   path: /admin/config/people/ldap/authentication
+#   defaults:
+#     _title: Authentication
+#     _entity_form: 'ldap_authentication.edit'
+#   requirements:
+#     _permission: 'administer site configuration'
