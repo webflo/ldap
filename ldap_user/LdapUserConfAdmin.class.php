@@ -169,10 +169,10 @@ class LdapUserConfAdmin extends LdapUserConf {
     $account_options['ldap_user_orphan_do_not_check'] = t('Do not check for orphaned Drupal accounts.');
     $account_options['ldap_user_orphan_email'] = t('Perform no action, but email list of orphaned accounts. (All the other options will send email summaries also.)');
     foreach (user_cancel_methods() as $option_name => $option) {
-      $account_options[$option_name] = $option['#title'];
+      $account_options[$option_name] = $option['#confirm_description'];
     }
 
-    //@todo these 2 options are removed until this feature is better tested in
+    // @todo these 2 options are removed until this feature is better tested in
     // actual production environments; it has potentially disastrous effects
     unset($account_options['user_cancel_reassign']);
     unset($account_options['user_cancel_delete']);
@@ -181,7 +181,7 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#type' => 'radios',
       '#title' => t('Action to perform on Drupal account that no longer have a
         corresponding LDAP entry'),
-      '#required' => 0,
+      '#required' => 1,
       // @FIX ME
       // '#default_value' => $this->orphanedDrupalAcctBehavior,
       '#options' => $account_options,
@@ -206,7 +206,6 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#collapsed' => !($this->ldapEntryProvisionServer),
     );
 
-    $default_value = ($this->ldapEntryProvisionServer) ? $this->ldapEntryProvisionServer : 'none';
     $form['basic_to_ldap']['ldapEntryProvisionServer'] = array(
       '#type' => 'radios',
       '#title' => t('LDAP Servers to Provision LDAP Entries on'),
@@ -318,8 +317,9 @@ the top of this form.
         '#collapsed' => FALSE,
         '#description' => '',
         'table__' . $direction => array(
-          '#type' => 'markup',
-          '#markup' => '[replace_with_table__' . $direction . ']',
+          '#theme' => 'ldap_user_conf_mapping_table',
+          '#rows' => $this->getServerMappingFields($direction),
+          '#header' => $this->getServerMappingHeader($direction),
         ),
       );
 
@@ -374,7 +374,6 @@ EOT;
           ),
         );
       }
-      $this->addServerMappingFields($form, $direction);
     }
 
     foreach (array('orphanedCheckQty', 'orphanedDrupalAcctBehavior', 'acctCreation', 'userConflictResolve', 'drupalAcctProvisionTriggers', 'mappings__' . LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) as $input_name) {
@@ -708,20 +707,130 @@ EOT;
 
   }
 
-  /**
-   * add existing mappings to ldap user provisioning mapping admin form table
-   *
-   * @param drupal form array $form
-   * @param enum $direction LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER or LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY
-   *
-   * @return by reference to $form array
-   */
+  /* Migrated from ldap_user.theme.inc */
+  private function getServerMappingHeader($direction) {
+    $ldap_user_conf_admin = ldap_user_conf('admin');
 
-  private function addServerMappingFields(&$form, $direction) {
+    if ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) {
 
+      $direction_text = 'todrupal';
+
+      $header = array(
+        array(
+          'data' => t('Remove'),
+          'rowspan' => 1,
+          'class' => 'mixedcase'
+        ),
+        array(
+          'data' => t('Source LDAP Tokens. (See http://drupal.org/node/1245736) ') ,
+          'class' => 'mixedcase',
+          'rowspan' => 1,
+          'colspan' => 2,
+        ),
+        array(
+          'data' => t('Target Drupal Attribute'),
+          'rowspan' => 1,
+          'class' => 'mixedcase',
+        ),
+        array('data' => t('When Should Attribute Be Synchronized to Drupal?'),
+          'colspan' => count($ldap_user_conf_admin->provisionsDrupalEvents),
+          'rowspan' => 1,
+          'class' => 'mixedcase'
+        ),
+
+      );
+
+      $second_header = array(
+        array('data' => t(''),
+              'header' => TRUE,
+              'class' => 'mixedcase',
+              ),
+        array('data' => t('e.g: "[sn]", "[mail:0]", "[ou:last]", "[sn], [givenName]" etc.
+                Constants such as "17" or "imported" should not be enclosed in [].'),
+              'header' => TRUE,
+              'class' => 'mixedcase',
+              ),
+        array('data' => t('Convert From Binary?'),
+              'class' => 'mixedcase',
+              'header' => TRUE
+              ),
+        array('data' => "",
+              'header' => TRUE,
+              ),
+      );
+
+      foreach ($ldap_user_conf_admin->provisionsDrupalEvents as $col_id => $col_name) {
+        $second_header[] = array('data' => $col_name, 'header' => TRUE, 'class' => 'mixedcase');
+      }
+    }
+    else { // to ldap
+
+      $direction_text = 'toldap';
+
+      $header = array(
+        array(
+          'data' => t('Remove'),
+          'rowspan' => 1,
+          'class' => 'mixedcase'
+        ),
+        array(
+          'data' => t('Source Drupal User Attribute') ,
+          'class' => 'mixedcase',
+          'rowspan' => 1,
+          'colspan' => 3,
+        ),
+        array(
+          'data' => t('Target LDAP Token'),
+          'rowspan' => 1,
+          'class' => 'mixedcase',
+        ),
+        array(
+          'data' => t('When Should Attribute Be Synchronized to LDAP?'),
+          'colspan' => count($ldap_user_conf_admin->provisionsLdapEvents),
+          'rowspan' => 1,
+          'class' => 'mixedcase',
+        ),
+      );
+
+      $second_header = array(
+        array(
+          'data' => t(''),
+          'header' => TRUE
+        ),
+        array(
+          'data' => t('(Select "user tokens" to use token field)'),
+          'header' => TRUE,
+          'class' => 'mixedcase'
+        ),
+        array(
+          'data' => t('Source Drupal User tokens such as: "[property.name]", "[field.field_fname] [field.field_lname]". Constants such as "from_drupal" or "18" should not be enclosed in []'),
+          'header' => TRUE,
+          'class' => 'mixedcase'
+        ),
+        array(
+          'data' => t('Convert From Binary'),
+          'header' => TRUE,
+          'class' => 'mixedcase'
+        ),
+        array(
+          'data' => t('Use singular token format such as [sn], [givenName], etc.'),
+          'header' => TRUE,
+          'class' => 'mixedcase'
+        ),
+      );
+      foreach ($ldap_user_conf_admin->provisionsLdapEvents as $col_id => $col_name) {
+        $second_header[] = array('data' => $col_name, 'header' => TRUE, 'class' => 'mixedcase');
+      }
+    }
+    return ['header' => $header, 'second_header' => $second_header];
+  }
+
+  private function getServerMappingFields($direction) {
     if ($direction == LDAP_USER_PROV_DIRECTION_NONE) {
       return;
     }
+
+    $rows = array();
 
     $text = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? 'target' : 'source';
     $user_attr_options = array('0' => t('Select') . ' ' . $text);
@@ -750,7 +859,7 @@ EOT;
         continue;
       }
       if ( !$this->isMappingConfigurable($mapping, 'ldap_user') && ($mapping['direction'] == $direction || $mapping['direction'] == LDAP_USER_PROV_DIRECTION_ALL)) { // is configurable by ldap_user module (not direction to ldap_user)
-        $this->addSynchFormRow($form, 'nonconfigurable', $direction, $mapping, $user_attr_options, $row);
+        $rows[] = $this->getSynchFormRow('nonconfigurable', $direction, $mapping, $user_attr_options, $row);
         $row++;
       }
     }
@@ -759,22 +868,23 @@ EOT;
     if (!empty($this->ldapUserSynchMappings[$direction])) {
       foreach ($this->ldapUserSynchMappings[$direction] as $target_attr_token => $mapping) {  // key could be ldap attribute name or user attribute name
         if (isset($mapping['enabled']) && $mapping['enabled'] && $this->isMappingConfigurable($this->synchMapping[$direction][$target_attr_token], 'ldap_user')) {
-          $this->addSynchFormRow($form, 'update', $direction, $mapping, $user_attr_options, $row);
+          $rows[] = $this->getSynchFormRow('update', $direction, $mapping, $user_attr_options, $row);
           $row++;
         }
       }
     }
 
-    // 3. leave 4 rows for adding more mappings
+   // 3. leave 4 rows for adding more mappings
     for ($i=0; $i<4; $i++) {
-      $this->addSynchFormRow($form, 'add', $direction, NULL, $user_attr_options, $row);
+      $rows[] = $this->getSynchFormRow('add', $direction, NULL, $user_attr_options, $row);
       $row++;
     }
 
+    return $rows;
   }
 
   /**
-   * add mapping form row to ldap user provisioning mapping admin form table
+   * get mapping form row to ldap user provisioning mapping admin form table
    *
    * @param drupal form array $form
    * @param string $action is 'add', 'update', or 'nonconfigurable'
@@ -782,16 +892,17 @@ EOT;
    * @param array $mapping is current setting for updates or nonconfigurable items
    * @param array $user_attr_options of drupal user target options
    * @param int $row is current row in table
-
    *
-   * @return by reference to $form
+   * @return a single row
    */
-  private function addSynchFormRow(&$form, $action, $direction, $mapping, $user_attr_options, $row) {
+  private function getSynchFormRow($action, $direction, $mapping, $user_attr_options, $row) {
+
+    $result = array();
 
     $id_prefix = $direction . '__';
 
     $id = $id_prefix . 'sm__remove__' . $row;
-    $form[$id] = array(
+    $result[$id] = array(
       '#id' => $id,
       '#row' => $row,
       '#col' => 0,
@@ -801,7 +912,7 @@ EOT;
     );
 
     $id =  $id_prefix . 'sm__convert__' . $row;
-    $form[$id] = array(
+    $result[$id] = array(
       '#id' => $id,
       '#row' => $row,
       '#col' => ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? 2 : 3,
@@ -814,7 +925,7 @@ EOT;
     $id =  $id_prefix . 'sm__ldap_attr__' . $row;
     $col = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? 1 : 4;
     if ($action == 'nonconfigurable') {
-      $form[$id] = array(
+      $result[$id] = array(
         '#id' => $id,
         '#row' => $row,
         '#col' => $col,
@@ -824,7 +935,7 @@ EOT;
       );
     }
     else {
-      $form[$id] = array(
+      $result[$id] = array(
         '#id' => $id,
         '#row' => $row,
         '#col' => $col,
@@ -839,7 +950,7 @@ EOT;
     $user_attr_input_id =  $id_prefix . 'sm__user_attr__' . $row;
     $col = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? 3 : 1;
     if ($action == 'nonconfigurable') {
-      $form[$user_attr_input_id] = array(
+      $result[$user_attr_input_id] = array(
         '#id' => $user_attr_input_id,
         '#row' => $row,
         '#col' => $col,
@@ -848,7 +959,7 @@ EOT;
       );
     }
     else {
-      $form[$user_attr_input_id] = array(
+      $result[$user_attr_input_id] = array(
         '#id' => $user_attr_input_id,
         '#row' => $row,
         '#col' => $col,
@@ -860,7 +971,7 @@ EOT;
 
     if ($direction == LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY) {
       $id =  $id_prefix . 'sm__user_tokens__' . $row;
-      $form[$id] = array(
+      $result[$id] = array(
         '#id' => $id,
         '#row' => $row,
         '#col' =>  2,
@@ -878,13 +989,13 @@ EOT;
       );
     }
 
-    $form['#storage']['synch_mapping_fields'][$direction][$row] = array(
+    $result['#storage']['synch_mapping_fields'][$direction][$row] = array(
       'action' => $action,
       'direction' => $direction,
     );
 
     $id = $id_prefix . 'sm__configurable_to_drupal__' . $row;
-    $form[$id] = array(
+    $result[$id] = array(
       '#id' => $id,
       '#type' => 'hidden',
       '#default_value' => ($action != 'nonconfigurable'),
@@ -897,7 +1008,7 @@ EOT;
     foreach ($synchEvents as $prov_event => $prov_event_name) {
       $col++;
       $id =  $id_prefix . join('__', array('sm', $prov_event, $row));
-      $form[$id] = array(
+      $result[$id] = array(
         '#id' => $id ,
         '#type' => 'checkbox',
         '#default_value' => isset($mapping['prov_events']) ? (int)(in_array($prov_event, $mapping['prov_events'])) : '',
@@ -907,6 +1018,7 @@ EOT;
         '#attributes' => array('class' => array('synch-method')),
       );
     }
+    return $result;
   }
 
   /**

@@ -101,10 +101,10 @@ function ldap_user_menu() {
 
 /**
  * function ldap_user_ws_urls_item_list() {
-  module_load_include('inc', 'ldap_user', 'ldap_user.ws');
-  return _ldap_user_ws_urls_item_list();
-}
-*/
+ *   module_load_include('inc', 'ldap_user', 'ldap_user.ws');
+ *   return _ldap_user_ws_urls_item_list();
+ * }
+ */
 
 /**
  * Implements hook_init().
@@ -116,14 +116,58 @@ function ldap_user_init() {
 /**
  * Implements hook_theme().
  */
-// @ FIXME: uncommenting crash the page rendering
-// function ldap_user_theme() {
-//   return array('ldap_user_conf_form' => array(
-//     'render element' => 'form',
-//     'file' => 'ldap_user.theme.inc'
-//     ),
-//   );
-// }
+function ldap_user_theme($existing, $type, $theme, $path) {
+  return array(
+    'ldap_user_conf_mapping_table' => array(
+      'variables' => [
+        'table' => NULL,
+        'rows' => NULL,
+        'header' => NULL,
+      ],
+    ),
+  );
+}
+
+function template_preprocess_ldap_user_conf_mapping_table(&$variables) {
+
+  foreach ( $variables['rows'] as &$row ) {
+    // @TODO Sort the cols on their #col attribute
+    $c = [];
+    foreach ($row as $key => $r) {
+      $c[$key] = $r['#col'];
+    }
+    array_multisort($c, SORT_ASC, $row);
+    
+    foreach ( $row as $key => &$col ) {
+      // There is an empty column which needs to go
+      // @TODO Don't have an empty row in the first place. See getSynchFormRow in LdapUserConfAdmin.class.php
+      if ( ! array_key_exists('#col', $col) ) {
+        unset($row[$key]);
+      }
+      // Put each column into the data array so it will render
+      else {
+        $col = ['data' => $col];
+      }
+    }
+  }
+
+  if ( array_key_exists('header', $variables['header']) ) {
+    $header = $variables['header']['header'];
+    $second_header = $variables['header']['second_header'];
+  } else {
+    $header = $variables['header'];
+  }
+  // Prepend the second header
+  array_unshift($variables['rows'], $second_header);
+
+  $settings = [
+    '#attributes' => array('class' => array('ldap-provision-' . $direction_text)),
+    '#theme' => 'table',
+    '#rows' => $variables['rows'],
+    '#header' => $header,
+  ];
+  $variables['table'] = drupal_render($settings);
+}
 
 /**
  * Implements hook_cron().
