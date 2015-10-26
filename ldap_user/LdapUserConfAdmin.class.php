@@ -206,6 +206,7 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#collapsed' => !($this->ldapEntryProvisionServer),
     );
 
+    $default_value = ($this->ldapEntryProvisionServer) ? $this->ldapEntryProvisionServer : 'none';
     $form['basic_to_ldap']['ldapEntryProvisionServer'] = array(
       '#type' => 'radios',
       '#title' => t('LDAP Servers to Provision LDAP Entries on'),
