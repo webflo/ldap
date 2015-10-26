@@ -181,7 +181,7 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#type' => 'radios',
       '#title' => t('Action to perform on Drupal account that no longer have a
         corresponding LDAP entry'),
-      '#required' => 1,
+      '#required' => 0,
       // @FIX ME
       // '#default_value' => $this->orphanedDrupalAcctBehavior,
       '#options' => $account_options,
@@ -693,16 +693,15 @@ EOT;
    * @return by reference to $form array
    */
   public function drupalFormSubmit($values, $storage) {
-
     $this->populateFromDrupalForm($values, $storage);
 
     try {
       $save_result = $this->save();
+      return TRUE;
     }
     catch (Exception $e) {
-      $this->errorName = 'Save Error';
-      $this->errorMsg = t('Failed to save object.  Your form data was not saved.');
-      $this->hasError = TRUE;
+      drupal_set_message('Failed to save object. Your form data was not saved.', 'error');
+      return $e;
     }
 
   }

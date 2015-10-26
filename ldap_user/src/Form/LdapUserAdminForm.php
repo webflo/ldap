@@ -10,6 +10,7 @@ namespace Drupal\ldap_user\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class LdapUserAdminForm extends FormBase {
 
@@ -42,14 +43,13 @@ class LdapUserAdminForm extends FormBase {
   public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
 
     $ldap_user_conf = ldap_user_conf('admin');
-    $ldap_user_conf->drupalFormSubmit($form_state->getValues(), $form['#storage']); // add form data to object and save or create
-
-    if ($ldap_user_conf->hasError == FALSE) {
+    $result = $ldap_user_conf->drupalFormSubmit($form_state->getValues(), $form['#storage']); // add form data to object and save or create
+    if ($result === TRUE) {
       drupal_set_message(t('LDAP user configuration saved'), 'status');
-      drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/user');
+      return new RedirectResponse(\Drupal::url('ldap_user.admin_form'));
     }
     else {
-      $form_state->setErrorByName($conf->errorName, $conf->errorMsg);
+      drupal_set_message($result->getMessage(), 'error');
       $ldap_user_conf->clearError();
     }
 
