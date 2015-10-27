@@ -128,6 +128,24 @@ function ldap_user_theme($existing, $type, $theme, $path) {
   );
 }
 
+/* Implements MODULE_preprocess_HOOK */
+function ldap_user_preprocess_table(&$variables) {
+  if ( ! in_array('mappings-table', $variables['attributes']['class']) )
+    return;
+
+  // Iterate the variables looking for form elements that have the type hidden
+  foreach ($variables['rows'] as $key => &$row ) {
+    foreach ( $row['cells'] as &$cell ) {
+      if ( $cell['content']['#type'] == 'hidden' ) {
+        $cell['attributes']['hidden'] = TRUE;
+        $cell['attributes']['aria-hidden'] = 'true';
+        $cell['tag'] = 'span';
+      }
+    }
+  }
+}
+
+// https://www.drupal.org/node/1876710
 function template_preprocess_ldap_user_conf_mapping_table(&$variables) {
 
   foreach ( $variables['rows'] as &$row ) {
