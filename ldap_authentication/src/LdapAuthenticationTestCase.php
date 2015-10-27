@@ -320,7 +320,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     ldap_servers_delete_globals('_SERVER', 'REMOTE_USER', TRUE);
     ldap_servers_delete_globals('_SERVER', 'REDIRECT_REMOTE_USER', TRUE);
 
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
 
     $authenticationConf->ssoEnabled = TRUE;
     $authenticationConf->ssoRemoteUserStripDomainName = FALSE;
@@ -363,7 +363,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     $this->drupalGet('user');
 
     // just test that the setup works
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $this->assertTrue(ldap_servers_get_globals('_SERVER', 'REMOTE_USER', TRUE) == 'hpotter',
        '$_SERVER[REMOTE_USER] and $_SERVER[REDIRECT_REMOTE_USER] set properly for test with remote server ' . ldap_servers_get_globals('_SERVER', 'REMOTE_ADDR'), $testid);
 
@@ -463,7 +463,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     /**
      * prep LDAP_authen.WL.allow
      */
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->allowOnlyIfTextInDn = array('pot');
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
@@ -487,14 +487,14 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     * undo LDAP_authen.WL.allow settings
     */
 
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->allowOnlyIfTextInDn = array();
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
     /**
     * prep LDAP_authen.WL.exclude
     */
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->excludeIfTextInDn = array('cn=ssnape');
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
@@ -517,7 +517,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     * undo LDAP_authen.WL.allow settings
     */
 
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->excludeIfTextInDn = array();
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
@@ -525,7 +525,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
     /**
     * prep LDAP_authen.WL.php
     */
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->allowTestPhp = "\n
       //exclude users with dumb in email address \n
       if (strpos(\$_ldap_user_entry['attr']['mail'][0], 'dumb') === FALSE) {\n
@@ -572,7 +572,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
   /**
     * clear LDAP_authen.WL.php
     */
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->allowTestPhp = '';
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
@@ -620,7 +620,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
 
    // these 2 modules are configured in setup, but disabled for most authentication tests
     module_disable(array('ldap_authorization_drupal_role', 'ldap_authorization'));
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->excludeIfNoAuthorizations = 1;
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);
@@ -664,7 +664,7 @@ class LdapAuthenticationTestCase extends LdapTestCase {
       $testid
     );
 
-    $authenticationConf = new LdapAuthenticationConfAdmin();
+    $authenticationConf = new \LdapAuthenticationConfAdmin();
     $authenticationConf->excludeIfNoAuthorizations = 0;
     $authenticationConf->save();
     $authenticationConf = ldap_authentication_get_valid_conf(TRUE);

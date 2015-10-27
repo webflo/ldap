@@ -600,15 +600,15 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
   }
 
   protected function arrayToLines($array) {
-        $lines = "";
-        if (is_array($array)) {
-          $lines = join("\n", $array);
-        }
-        elseif (is_array(@unserialize($array))) {
-          $lines = join("\n", unserialize($array));
-        }
-        return $lines;
-      }
+    $lines = "";
+    if (is_array($array)) {
+      $lines = join("\n", $array);
+    }
+    elseif (is_array(@unserialize($array))) {
+      $lines = join("\n", unserialize($array));
+    }
+    return $lines;
+  }
 
   protected function linesToArray($lines) {
     $lines = trim($lines);

@@ -21,7 +21,7 @@ class LdapAuthenticationAdminForm extends FormBase {
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConfAdmin.class');
+    ldap_servers_module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConfAdmin.class');
     $auth_conf = new \LdapAuthenticationConfAdmin();
     return $auth_conf->drupalForm();
   }
@@ -52,7 +52,8 @@ class LdapAuthenticationAdminForm extends FormBase {
       drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/authentication');
     }
     else {
-      $form_state->setErrorByName($auth_conf->errorName, $auth_conf->errorMsg);
+      // @FIXME
+      // $form_state->setErrorByName($auth_conf->errorName, $auth_conf->errorMsg);
       $auth_conf->clearError();
     }
 
