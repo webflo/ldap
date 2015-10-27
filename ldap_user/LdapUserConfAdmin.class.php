@@ -309,7 +309,10 @@ the top of this form.
         $description =   t('Provisioning from Drupal to LDAP Mappings:');
       }
 
-      $form[$parent_fieldset]['mappings__' . $direction] = array(
+      $mapping_id = 'mappings__' . $direction;
+      $table_id = $mapping_id . '__table';
+
+      $form[$parent_fieldset][$mapping_id] = array(
         '#type' => 'fieldset',
         '#title' =>  $description,
         '#collapsible' => TRUE,
@@ -317,21 +320,21 @@ the top of this form.
         '#description' => '',
       );
 
-      $form[$parent_fieldset]['mappings__' . $direction]['table'] = array(
+      $form[$parent_fieldset][$mapping_id][$table_id] = array(
         '#type' => 'table',
         '#header' => array(t('Label'), t('Machine name'), t('Weight'), t('Operations')),
         '#attributes' => array('class' => array('mappings-table')),
       );
 
       $headers = $this->getServerMappingHeader($direction);
-      $form[$parent_fieldset]['mappings__' . $direction]['table']['#header'] = $headers['header'];
+      $form[$parent_fieldset][$mapping_id][$table_id]['#header'] = $headers['header'];
       // Add in the second header as the first row.
-      $form[$parent_fieldset]['mappings__' . $direction]['table']['second-header'] = array(
+      $form[$parent_fieldset][$mapping_id][$table_id]['second-header'] = array(
         '#attributes' => array('class' => 'header'),
       );
       // Second header uses the same format as header.
       foreach ( $headers['second_header'] as $cell ) {
-        $form[$parent_fieldset]['mappings__' . $direction]['table']['second-header'][] = array(
+        $form[$parent_fieldset][$mapping_id][$table_id]['second-header'][] = array(
           '#title' => $cell['data'],
           '#type' => 'item',
           '#attributes' => array('class' => array($cell['class'])),
@@ -341,7 +344,7 @@ the top of this form.
       }
 
       // Add in all the mappings. @TODO fix the save handlers.
-      $form[$parent_fieldset]['mappings__' . $direction]['table'] += $this->getServerMappingFields($direction);
+      $form[$parent_fieldset][$mapping_id][$table_id] += $this->getServerMappingFields($direction);
 
 $password_notes = '<h3>' . t('Password Tokens') . '</h3><ul>' .
 '<li>' . t('Pwd: Random -- Uses a random Drupal generated password') . '</li>' .
@@ -873,11 +876,12 @@ EOT;
 
     // 1. non configurable mapping rows
     foreach ($this->synchMapping[$direction] as $target_id => $mapping) {
+      $row_id = str_replace(['[',']'], '', $target_id);
       if (isset($mapping['exclude_from_mapping_ui']) && $mapping['exclude_from_mapping_ui']) {
         continue;
       }
       if ( !$this->isMappingConfigurable($mapping, 'ldap_user') && ($mapping['direction'] == $direction || $mapping['direction'] == LDAP_USER_PROV_DIRECTION_ALL)) { // is configurable by ldap_user module (not direction to ldap_user)
-        $rows['row-' . $row] = $this->getSynchFormRow('nonconfigurable', $direction, $mapping, $user_attr_options, $row);
+        $rows[$row_id] = $this->getSynchFormRow('nonconfigurable', $direction, $mapping, $user_attr_options, $row);
         $row++;
       }
     }
@@ -886,7 +890,8 @@ EOT;
     if (!empty($this->ldapUserSynchMappings[$direction])) {
       foreach ($this->ldapUserSynchMappings[$direction] as $target_attr_token => $mapping) {  // key could be ldap attribute name or user attribute name
         if (isset($mapping['enabled']) && $mapping['enabled'] && $this->isMappingConfigurable($this->synchMapping[$direction][$target_attr_token], 'ldap_user')) {
-          $rows['row-' . $row] = $this->getSynchFormRow('update', $direction, $mapping, $user_attr_options, $row);
+          $row_id = 'row-' . $row;
+          $rows[$row_id] = $this->getSynchFormRow('update', $direction, $mapping, $user_attr_options, $row);
           $row++;
         }
       }
@@ -894,7 +899,8 @@ EOT;
 
    // 3. leave 4 rows for adding more mappings
     for ($i=0; $i<4; $i++) {
-      $rows['row-' . $row] = $this->getSynchFormRow('add', $direction, NULL, $user_attr_options, $row);
+      $row_id = 'custom-' . $i;
+      $rows[$row_id] = $this->getSynchFormRow('add', $direction, NULL, $user_attr_options, $row);
       $row++;
     }
 
@@ -928,6 +934,7 @@ EOT;
     if ($action == 'nonconfigurable') {
       $result['ldap_attr'] = array(
         '#type' => 'item',
+        '#default_value' => isset($mapping['ldap_attr']) ? $mapping['ldap_attr'] : '',
         '#markup' => isset($mapping['source']) ? $mapping['source'] : '?',
         '#attributes' => array('class' => array('source')),
       );
@@ -944,6 +951,15 @@ EOT;
       );
     }
 
+    $result['convert'] = array(
+      '#type' => 'checkbox',
+      '#title' => 'Convert from binary',
+      '#title_display' => 'invisible',
+      '#default_value' =>  isset($mapping['convert']) ? $mapping['convert'] : '',
+      '#disabled' => ($action == 'nonconfigurable'),
+      '#attributes' => array('class' => array('convert')),
+    );
+
     if ($action == 'nonconfigurable') {
       $result['user_attr'] = array(
         '#type' => 'item',
@@ -959,15 +975,6 @@ EOT;
         '#options' => $user_attr_options,
       );
     }
-
-    $result['convert'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'Convert from binary',
-      // '#title_display' => 'invisible',
-      '#default_value' =>  isset($mapping['convert']) ? $mapping['convert'] : '',
-      '#disabled' => ($action == 'nonconfigurable'),
-      '#attributes' => array('class' => array('convert')),
-    );
 
     if ($direction == LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY) {
       $result['user_tokens'] = array(
@@ -1000,6 +1007,7 @@ EOT;
       $result[$prov_event] = array(
         '#type' => 'checkbox',
         '#title' => $prov_event,
+        '#title_display' => 'invisible',
         '#default_value' => isset($mapping['prov_events']) ? (int)(in_array($prov_event, $mapping['prov_events'])) : '',
         '#disabled' => (!$this->provisionEventConfigurable($prov_event, $mapping) || ($action == 'nonconfigurable')),
         '#attributes' => array('class' => array('synch-method')),
