@@ -226,7 +226,7 @@ class LdapAuthenticationConf {
       $this->inDatabase = FALSE;
     }
 
-    $this->ldapUser = new LdapUserConf();
+    $this->ldapUser = new \LdapUserConf();
     $this->ssoEnabled = \Drupal::moduleHandler()->moduleExists('ldap_sso');
     $this->apiPrefs['requireHttps'] = Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials');
     $this->apiPrefs['encryption'] = Drupal::config('ldap_servers.settings')->get('encryption');
@@ -322,7 +322,7 @@ class LdapAuthenticationConf {
         return FALSE;
       }
 
-      $user = new stdClass();
+      $user = new \stdClass();
       $user->name = $name;
       $user->ldap_authenticated = TRUE; // fake user property added for query
       $consumers = ldap_authorization_get_consumers();
