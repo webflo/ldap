@@ -22,14 +22,14 @@ class LdapAuthenticationAdminForm extends FormBase {
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
     module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConfAdmin.class');
-    $auth_conf = new LdapAuthenticationConfAdmin();
+    $auth_conf = new \LdapAuthenticationConfAdmin();
     return $auth_conf->drupalForm();
   }
 
   public function validateForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
 
     ldap_servers_module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConfAdmin.class');
-    $auth_conf = new LdapAuthenticationConfAdmin();
+    $auth_conf = new \LdapAuthenticationConfAdmin();
     $errors = $auth_conf->drupalFormValidate($form_state->getValues());
     foreach ($errors as $error_name => $error_text) {
       $form_state->setErrorByName($error_name, t($error_text));
@@ -40,7 +40,7 @@ class LdapAuthenticationAdminForm extends FormBase {
   public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
 
     ldap_servers_module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConfAdmin.class');
-    $auth_conf = new LdapAuthenticationConfAdmin();
+    $auth_conf = new \LdapAuthenticationConfAdmin();
     $auth_conf->drupalFormSubmit($form_state->getValues()); // add form data to object and save or create
     if (!$auth_conf->hasEnabledAuthenticationServers()) {
       drupal_set_message(t('No LDAP servers are enabled for authentication,

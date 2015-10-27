@@ -55,13 +55,21 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
       or cn=bad that if found in a user\'s dn, exclude them from ldap authentication.
       Enter one per line such as <pre>ou=evil') . "\n" . t('cn=bad</pre> This test will be case insensitive.');
 
-    $values['allowTestPhpDescription'] = t('PHP code which should print 1
+    // @FIXME
+    // $values['allowTestPhpDescription'] = t('PHP code which should print 1
+    //     for allowing ldap authentication or 0 for not allowed.  Available variables are:
+    //     $_name and $_ldap_user_entry  See readme.txt for more info.');
+    $values['allowTestPhpDescription'] = 'PHP code which should print 1
         for allowing ldap authentication or 0 for not allowed.  Available variables are:
-        $_name and $_ldap_user_entry  See readme.txt for more info.');
+        $_name and $_ldap_user_entry  See readme.txt for more info.';
 
-    $values['excludeIfNoAuthorizationsDescription'] = t('If the user is not granted any drupal roles,
+    // @FIXME
+    // $values['excludeIfNoAuthorizationsDescription'] = t('If the user is not granted any drupal roles,
+    //   organic groups, etc. by LDAP Authorization, login will be denied.  LDAP Authorization must be
+    //   enabled for this to work.');
+    $values['excludeIfNoAuthorizationsDescription'] = 'If the user is not granted any drupal roles,
       organic groups, etc. by LDAP Authorization, login will be denied.  LDAP Authorization must be
-      enabled for this to work.');
+      enabled for this to work.';
 
     /**
     * Email
@@ -99,8 +107,10 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
       'mod_auth_kerb' => t('mod_auth_kerb'),
       );
 
-    $values['cookieExpirePeriod'] = array(-1 => t('Session'), 0 => t('Immediately')) +
-      array_combine(array(3600, 86400, 604800, 2592000, 31536000, 315360000, 630720000), 'format_interval');
+    // @FIXME
+    // $values['cookieExpirePeriod'] = array(-1 => t('Session'), 0 => t('Immediately')) +
+    //   array_combine(array(3600, 86400, 604800, 2592000, 31536000, 315360000, 630720000), 'format_interval');
+    $values['cookieExpirePeriod'] = array(-1 => t('Session'), 0 => t('Immediately'));
 
     // @FIXME
     // $values['ssoEnabledDescription'] = '<strong>' . t('Single Sign on is enabled.') .
@@ -135,19 +145,36 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
         any hostnames from SSO, enter them here. Enter one host per line.');
       '</p>';
 
-    $values['ssoRemoteUserStripDomainNameDescription'] = t('Useful when the ' .
+    // @FIXME
+    // $values['ssoRemoteUserStripDomainNameDescription'] = t('Useful when the ' .
+    //   'WWW server provides authentication in the form of user@realm and you ' .
+    //   'want to have both SSO and regular forms based authentication ' .
+    //   'available. Otherwise duplicate accounts with conflicting e-mail ' .
+    //   'addresses may be created.');
+    $values['ssoRemoteUserStripDomainNameDescription'] = 'Useful when the ' .
       'WWW server provides authentication in the form of user@realm and you ' .
       'want to have both SSO and regular forms based authentication ' .
       'available. Otherwise duplicate accounts with conflicting e-mail ' .
-      'addresses may be created.');
-    $values['seamlessLogInDescription'] = t('This requires that you ' .
+      'addresses may be created.';
+    // @FIXME
+    // $values['seamlessLogInDescription'] = t('This requires that you ' .
+    //   'have operational NTLM or Kerberos authentication turned on for at least ' .
+    //   'the path user/login/sso, or for the whole domain.');
+    $values['seamlessLogInDescription'] = 'This requires that you ' .
       'have operational NTLM or Kerberos authentication turned on for at least ' .
-      'the path user/login/sso, or for the whole domain.');
-    $values['cookieExpireDescription'] = t('If using the seamless login, a ' .
+      'the path user/login/sso, or for the whole domain.';
+    // @FIXME
+    // $values['cookieExpireDescription'] = t('If using the seamless login, a ' .
+    //   'cookie is necessary to prevent automatic login after a user ' .
+    //   'manually logs out. Select the lifetime of the cookie.');
+    $values['cookieExpireDescription'] = 'If using the seamless login, a ' .
       'cookie is necessary to prevent automatic login after a user ' .
-      'manually logs out. Select the lifetime of the cookie.');
-    $values['ldapImplementationDescription'] = t('Select the type of ' .
-      'authentication mechanism you are using.');
+      'manually logs out. Select the lifetime of the cookie.';
+    // @FIXME
+    // $values['ldapImplementationDescription'] = t('Select the type of ' .
+    //   'authentication mechanism you are using.');
+    $values['ldapImplementationDescription'] = 'Select the type of ' .
+      'authentication mechanism you are using.';
 
     foreach ($values as $property => $default_value) {
       $this->$property = $default_value;
