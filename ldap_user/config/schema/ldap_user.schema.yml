@@ -5,4 +5,8 @@ ldap_user.settings:
     ldap_user_cron_last_uid_checked:
       type: integer
     ldap_user_conf:
-      type: boolean
+      type: mapping
+      mapping:
+        drupalAcctProvisionServer:
+          label: 'drupalAcctProvisionServer'
+          type: string
