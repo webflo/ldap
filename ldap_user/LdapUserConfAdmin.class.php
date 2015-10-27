@@ -434,6 +434,7 @@ EOT;
     $this->populateFromDrupalForm($values, $storage);
     list($errors, $warnings) = $this->validate($values);
 
+    // @TODO these form fields aren't named like this anymore
     // since failed mapping rows in form, don't populate ->ldapUserSynchMappings, need to validate these from values
     foreach ($values as $field => $value) {
       $parts = explode('__', $field);
@@ -634,6 +635,8 @@ EOT;
  * @param array $values as $form_state['values'] from drupal form api
  * @param array $storage as $form_state['storage'] from drupal form api
  *
+ * WARNING: Rewritten using nested forms. This may no longer apply.
+ *
  * $values input names in form:
  *   1__sm__configurable__5,
  *   1__sm__remove__5,
@@ -644,65 +647,57 @@ EOT;
  *   1__sm__user_tokens__5
  *   1__sm__1__5,
  *   1__sm__2__5,
-    ...where
-      -- first arg is direction, eg 1 or 2 LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER or LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY
-      -- second arg is discarded ('sm')
-      -- third part is field, e.g. user_attr
-      -- fourth is the row in the configuration form, e.g. 5
-
-   where additiond data is in $form['#storage'][<direction>]['synch_mapping_fields'][N]
-    $form['#storage']['synch_mapping_fields'][<direction>][N] = array(
-      'sid' => $sid,
-      'action' => 'add',
-    );
+ *  ...where
+ *    -- first arg is direction, eg 1 or 2 LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER or LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY
+ *    -- second arg is discarded ('sm')
+ *    -- third part is field, e.g. user_attr
+ *    -- fourth is the row in the configuration form, e.g. 5 *
+ *  where additiond data is in $form['#storage'][<direction>]['synch_mapping_fields'][N]
+ *  $form['#storage']['synch_mapping_fields'][<direction>][N] = array(
+ *    'sid' => $sid,
+ *    'action' => 'add',
+ *  );
  */
   private function synchMappingsFromForm($values, $storage) {
 
     $mappings = array();
-    foreach ($values as $field => $value) {
+    foreach ($values as $field_name => $value) {
 
-      $parts = explode('__', $field);
-      // since synch mapping fields are in n-tuples, process entire n-tuple at once
-      if (count($parts) != 4 || $parts[1] !== 'sm') {
+      $parts = explode('__', $field_name);
+      if ( $parts[0] != 'mappings' ) {
         continue;
       }
+      $direction = $parts[1];
 
-      list($direction, $discard, $column_name, $i) = $parts;
-      $action = $storage['synch_mapping_fields'][$direction][$i]['action'];
+      // These are our rows
+      foreach ( $value as $row_descriptor => $columns ) {
+        if ( $row_descriptor == 'second-header' ) continue;
 
-      $row_mappings = array();
-      foreach (array('remove', 'configurable_to_drupal', 'configurable_to_ldap', 'convert', 'ldap_attr', 'user_attr', 'user_tokens') as $column_name) {
-        $input_name = join('__', array($direction, 'sm', $column_name, $i));
-        $row_mappings[$column_name] = isset($values[$input_name]) ? $values[$input_name] : NULL;
-      }
+        $action = $storage['synch_mapping_fields'][$direction][$row_descriptor]['action'];
 
-      if ($row_mappings['remove']) {
-        continue;
-      }
-
-      $key = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? $row_mappings['user_attr'] : $row_mappings['ldap_attr'];
-      if ($row_mappings['configurable_to_drupal'] && $row_mappings['ldap_attr'] && $row_mappings['user_attr']) {
-        $mappings[$direction][$key] = array(
-          'ldap_attr' => $row_mappings['ldap_attr'],
-          'user_attr' => $row_mappings['user_attr'],
-          'convert' => $row_mappings['convert'],
-          'direction' => $direction,
-          'user_tokens' => $row_mappings['user_tokens'],
-          'config_module' => 'ldap_user',
-          'prov_module' => 'ldap_user',
-          'enabled' => 1,
+        $key = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? _ldap_user_sanitise($columns['user_attr']) : _ldap_user_sanitise($columns['ldap_attr']);
+        // Only save if its configurable and has an ldap and drupal attributes. The others are optional.
+        if ($columns['configurable_to_drupal'] && $columns['ldap_attr'] && $columns['user_attr']) {
+          $mappings[$direction][$key] = array(
+            'ldap_attr'   => $columns['ldap_attr'],
+            'user_attr'   => $columns['user_attr'],
+            'convert'     => $columns['convert'],
+            'direction'   => $direction,
+            'user_tokens' => $columns['user_tokens'],
+            'config_module' => 'ldap_user',
+            'prov_module' => 'ldap_user',
+            'enabled'     => 1,
           );
 
-        $synchEvents = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? $this->provisionsDrupalEvents : $this->provisionsLdapEvents;
-        foreach ($synchEvents as $prov_event => $discard) {
-          $input_name = join('__', array($direction, 'sm', $prov_event, $i));
-          if (isset($values[$input_name]) && $values[$input_name]) {
-            $mappings[$direction][$key]['prov_events'][] = $prov_event;
+          $synchEvents = ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) ? $this->provisionsDrupalEvents : $this->provisionsLdapEvents;
+          foreach ($synchEvents as $prov_event => $discard) {
+            if ( isset($columns[$prov_event]) && $columns[$prov_event] ) {
+              $mappings[$direction][$key]['prov_events'][] = $prov_event;
+            }
           }
         }
       }
     }
-
     return $mappings;
   }
 
@@ -876,7 +871,7 @@ EOT;
 
     // 1. non configurable mapping rows
     foreach ($this->synchMapping[$direction] as $target_id => $mapping) {
-      $row_id = str_replace(['[',']'], '', $target_id);
+      $row_id = _ldap_user_sanitise($target_id);
       if (isset($mapping['exclude_from_mapping_ui']) && $mapping['exclude_from_mapping_ui']) {
         continue;
       }
@@ -1017,7 +1012,7 @@ EOT;
     // This one causes the extra column
     $result['configurable_to_drupal'] = array(
       '#type' => 'hidden',
-      '#default_value' => ($action != 'nonconfigurable'),
+      '#default_value' => ($action != 'nonconfigurable' ? 1 : 0),
       '#class' => '',
     );
 

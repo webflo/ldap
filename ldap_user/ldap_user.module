@@ -141,6 +141,9 @@ function ldap_user_preprocess_table(&$variables) {
         $cell['attributes']['aria-hidden'] = 'true';
         $cell['tag'] = 'span';
       }
+      if ( in_array('header', $row['attributes']['class']) ) {
+        $cell['tag'] = 'th';
+      }
     }
   }
 }
@@ -257,7 +260,12 @@ function ldap_user_conf($type = NULL, $reset = FALSE) {
   return ($type == 'admin') ? $ldap_user_conf_admin : $ldap_user_conf;
 }
 
-
+/* Returns a config compatible machine name */
+function _ldap_user_sanitise($string) {
+  // Replace dots
+  // Replace square brackets
+  return str_replace(['.', '[', ']'], ['-', '', ''], $string);
+}
 /**
  * Implements hook_ldap_attributes_needed_alter().
  */
@@ -369,7 +377,7 @@ function ldap_user_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) 
   }
   //@todo make these merges so they don't override saved values such as 'enabled'
   $available_user_attrs['[property.status]'] = $available_user_attrs['[property.status]'] + array(
-    'name' => 'Property: Acount Status',
+    'name' => 'Property: Account Status',
     'configurable_to_drupal' => 1,
     'configurable_to_ldap' => 1,
     'user_tokens' => '1=enabled, 0=blocked.',
