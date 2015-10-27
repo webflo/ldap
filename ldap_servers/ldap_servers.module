@@ -370,7 +370,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
   $url = Url::fromRoute('entity.ldap_servers.edit_index');
   $tokens = array(
     '!edit_link' => \Drupal::l($url, $url),
-    '!sid' => $ldap_server->sid,
+    '!sid' => $ldap_server->get('sid')->value,
   );
 
 
@@ -461,7 +461,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
       }
       $available_user_attrs['[property.name]'] = array(
         'name' => 'Property: Username',
-        'source' => '[' . $ldap_server->user_attr . ']',
+        'source' => '[' . $ldap_server->get('user_attr')->value . ']',
         'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
         'enabled' => TRUE,
         'prov_events' => array(LDAP_USER_EVENT_CREATE_DRUPAL_USER, LDAP_USER_EVENT_SYNCH_TO_DRUPAL_USER),
@@ -474,7 +474,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
       }
       $available_user_attrs['[property.mail]'] =  array(
         'name' => 'Property: Email',
-        'source' => ($ldap_server->mail_template) ? $ldap_server->mail_template : '[' . $ldap_server->mail_attr . ']',
+        'source' => ($ldap_server->get('mail_template')->value) ? $ldap_server->get('mail_template')->value : '[' . $ldap_server->get('mail_attr')->value . ']',
         'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
         'enabled' => TRUE,
         'prov_events' => array(LDAP_USER_EVENT_CREATE_DRUPAL_USER, LDAP_USER_EVENT_SYNCH_TO_DRUPAL_USER),
@@ -488,7 +488,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
         }
         $available_user_attrs['[property.picture]'] = array(
             'name' => 'Property: Picture',
-            'source' => '[' . $ldap_server->picture_attr . ']',
+            'source' => '[' . $ldap_server->get('picture_attr')->value . ']',
             'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
             'enabled' => TRUE,
             'prov_events' => array(LDAP_USER_EVENT_CREATE_DRUPAL_USER, LDAP_USER_EVENT_SYNCH_TO_DRUPAL_USER),
