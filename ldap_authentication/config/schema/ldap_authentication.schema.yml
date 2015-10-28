@@ -3,4 +3,4 @@ ldap_authentication.settings:
   label: Settings
   mapping:
     ldap_authentication_conf:
-      type: boolean
+      type: mapping

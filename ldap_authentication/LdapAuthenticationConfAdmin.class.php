@@ -565,7 +565,7 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
   protected function populateFromDrupalForm($values) {
 
     $this->authenticationMode = ($values['authenticationMode']) ? (int)$values['authenticationMode'] : NULL;
-    $this->sids = $values['authenticationServers'] ? key($values['authenticationServers']) : NULL;
+    $this->sids = $values['authenticationServers'];
     $this->allowOnlyIfTextInDn = $this->linesToArray($values['allowOnlyIfTextInDn']);
     $this->excludeIfTextInDn = $this->linesToArray($values['excludeIfTextInDn']);
     $this->allowTestPhp = $values['allowTestPhp'];
