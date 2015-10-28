@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.user.user.current_dn
+  module:
+    - ldap_servers
+    - ldap_user
+id: user.user.default
+targetEntityType: user
+bundle: user
+mode: default
+content:
+  current_dn:
+    label: hidden
+    type: string
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }
