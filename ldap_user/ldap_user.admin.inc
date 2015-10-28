@@ -43,7 +43,7 @@ function ldap_user_admin_form_submit($form, &$form_state) {
 
   if ($ldap_user_conf->hasError == FALSE) {
     drupal_set_message(t('LDAP user configuration saved'), 'status');
-    drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/user');
+    return new RedirectResponse(\Drupal::url('ldap_user.admin_form'));
   }
   else {
     form_set_error($conf->errorName, $conf->errorMsg);

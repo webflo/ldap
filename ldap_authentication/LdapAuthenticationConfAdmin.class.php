@@ -583,6 +583,11 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
     $this->seamlessLogin = ($values['seamlessLogin']) ? (int)$values['seamlessLogin'] : NULL;
     $this->cookieExpire = ($values['cookieExpire']) ? (int)$values['cookieExpire'] : NULL;
     $this->ldapImplementation = ($values['ldapImplementation']) ? (string)$values['ldapImplementation'] : NULL;
+
+    foreach ( $values['authenticationServers'] as $sid => $enabled ) {
+      if ( $enabled )
+        $this->enabledAuthenticationServers[$sid] = $enabled;
+    };
   }
 
   public function drupalFormSubmit($values) {

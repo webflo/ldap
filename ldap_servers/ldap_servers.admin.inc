@@ -99,7 +99,7 @@ function ldap_servers_admin_form_submit($form, &$form_state) {
       // if there are warnings, want them to see form even if its been saved
     }
     else {
-      drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/servers');
+      return new RedirectResponse(\Drupal::url('ldap_servers.edit_index'));
     }
   }
   else {
@@ -143,7 +143,7 @@ function ldap_servers_admin_delete($form, &$form_state, $op = NULL, $sid = NULL)
     $warnings = \Drupal::moduleHandler()->invokeAll('ldap_server_in_use', [$sid, $ldap_server->name]);
     if (count($warnings)) {
       drupal_set_message(join("<br/>", array_values($warnings)), 'error');
-      drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/servers/list');
+      return new RedirectResponse(\Drupal::url('ldap_servers.edit_index'));
     }
     else {
       return confirm_form(
@@ -157,7 +157,7 @@ function ldap_servers_admin_delete($form, &$form_state, $op = NULL, $sid = NULL)
       );
     }
   }
-  drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/servers/list');
+  return new RedirectResponse(\Drupal::url('ldap_servers.edit_index'));
 }
 
 /**
@@ -182,7 +182,7 @@ function ldap_servers_admin_delete_submit($form, &$form_state) {
     drupal_set_message(t('LDAP Server delete cancelled.'), 'status');
   }
   ldap_servers_cache_clear();
-  drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/servers/list');
+  return new RedirectResponse(\Drupal::url('ldap_servers.edit_index'));
 }
 
 
