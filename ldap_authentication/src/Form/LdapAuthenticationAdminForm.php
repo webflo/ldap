@@ -49,7 +49,8 @@ class LdapAuthenticationAdminForm extends FormBase {
     }
     if ($auth_conf->hasError == FALSE) {
       drupal_set_message(t('LDAP Authentication configuration saved'), 'status');
-      drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/authentication');
+      // @FIXME
+      // drupal_goto(LDAP_SERVERS_MENU_BASE_PATH . '/authentication');
     }
     else {
       // @FIXME
