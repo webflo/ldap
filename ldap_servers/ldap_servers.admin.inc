@@ -5,6 +5,7 @@
  * Defines functions for administrative interface for servers
  *
  */
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 function ldap_servers_edit_index() {
 

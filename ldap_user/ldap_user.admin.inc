@@ -5,6 +5,7 @@
  * LDAP User editing UI.
  *
  */
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 /**
