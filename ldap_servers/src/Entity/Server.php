@@ -2717,13 +2717,16 @@ class Server extends ContentEntityBase {
   }
 
   public function testUserMapping($drupal_username, $direction = LDAP_USER_PROV_DIRECTION_ALL, $ldap_context = NULL) {
+
     $ldap_user = self::userUserNameToExistingLdapEntry($drupal_username, $ldap_context);
+
     $errors = FALSE;
     if (!$ldap_user ) {
+
       $results[] = t('Failed to find test user %username by searching on  %user_attr = %username.',
         array(
           '%username' => $drupal_username,
-          '%user_attr' => self::get('user_attr') )
+          '%user_attr' => self::get('user_attr')->value )
         )
         . ' ' . t('Error Message:') . ' ' . self::errorMsg('ldap');
       $errors = TRUE;
