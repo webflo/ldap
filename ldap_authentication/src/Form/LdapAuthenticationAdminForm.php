@@ -12,7 +12,6 @@ use Drupal\Core\Render\Element;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class LdapAuthenticationAdminForm extends ConfigFormBase {
-
   /**
    * {@inheritdoc}
    */

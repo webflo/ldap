@@ -1,6 +1,5 @@
 services:
-  init_subscriber:
-    class: Drupal\ldap_authentication\EventSubscriber\InitSubscriber
+  ldap_authentication_event_subscriber:
+    class: Drupal\ldap_authentication\EventSubscriber\LDAPAuthenticationSubscriber
     tags:
-      -
-        name: event_subscriber
+      - {name: event_subscriber}
