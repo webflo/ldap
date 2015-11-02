@@ -95,6 +95,7 @@ class Server extends ContentEntityBase {
       ->setDescription(t('May only contain alphanumeric characters (a-z, A-Z, 0-9, and _)'))
       ->setReadOnly(TRUE)
       ->setRequired(TRUE)
+      ->setDefaultValue('default_server')
       ->setSettings(array(
         'max_length' => 20,
         'size' => 20,
