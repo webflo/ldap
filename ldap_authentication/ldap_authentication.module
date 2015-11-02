@@ -292,7 +292,6 @@ function _ldap_authentication_user_access() {
 
 function ldap_authentication_get_valid_conf($reset = FALSE) {
   drupal_set_message("ldap_authentication_get_valid_conf");
-
   static $auth_conf;
   if (!$reset && is_object($auth_conf)) {
     return $auth_conf;
@@ -300,6 +299,7 @@ function ldap_authentication_get_valid_conf($reset = FALSE) {
   ldap_servers_module_load_include('php', 'ldap_authentication', 'LdapAuthenticationConf.class');
 
   $auth_conf = new \LdapAuthenticationConf();
+
   return ($auth_conf->inDatabase) ? $auth_conf : FALSE;
 
 }

@@ -185,7 +185,10 @@ class LdapUserConf {
   );
 // 'wsKey','wsEnabled','wsUserIps',
   function __construct() {
+        error_log("user __construct");
+
     $this->load();
+        error_log("user loaded");
 
     $this->provisionSidFromDirection[LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER] = $this->drupalAcctProvisionServer;
     $this->provisionSidFromDirection[LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY] = $this->ldapEntryProvisionServer;
@@ -211,9 +214,13 @@ class LdapUserConf {
       && $this->ldapEntryProvisionServer
       && (count(array_filter(array_values($this->ldapEntryProvisionTriggers))) > 0)
       );
+        error_log("user provisionsLdapEntriesFromDrupalUsers");
 
     $this->setSynchMapping(TRUE);
+        error_log("user setSynchMapping");
     $this->detailedWatchdog = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
+        error_log("user detailedWatchdog");
+
   }
 
   function load() {
@@ -403,13 +410,13 @@ class LdapUserConf {
   }
 
   /**
-    derive mapping array from ldap user configuration and other configurations.
-    if this becomes a resource hungry function should be moved to ldap_user functions
-    and stored with static variable. should be cached also.
-
-    this should be cached and modules implementing ldap_user_synch_mapping_alter
-    should know when to invalidate cache.
-
+   * derive mapping array from ldap user configuration and other configurations.
+   * if this becomes a resource hungry function should be moved to ldap_user functions
+   * and stored with static variable. should be cached also.
+   *
+   * this should be cached and modules implementing ldap_user_synch_mapping_alter
+   * should know when to invalidate cache.
+   *
    */
 
   function setSynchMapping($reset = TRUE) {  // @todo change default to false after development

@@ -356,8 +356,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
   //debug('ldap_servers_ldap_user_attrs_list_alter'); debug($available_user_attrs); debug($params);
 
   if (isset($params['ldap_server']) && $params['ldap_server']) {
-    $ldap_server = $params['ldap_server'];
-  }
+    $ldap_server = $params['ldap_server'];  }
   else {
     return; // without a server id, ldap_servers module has nothing to offer
   }

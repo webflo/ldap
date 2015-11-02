@@ -7,6 +7,7 @@
  */
 
 module_load_include('php', 'ldap_user', 'LdapUserConf.class');
+require_once('ldap_authentication.module');
 
 class LdapAuthenticationConf {
 
@@ -201,10 +202,12 @@ class LdapAuthenticationConf {
   }
 
   function __construct() {
+    error_log("__construct");
     $this->load();
   }
 
   function load() {
+    error_log("load");
 
     if ($saved = \Drupal::config('ldap_authentication.settings')->get("ldap_authentication_conf")) {
       $this->inDatabase = TRUE;
@@ -226,7 +229,9 @@ class LdapAuthenticationConf {
       $this->inDatabase = FALSE;
     }
 
+    error_log("before user");
     $this->ldapUser = new \LdapUserConf();
+    error_log("after user");
     $this->ssoEnabled = \Drupal::moduleHandler()->moduleExists('ldap_sso');
     $this->apiPrefs['requireHttps'] = Drupal::config('ldap_servers.settings')->get('require_ssl_for_credentials');
     $this->apiPrefs['encryption'] = Drupal::config('ldap_servers.settings')->get('encryption');

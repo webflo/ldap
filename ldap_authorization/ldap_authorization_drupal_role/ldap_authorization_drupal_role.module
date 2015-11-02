@@ -42,7 +42,7 @@ faculty|administrator
  */
 
 function ldap_authorization_drupal_role_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) {
-
+  error_log("ldap_authorization_ldap_user_attrs_list_alter");
   $available_user_attrs['[property.role]'] = array(
     'name' => 'Property: Drupal Roles',
     'source' => 'depends on configuration',

@@ -8,10 +8,12 @@
 namespace Drupal\ldap_authentication\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class LdapAuthenticationAdminForm extends ConfigFormBase {
+
   /**
    * {@inheritdoc}
    */
