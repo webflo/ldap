@@ -11,11 +11,14 @@
   * @todo if form is being generated on non https and is set in preferences, set warning and end form development
   */
 function _ldap_authentication_login_form_alter(&$form, &$form_state, $form_id) {
+  drupal_set_message("_ldap_authentication_login_form_alter", "info", TRUE);
 
   if (!$auth_conf = ldap_authentication_get_valid_conf()) {
+    drupal_set_message("No auth conf", "error");
     return;
   }
   elseif (!$auth_conf->hasEnabledAuthenticationServers()) {
+    drupal_set_message("No auth conf", "error");
     return;
   }
 

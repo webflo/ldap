@@ -58,7 +58,7 @@ define('LDAP_AUTHENTICATION_COOKIE_EXPIRE', 0);
  * Implements hook_menu().
  */
 function ldap_authentication_menu() {
-  drupal_set_message("ldap_authentication_menu");
+  drupal_set_message("ldap_authentication_menu", "info", TRUE);
   $items = array();
 
   $items['admin/config/people/ldap/authentication'] = array(
@@ -82,7 +82,7 @@ function ldap_authentication_menu() {
  *
  */
 function ldap_authentication_menu_alter(&$items) {
-  drupal_set_message("ldap_authentication_menu_alter");
+  drupal_set_message("ldap_authentication_menu_alter", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   $items['user/password']['access callback'] = 'ldap_authentication_show_reset_pwd';
   $auth_conf = ldap_authentication_get_valid_conf();
@@ -101,7 +101,7 @@ function ldap_authentication_menu_alter(&$items) {
  * Implements hook_theme().
  */
 function ldap_authentication_theme() {
-  drupal_set_message("ldap_authentication_theme");
+  drupal_set_message("ldap_authentication_theme", "info", TRUE);
   return array(
     'ldap_authentication_user_login_block_links' => array(
       'variables' => array('ldap_user_help_link' => NULL, 'user_register' => TRUE),
@@ -142,7 +142,7 @@ function ldap_authentication_theme() {
  */
 
 function ldap_authentication_help($path, $arg) {
-  drupal_set_message("ldap_authentication_help");
+  drupal_set_message("ldap_authentication_help", "info", TRUE);
 
   // $authentication_help = t('LDAP authentication allows authentication against an LDAP server.  It
   //       may be used alongside other authentication means such as built in Drupal authentication,
@@ -175,7 +175,7 @@ function ldap_authentication_help($path, $arg) {
  *
  */
 function _ldap_authentication_verify_user_profile() {
-  drupal_set_message("_ldap_authentication_verify_user_profile");
+  drupal_set_message("_ldap_authentication_verify_user_profile", "info", TRUE);
   global $user;
   $result = TRUE;
   // We only want non-anonymous and non-1 users.
@@ -203,7 +203,7 @@ function _ldap_authentication_verify_user_profile() {
  * Implements hook_init().
  */
 function ldap_authentication_init() {
-  drupal_set_message("ldap_authentication_init");
+  drupal_set_message("ldap_authentication_init", "info", TRUE);
   $auth_conf = ldap_authentication_get_valid_conf();
   if ($auth_conf->templateUsagePromptUser) {
     ldap_authentication_check_for_email_template();
@@ -214,7 +214,7 @@ function ldap_authentication_init() {
  * Form submit callback to check for an email template and redirect if needed.
  */
 function ldap_authentication_check_for_email_template() {
-  drupal_set_message("ldap_authentication_check_for_email_template");
+  drupal_set_message("ldap_authentication_check_for_email_template", "info", TRUE);
   if (!_ldap_authentication_verify_user_profile()) {
     $url = 'user/ldap-profile-update';
     $cp = current_path();
@@ -236,7 +236,7 @@ function ldap_authentication_check_for_email_template() {
  * Implements hook_info().
  */
 function ldap_authentication_info($field = 0) {
-  drupal_set_message("ldap_authentication_info");
+  drupal_set_message("ldap_authentication_info", "info", TRUE);
   $info['name']= 'ldap_authentication';
   $info['protocol'] = 'LDAP';
 
@@ -256,7 +256,7 @@ function ldap_authentication_info($field = 0) {
  */
 
 function ldap_authentication_ldap_authenticated($user) {
-  drupal_set_message("ldap_authentication_ldap_authenticated");
+  drupal_set_message("ldap_authentication_ldap_authenticated", "info", TRUE);
 
   if (is_numeric($user)) {
     $user = @\Drupal::entityManager()->getStorage('user')->load((int)$user);
@@ -277,7 +277,7 @@ function ldap_authentication_ldap_authenticated($user) {
  *
  */
 function _ldap_authentication_user_access() {
-  drupal_set_message("_ldap_authentication_user_access");
+  drupal_set_message("_ldap_authentication_user_access", "info", TRUE);
   return (boolean)(!\Drupal::currentUser()->uid || !empty($GLOBALS['menu_admin']));
 }
 
@@ -291,7 +291,7 @@ function _ldap_authentication_user_access() {
  */
 
 function ldap_authentication_get_valid_conf($reset = FALSE) {
-  drupal_set_message("ldap_authentication_get_valid_conf");
+  drupal_set_message("ldap_authentication_get_valid_conf", "info", TRUE);
   static $auth_conf;
   if (!$reset && is_object($auth_conf)) {
     return $auth_conf;
@@ -308,7 +308,7 @@ function ldap_authentication_get_valid_conf($reset = FALSE) {
  * Implements hook_ldap_ldap_server_in_use().
  */
 function ldap_authentication_ldap_server_in_use($sid, $server_name) {
-  drupal_set_message("ldap_authentication_ldap_server_in_use");
+  drupal_set_message("ldap_authentication_ldap_server_in_use", "info", TRUE);
 
   $use_warnings = array();
   $auth_conf = ldap_authentication_get_valid_conf();
@@ -321,7 +321,7 @@ function ldap_authentication_ldap_server_in_use($sid, $server_name) {
 }
 
 function ldap_authentication_show_reset_pwd($user = NULL) {
-  drupal_set_message("ldap_authentication_show_reset_pwd");
+  drupal_set_message("ldap_authentication_show_reset_pwd", "info", TRUE);
 
   if (!$user) {
     $user = \Drupal::currentUser();
@@ -362,7 +362,7 @@ function ldap_authentication_show_reset_pwd($user = NULL) {
  */
 
 function ldap_authentication_form_user_pass_alter(&$form, $form_state) {
-  drupal_set_message("ldap_authentication_form_user_pass_alter");
+  drupal_set_message("ldap_authentication_form_user_pass_alter", "info", TRUE);
   // the following could be in a theme preproces function
   $auth_conf = ldap_authentication_get_valid_conf();
   $form['ldap_warning'] = array(
@@ -382,7 +382,7 @@ function ldap_authentication_form_user_pass_alter(&$form, $form_state) {
  * is set to the matching user ID.
  */
 function ldap_authentication_core_override_user_login_authenticate_validate($form, &$form_state) {
-  drupal_set_message("ldap_authentication_core_override_user_login_authenticate_validate");
+  drupal_set_message("ldap_authentication_core_override_user_login_authenticate_validate", "info", TRUE);
   // No additional validation of user credentials is needed when
   // $form_state['uid'] is set.
   if (!empty($form_state['uid'])) {
@@ -393,7 +393,7 @@ function ldap_authentication_core_override_user_login_authenticate_validate($for
 
 
 function ldap_authentication_user_pass_validate(&$form_state) {
-  drupal_set_message("ldap_authentication_user_pass_validate");
+  drupal_set_message("ldap_authentication_user_pass_validate", "info", TRUE);
   $name_or_mail = trim($form_state['name']['#value']);
   if ($account = user_load_by_mail($name_or_mail)) {
 
@@ -444,7 +444,7 @@ function ldap_authentication_form_user_login_form_alter(&$form, \Drupal\Core\For
  * Implements hook_form_FORM_ID_alter(). for user_login_block
  */
 function ldap_authentication_form_user_login_block_alter(&$form, &$form_state) {
-  drupal_set_message("ldap_authentication_form_user_login_block_alter");
+  drupal_set_message("ldap_authentication_form_user_login_block_alter", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   _ldap_authentication_login_form_alter($form, $form_state, 'user_login_block');
 
@@ -454,7 +454,7 @@ function ldap_authentication_form_user_login_block_alter(&$form, &$form_state) {
  * validate function for user logon forms.
  */
 function ldap_authentication_user_login_authenticate_validate($form, &$form_state, $return_user = FALSE) {
-  drupal_set_message("ldap_authentication_user_login_authenticate_validate");
+  drupal_set_message("ldap_authentication_user_login_authenticate_validate", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   return _ldap_authentication_user_login_authenticate_validate($form_state, $return_user);
 }
@@ -466,7 +466,7 @@ function ldap_authentication_user_login_authenticate_validate($form, &$form_stat
  */
 
 function ldap_authentication_user_presave(&$edit, $account, $category = NULL) {
-  drupal_set_message("ldap_authentication_user_presave");
+  drupal_set_message("ldap_authentication_user_presave", "info", TRUE);
 
 }
 
@@ -479,7 +479,7 @@ function ldap_authentication_user_presave(&$edit, $account, $category = NULL) {
  */
 
 function ldap_authentication_user_insert(&$edit, $account, $category) {
-  drupal_set_message("ldap_authentication_user_insert");
+  drupal_set_message("ldap_authentication_user_insert", "info", TRUE);
 
 }
 
@@ -493,12 +493,12 @@ function ldap_authentication_user_insert(&$edit, $account, $category) {
 
 
 function ldap_authentication_user_update($edit, $user, $category) {
-  drupal_set_message("ldap_authentication_user_update");
+  drupal_set_message("ldap_authentication_user_update", "info", TRUE);
 
 }
 
 function ldap_authentication_show_ldap_help_link($user = NULL) {
-  drupal_set_message("ldap_authentication_show_ldap_help_link");
+  drupal_set_message("ldap_authentication_show_ldap_help_link", "info", TRUE);
   $user = \Drupal::currentUser();
 
   if (!$auth_conf = ldap_authentication_get_valid_conf()) {

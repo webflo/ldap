@@ -299,7 +299,7 @@ function ldap_servers_theme() {
    * @return string matching key in mixed case or FALSE
    */
   function ldap_server_find_key($key, $array) {
-  drupal_set_message("ldap_server_find_key");
+  drupal_set_message("ldap_server_find_key", "info", TRUE);
     $keys = array_combine(array_change_key_case($array), $array);
     if (isset($keys[\Drupal\Component\Utility\Unicode::strtolower($key)])) {
       return $keys[\Drupal\Component\Utility\Unicode::strtolower($key)];
@@ -313,7 +313,7 @@ function ldap_servers_theme() {
    * Implements hook_ldap_attributes_needed_alter().
    */
   function ldap_servers_ldap_attributes_needed_alter(&$attributes, $params) {
-  drupal_set_message("ldap_servers_ldap_attributes_needed_alter");
+  drupal_set_message("ldap_servers_ldap_attributes_needed_alter", "info", TRUE);
 
     $attributes['dn'] = ldap_servers_set_attribute_map(@$attributes['dn'], 'ldap_dn'); // force this data type
 
@@ -352,7 +352,7 @@ function ldap_servers_theme() {
  */
 
 function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) {
-  drupal_set_message("ldap_servers_ldap_user_attrs_list_alter");
+  drupal_set_message("ldap_servers_ldap_user_attrs_list_alter", "info", TRUE);
   //debug('ldap_servers_ldap_user_attrs_list_alter'); debug($available_user_attrs); debug($params);
 
   if (isset($params['ldap_server']) && $params['ldap_server']) {
@@ -518,7 +518,7 @@ function ldap_servers_flush_server_cache() {
  * of attempting something half baked.
  */
 function ldap_servers_module_load_include($type, $module, $name = NULL) {
-  drupal_set_message("ldap_servers_module_load_include");
+  drupal_set_message("ldap_servers_module_load_include", "info", TRUE);
   $result = module_load_include($type, $module, $name);
   if ($result === FALSE) {
     print "Failed to load file $name.$type in module $module";
@@ -539,7 +539,7 @@ function ldap_servers_module_load_include($type, $module, $name = NULL) {
  *         - single server conf object (if flatten == TRUE)
  */
 function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $reset = FALSE) {
-  drupal_set_message("ldap_servers_get_servers");
+  drupal_set_message("ldap_servers_get_servers", "info", TRUE);
   if (\Drupal::config('ldap_test.settings')->get('simpletest')) {
     return _ldap_servers_get_simpletest_servers($sid, $type, $flatten, $reset);
   }
@@ -552,11 +552,11 @@ function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $
  * see ldap_servers_get_servers()
  */
 function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
-  drupal_set_message("_ldap_servers_get_servers");
+  drupal_set_message("_ldap_servers_get_servers", "info", TRUE);
+  ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   if ( $sid )
     return Server::load($sid);
 
-  ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   static $servers;
   $type = ($type) ? $type : 'all';
   if ($reset) {
@@ -591,7 +591,7 @@ function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
  * see ldap_servers_get_servers()
  */
 function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $reset = TRUE) {
-  drupal_set_message("_ldap_servers_get_simpletest_servers");
+  drupal_set_message("_ldap_servers_get_simpletest_servers", "info", TRUE);
 
   if (!$type) {
     $type = 'all';
@@ -620,7 +620,7 @@ function _ldap_servers_get_simpletest_servers($sid, $type = NULL, $flatten, $res
   }
 }
 function ldap_servers_debug($variable) {
-  drupal_set_message("ldap_servers_debug");
+  drupal_set_message("ldap_servers_debug", "info", TRUE);
   if (\Drupal::config('ldap_test.settings')->get('simpletest') && function_exists('dpm')) {
     dpm($variable);
   }
@@ -639,7 +639,7 @@ function ldap_servers_cache_clear() {
  * function to convert microsoft style guids to strings
  */
 function ldap_servers_msguid($value) {
-  drupal_set_message("ldap_servers_msguid");
+  drupal_set_message("ldap_servers_msguid", "info", TRUE);
 
   $hex_string = bin2hex($value);
   // (MS?) GUID are displayed with first three GUID parts as "big endian"
@@ -659,7 +659,7 @@ function ldap_servers_msguid($value) {
  * @return string
  */
 function ldap_servers_binary_filter($value) {
-  drupal_set_message("ldap_servers_binary_filter");
+  drupal_set_message("ldap_servers_binary_filter", "info", TRUE);
   $match = '';
   if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $value)) {
     // Reconstruct proper "memory" order from (MS?) GUID string.
@@ -684,7 +684,7 @@ function ldap_servers_binary_filter($value) {
  * of string
  */
 function ldap_servers_binary($value) {
-  drupal_set_message("ldap_servers_binary");
+  drupal_set_message("ldap_servers_binary", "info", TRUE);
   if (strlen($value) == 16) {
     $value = ldap_servers_msguid($value);
   }
@@ -704,7 +704,7 @@ function ldap_servers_binary($value) {
  */
 
 function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_context = NULL) {
-  drupal_set_message("ldap_servers_get_user_ldap_data");
+  drupal_set_message("ldap_servers_get_user_ldap_data", "info", TRUE);
 
   if (is_object($drupal_user) && property_exists($drupal_user, 'uid') && $authname = db_query("SELECT authname FROM {authmap} WHERE uid = :uid AND module = 'ldap_user'", array(':uid' => $drupal_user->uid))->fetchColumn()) {
     $drupal_username = $authname;
@@ -766,7 +766,7 @@ function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_contex
  */
 
 function ldap_servers_set_attribute_map($attribute = NULL, $conversion = NULL, $values = NULL) {
-  drupal_set_message("ldap_servers_set_attribute_map");
+  drupal_set_message("ldap_servers_set_attribute_map", "info", TRUE);
 
   $attribute = (is_array($attribute)) ? $attribute : array();
   $attribute['conversion'] = $conversion;
@@ -790,7 +790,7 @@ function ldap_servers_set_attribute_map($attribute = NULL, $conversion = NULL, $
  * @return converted $value
  */
 function ldap_servers_convert_attribute($value, $conversion = NULL) {
-  drupal_set_message("ldap_servers_convert_attribute");
+  drupal_set_message("ldap_servers_convert_attribute", "info", TRUE);
 
       if ($conversion) {
 
@@ -828,7 +828,7 @@ function ldap_servers_convert_attribute($value, $conversion = NULL) {
  * @param drupal logon form array $form
  */
 function ldap_servers_disable_http_check(&$form) {
-  drupal_set_message("ldap_servers_disable_http_check");
+  drupal_set_message("ldap_servers_disable_http_check", "info", TRUE);
 
   if (\Drupal::config('ldap_servers.settings')->get('ldap_servers_require_ssl_for_credentials') == 1 && @$_SERVER['HTTPS'] != 'on') {
 
@@ -844,7 +844,7 @@ function ldap_servers_disable_http_check(&$form) {
 }
 
 function ldap_servers_ldap_extension_summary($op = 'data') {
-  drupal_set_message("ldap_servers_ldap_extension_summary");
+  drupal_set_message("ldap_servers_ldap_extension_summary", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.status');
   return _ldap_servers_ldap_extension_summary($op);
 }
@@ -854,19 +854,19 @@ function ldap_servers_ldap_extension_loaded() {
 }
 
 function ldap_servers_encrypt($text, $encryption = NULL) {
-  drupal_set_message("ldap_servers_encrypt");
+  drupal_set_message("ldap_servers_encrypt", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.encryption');
   return _ldap_servers_encrypt($text, $encryption);
 }
 
 function ldap_servers_encrypt_types($category = 'all') {
-  drupal_set_message("ldap_servers_encrypt_types");
+  drupal_set_message("ldap_servers_encrypt_types", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.encryption');
   return _ldap_servers_encrypt_types($category);
 }
 
 function ldap_servers_decrypt($encrypted, $encryption = NULL) {
-  drupal_set_message("ldap_servers_decrypt");
+  drupal_set_message("ldap_servers_decrypt", "info", TRUE);
   ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.encryption');
   return _ldap_servers_decrypt($encrypted, $encryption);
 }
@@ -877,7 +877,7 @@ function ldap_servers_php_supports_pagination() {
 
 
 function ldap_servers_help($path, $arg) {
-  drupal_set_message("ldap_servers_help");
+  drupal_set_message("ldap_servers_help", "info", TRUE);
 
   $servers_help = '<p>' . t('LDAP Servers store "LDAP server configurations" so other modules can connect to them and leverage their data.') . ' ';
   $servers_help .= t('LDAP Authentication and LDAP Authorization are two such modules. Generally, only one LDAP Server configuration is needed.') . ' ' . '</p>';
@@ -991,7 +991,7 @@ function ldap_servers_ldap_servers_types() {
  * @return options for ldap type pulldown
  */
 function ldap_servers_get_ldap_type_object($ldap_conf) {
-  drupal_set_message("ldap_servers_get_ldap_type_object");
+  drupal_set_message("ldap_servers_get_ldap_type_object", "info", TRUE);
 
   if (!is_array($ldap_conf)) {
     $ldap_confs = ldap_servers_ldap_servers_types();
@@ -1014,7 +1014,7 @@ function ldap_servers_get_ldap_type_object($ldap_conf) {
  * @return string value of rdn
  */
 function ldap_servers_get_first_rdn_value_from_dn($dn, $rdn) {
-  drupal_set_message("ldap_servers_get_first_rdn_value_from_dn");
+  drupal_set_message("ldap_servers_get_first_rdn_value_from_dn", "info", TRUE);
   $pairs = ldap_explode_dn($dn, 0); // escapes attribute values, need to be unescaped later
   $count = array_shift($pairs);
   $rdn = \Drupal\Component\Utility\Unicode::strtolower($rdn);
@@ -1039,7 +1039,7 @@ function ldap_servers_get_first_rdn_value_from_dn($dn, $rdn) {
  * @return array of all values of rdn
  */
 function ldap_servers_get_all_rdn_values_from_dn($dn, $rdn) {
-  drupal_set_message("ldap_servers_get_all_rdn_values_from_dn");
+  drupal_set_message("ldap_servers_get_all_rdn_values_from_dn", "info", TRUE);
   $pairs = ldap_explode_dn($dn, 0); // escapes attribute values, need to be unescaped later
   $count = array_shift($pairs);
   $rdn = \Drupal\Component\Utility\Unicode::strtolower($rdn);
@@ -1076,7 +1076,7 @@ function ldap_servers_ldaps_option_array() {
  * @return one or more ldap type objects
  */
 function ldap_servers_get_types($ldap_type = NULL, $reset = FALSE, $flatten = FALSE) {
-  drupal_set_message("ldap_servers_get_types");
+  drupal_set_message("ldap_servers_get_types", "info", TRUE);
   static $ldap_types;
   if ($reset || !is_array($ldap_types)) {
     $ldap_types = module_invoke_all('ldap_servers_type');
@@ -1101,7 +1101,7 @@ function ldap_servers_get_types($ldap_type = NULL, $reset = FALSE, $flatten = FA
 
 
 function ldap_servers_no_enabled_servers_msg($action) {
-  drupal_set_message("ldap_servers_no_enabled_servers_msg");
+  drupal_set_message("ldap_servers_no_enabled_servers_msg", "info", TRUE);
 
   $servers = ldap_servers_get_servers(NULL, 'enabled');
   if (count($servers) == 0) {
