@@ -338,7 +338,7 @@ function ldap_authorization_get_consumer_conf($consumer_type, $type = 'default',
  */
 
 function ldap_authorization_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) {
-
+  error_log("ldap_authorization_ldap_user_attrs_list_alter");
   // this is a case where a field is being denied synching configuration because its not meant to be used by other modules
   $available_user_attrs['[field.ldap_authorizations]'] = array(
     'name' => 'Field: LDAP Authorizations',

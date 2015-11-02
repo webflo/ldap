@@ -322,6 +322,7 @@ function ldap_user_ldap_attributes_needed_alter(&$attributes, $params) {
  * Implements hook_ldap_user_attrs_list_alter().
  */
 function ldap_user_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) {
+  error_log("ldap_user_ldap_user_attrs_list_alter");
   drupal_set_message("ldap_user_ldap_user_attrs_list_alter");
 
   $sid = (isset($params['ldap_server']) && is_object($params['ldap_server'])) ? $params['ldap_server']->sid : LDAP_USER_NO_SERVER_SID;
