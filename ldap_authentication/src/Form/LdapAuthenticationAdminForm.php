@@ -7,18 +7,24 @@
 
 namespace Drupal\ldap_authentication\Form;
 
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Render\Element;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class LdapAuthenticationAdminForm extends FormBase {
+class LdapAuthenticationAdminForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'ldap_authentication_admin_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['ldap_authentication.settings'];
   }
 
   public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
