@@ -41,7 +41,7 @@ function _ldap_authentication_login_form_alter(&$form, &$form_state, $form_id) {
   }
 
   if ($form_id == 'user_login_block') {
-      $user_register = config('user.settings')->get('register');
+    $user_register = config('user.settings')->get('register');
     $vars = array(
       'show_reset_pwd' => ldap_authentication_show_reset_pwd(),
       'auth_conf' => $auth_conf,
