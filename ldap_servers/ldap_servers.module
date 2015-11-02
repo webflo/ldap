@@ -323,23 +323,23 @@ function ldap_servers_theme() {
         $ldap_server = $params['sid'];
       }
       // mail, unique_persistent_attr, user_attr, mail_template, and user_dn_expression are needed for all functionality
-      if (!isset($attributes[$ldap_server->mail_attr])) {
-        $attributes[$ldap_server->mail_attr] = ldap_servers_set_attribute_map();
+      if (!isset($attributes[$ldap_server->get('mail_attr')->value])) {
+        $attributes[$ldap_server->get('mail_attr')->value] = ldap_servers_set_attribute_map();
       }
-      if (!isset($attributes[$ldap_server->picture_attr])) {
-        $attributes[$ldap_server->picture_attr] = ldap_servers_set_attribute_map();
+      if (!isset($attributes[$ldap_server->get('picture_attr')->value])) {
+        $attributes[$ldap_server->get('picture_attr')->value] = ldap_servers_set_attribute_map();
       }
-      if ($ldap_server->unique_persistent_attr && !isset($attributes[$ldap_server->unique_persistent_attr])) {
-        $attributes[$ldap_server->unique_persistent_attr] = ldap_servers_set_attribute_map();
+      if ($ldap_server->get('unique_persistent_attr')->value && !isset($attributes[$ldap_server->get('unique_persistent_attr')->value])) {
+        $attributes[$ldap_server->get('unique_persistent_attr')->value] = ldap_servers_set_attribute_map();
       }
-      if ($ldap_server->user_dn_expression) {
-        ldap_servers_token_extract_attributes($attributes, $ldap_server->user_dn_expression, TRUE);
+      if ($ldap_server->get('user_dn_expression')->value) {
+        ldap_servers_token_extract_attributes($attributes, $ldap_server->get('user_dn_expression')->value, TRUE);
       }
-      if ($ldap_server->mail_template) {
-        ldap_servers_token_extract_attributes($attributes, $ldap_server->mail_template);
+      if ($ldap_server->get('mail_template')->value) {
+        ldap_servers_token_extract_attributes($attributes, $ldap_server->get('mail_template')->value);
       }
-      if (!isset($attributes[$ldap_server->user_attr])) {
-        $attributes[$ldap_server->user_attr] = ldap_servers_set_attribute_map();
+      if (!isset($attributes[$ldap_server->get('user_attr')->value])) {
+        $attributes[$ldap_server->get('user_attr')->value] = ldap_servers_set_attribute_map();
       }
     }
   }
@@ -373,8 +373,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
     '!sid' => $ldap_server->get('sid')->value,
   );
 
-
-  $server_edit_path = 'admin/config/people/ldap/servers/edit/' . $ldap_server->sid;
+  $server_edit_path = 'admin/config/people/ldap/servers/edit/' . $ldap_server->get('sid')->value;
 
   if ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) {
 
@@ -383,7 +382,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
      fields/properties are provisioned or synched
     */
 
-    if ($ldap_server->unique_persistent_attr) {
+    if ($ldap_server->get('unique_persistent_attr')->value) {
       foreach (array(
         'field.ldap_user_puid_sid',
         'field.ldap_user_puid',
@@ -412,9 +411,9 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
         'name' => t('Field: PUID', $tokens),
         'configurable_to_drupal' => 0,
         'configurable_to_ldap' => 1,
-        'source' => '[' . $ldap_server->unique_persistent_attr . ']',
+        'source' => '[' . $ldap_server->get('unique_persistent_attr')->value . ']',
         'notes' => 'configure at ' . $server_edit_path,
-        'convert' => $ldap_server->unique_persistent_attr_binary,
+        'convert' => $ldap_server->get('unique_persistent_attr_binary')->value,
         'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
         'enabled' => TRUE,
         'prov_events' => array(LDAP_USER_EVENT_CREATE_DRUPAL_USER),
@@ -427,7 +426,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
         'name' => t('Field: PUID Attribute', $tokens),
         'configurable_to_drupal' => 0,
         'configurable_to_ldap' => 1,
-        'source' =>  $ldap_server->unique_persistent_attr ,
+        'source' =>  $ldap_server->get('unique_persistent_attr')->value ,
         'notes' => 'configure at ' . $server_edit_path,
         'direction' => LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER,
         'enabled' => TRUE,
@@ -482,7 +481,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
         'prov_module' => 'ldap_user',
       ) + $available_user_attrs['[property.mail]'];
 
-      if ($ldap_server->picture_attr) {
+      if ($ldap_server->get('picture_attr')->value) {
         if (!isset($available_user_attrs['[property.picture]']) || !is_array($available_user_attrs['[property.picture]'])) {
           $available_user_attrs['[property.picture]'] = array();
         }
