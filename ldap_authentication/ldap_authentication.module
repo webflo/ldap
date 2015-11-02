@@ -213,8 +213,9 @@ function ldap_authentication_init() {
 /**
  * Form submit callback to check for an email template and redirect if needed.
  */
-function ldap_authentication_check_for_email_template() {
-  drupal_set_message("ldap_authentication_check_for_email_template", "info", TRUE);
+function ldap_authentication_check_for_email_template() 
+
+  drupal_set_message("ldap_authentication_check_for_email_template", "info", TRUE>>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
   if (!_ldap_authentication_verify_user_profile()) {
     $url = 'user/ldap-profile-update';
     $cp = current_path();
@@ -381,8 +382,10 @@ function ldap_authentication_form_user_pass_alter(&$form, $form_state) {
  * against local users table. If successful, $form_state['uid']
  * is set to the matching user ID.
  */
-function ldap_authentication_core_override_user_login_authenticate_validate($form, &$form_state) {
-  drupal_set_message("ldap_authentication_core_override_user_login_authenticate_validate", "info", TRUE);
+function ldap_authentication_core_override_user_login_authenticate_validate($form, &$form_state) 
+
+  drupal_set_message("  drupal_set_message("ldap_authentication_core_override_user_login_authenticate_validate");
+>>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
   // No additional validation of user credentials is needed when
   // $form_state['uid'] is set.
   if (!empty($form_state['uid'])) {
@@ -433,8 +436,10 @@ function ldap_authentication_form_user_profile_form_alter(&$form, $form_state) {
 /**
  * Implements hook_form_FORM_ID_alter(). for user_login_form
  */
-function ldap_authentication_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  drupal_set_message("Replacement for ldap_authentication_form_user_login_alter", "info", TRUE);
+function ldap_authentication_form_user_login_form_alter(&$form, \Drupal\Core\Form=======
+function ldap_authentication_form_user_login_alter(&$form, &$form_state) {
+  drupal_set_message("ldap_authentication_form_user_login_alter");
+>>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   _ldap_authentication_login_form_alter($form, $form_state, 'user_login');
 
@@ -443,8 +448,9 @@ function ldap_authentication_form_user_login_form_alter(&$form, \Drupal\Core\For
 /**
  * Implements hook_form_FORM_ID_alter(). for user_login_block
  */
-function ldap_authentication_form_user_login_block_alter(&$form, &$form_state) {
-  drupal_set_message("ldap_authentication_form_user_login_block_alter", "info", TRUE);
+function ldap_authentication_form_user_login_block_alter(&$form, &$form_state) 
+
+  drupal_set_message("ldap_authentication_form_user_login_block_alter", "info", >>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   _ldap_authentication_login_form_alter($form, $form_state, 'user_login_block');
 
@@ -453,8 +459,9 @@ function ldap_authentication_form_user_login_block_alter(&$form, &$form_state) {
 /**
  * validate function for user logon forms.
  */
-function ldap_authentication_user_login_authenticate_validate($form, &$form_state, $return_user = FALSE) {
-  drupal_set_message("ldap_authentication_user_login_authenticate_validate", "info", TRUE);
+function ldap_authentication_user_login_authenticate_validate($form, &$form_state, $return_user = FALSE) 
+
+  drupal_set_message("ldap_authentication_user_login_authenticate_validate", ">>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
   ldap_servers_module_load_include('inc', 'ldap_authentication', 'ldap_authentication');
   return _ldap_authentication_user_login_authenticate_validate($form_state, $return_user);
 }
