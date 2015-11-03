@@ -312,7 +312,7 @@ function ldap_authentication_core_override_user_login_authenticate_validate($for
 
 
 function ldap_authentication_user_pass_validate(\Drupal\Core\Form\FormStateInterface &$form_state) {
-  $name_or_mail = trim($form_state->getValue('name');
+  $name_or_mail = trim($form_state->getValue('name'));
   if ($account = user_load_by_mail($name_or_mail)) {
 
   }
