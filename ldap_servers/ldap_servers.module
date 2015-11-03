@@ -553,8 +553,7 @@ function ldap_servers_get_servers($sid = NULL, $type = NULL, $flatten = FALSE, $
  */
 function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
   drupal_set_message("_ldap_servers_get_servers", "info", TRUE);
-  drupal_set_message("_ldap_servers_get_servers");
->>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
+  ldap_servers_module_load_include('php', 'ldap_servers', 'LdapServerAdmin.class');
   if ( $sid )
     return Server::load($sid);
 

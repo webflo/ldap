@@ -824,7 +824,6 @@ function ldap_user_synch_to_drupal($username, $prov_event = LDAP_USER_EVENT_SYNC
  */
 function ldap_user_provision_to_drupal($ldap_user, $user_edit = array()) {
   drupal_set_message("ldap_user_provision_to_drupal($ldap_user, $user_edit = array");
->>>>>>> c93ae489f9c2caae76f250f55ff044ef65dbc6d5
 
   $sid = $ldap_user['sid'];
   $ldap_user_conf = ldap_user_conf();
