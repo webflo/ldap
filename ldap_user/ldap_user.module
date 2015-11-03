@@ -552,19 +552,17 @@ function ldap_user_form_password_policy_password_tab_alter(&$form, &$form_state)
  * store password from logon forms in ldap_user_ldap_provision_pwd static variable
  * for use in provisioing to ldap
  */
-function ldap_user_grab_password_validate($form, &$form_state) {
-
+function ldap_user_grab_password_validate($form, \Drupal\Core\Form\FormState &$form_state) {
   // This is not a login form but profile form and user is insertingpassword to update email
-  if (!empty($form_state['values']['current_pass_required_values'])) {
-    if (!empty($form_state['values']['current_pass']) && empty($form_state['values']['pass'])) {
-      ldap_user_ldap_provision_pwd('set', $form_state['values']['current_pass']);
+  if (!empty($form_state->getValue('current_pass_required_values') )) {
+    if (!empty($form_state->getValue('current_pass')) && empty($form_state->getValue('pass'))) {
+      ldap_user_ldap_provision_pwd('set', $form_state->getValue('current_pass'));
     }
   }
   // otherwise a logon form
-  elseif (!empty($form_state['values']['pass'])) {
-    ldap_user_ldap_provision_pwd('set', $form_state['values']['pass']);
+  else if (!empty($form_state->getValue('pass'))) {
+    ldap_user_ldap_provision_pwd('set', $form_state->getValue('pass'));
   }
-
 }
 
 
