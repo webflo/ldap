@@ -124,7 +124,7 @@ function ldap_user_test_form_submit($form, &$form_state) {
     $results['ldap_user_conf'] = $ldap_user_conf;
 
     if (is_object($user_object)) {
-      $authmaps = db_query("SELECT aid, uid, module, authname FROM {authmap} WHERE uid = :uid", array(':uid' => $user_object->uid))->fetchAllAssoc('aid',  PDO::FETCH_ASSOC);
+      $authmaps = db_query("SELECT aid, uid, module, identifier FROM {ldap_user_identities} WHERE uid = :uid", array(':uid' => $user_object->uid))->fetchAllAssoc('aid',  PDO::FETCH_ASSOC);
     }
     else {
       $authmaps = 'No authmaps available.  Authmaps only shown if user account exists beforehand';

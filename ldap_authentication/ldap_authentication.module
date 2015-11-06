@@ -306,8 +306,9 @@ function ldap_authentication_core_override_user_login_authenticate_validate($for
   if (!empty($form_state->getValue('uid'))) {
     return;
   }
-  // @FIXME this doesn't exist in Drupal 8
-  user_login_authenticate_validate($form, $form_state);
+
+  $original_form = $form_state->getFormObject();
+  $original_form->validateAuthentication($form, $form_state);
 }
 
 

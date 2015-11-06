@@ -128,7 +128,7 @@ class LdapUserTestForm extends FormBase {
       $results['ldap_user_conf'] = $ldap_user_conf;
 
       if (is_object($user_object)) {
-        $authmaps = db_query("SELECT aid, uid, module, authname FROM {authmap} WHERE uid = :uid", [
+        $authmaps = db_query("SELECT aid, uid, module, identifier FROM {ldap_user_identities} WHERE uid = :uid", [
           ':uid' => $user_object->uid
           ])->fetchAllAssoc('aid', PDO::FETCH_ASSOC);
       }
