@@ -93,7 +93,7 @@ function ldap_badattr($attr, $attr_name) {
 
 /**
  * get array of required attributes for an ldap query
-
+ *
  * @param string $sid server id or ldap server object being used
  * @param string $direction LDAP_USER_PROV_DIRECTION_* constant
  * @param string $ldap_context
@@ -103,7 +103,7 @@ function ldap_badattr($attr, $attr_name) {
 function ldap_servers_attributes_needed($sid, $ldap_context = 'all', $reset = TRUE) {
 
   static $attributes;
-  $sid = is_object($sid) ? $sid->sid : $sid;
+  $sid = is_object($sid) ? $sid->value : $sid;
   $static_cache_id = ($sid) ? $ldap_context . '__' . $sid : $ldap_context;
   if (!is_array($attributes)) {
     $attributes = array();

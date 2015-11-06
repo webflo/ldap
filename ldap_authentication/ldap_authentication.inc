@@ -131,7 +131,6 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   $watchdog_tokens = array('%username' => $authname, '%authname' => $authname); // $watchdog_tokens = array('%username' => $name); // patch 1599632
   if ($detailed_watchdog_log) {
     \Drupal::logger('ldap_authentication')->debug('%username : Beginning authentification....', $watchdog_tokens);
-    $form_state->setErrorByName('name', t('Server Error: Failed to create Drupal user account for %drupal_accountname', $watchdog_tokens));
   }
 
   if (!$auth_conf = ldap_authentication_get_valid_conf()) {

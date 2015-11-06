@@ -1746,6 +1746,25 @@ class Server extends ContentEntityBase {
     return array_keys(array_change_key_case(array_flip($dns), CASE_LOWER));
   }
 
+  /*
+   * Utility to transform basedn into the array that most calls expect.
+   * This replaces the property on the class (D7) with a method.
+   */
+  public function getBasedn() {
+    // Get the basedn value
+    $basedn = $this->basedn->value;
+    // See if it is an array
+    if ( ! is_array($basedn) ) {
+      // @TODO Is it serialised?
+      // Is it a string?
+      if ( is_scalar($basedn) ) {
+        // Split on linebreaks
+        $basedn = explode("\n", $basedn);
+      }
+    }
+    return $basedn;
+  }
+
   /**
    * @param binary or string $puid as returned from ldap_read or other ldap function
    *
@@ -2022,8 +2041,7 @@ class Server extends ContentEntityBase {
       $attributes = array_keys($attribute_maps);
     }
 
-    foreach ($this->basedn as $basedn) {
-      $basedn = $basedn->value;
+    foreach ($this->getBasedn() as $basedn) {
 
       if (empty($basedn)) continue;
       $filter = '(' . $this->user_attr->value . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
