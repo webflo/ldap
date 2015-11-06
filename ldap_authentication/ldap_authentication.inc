@@ -193,9 +193,9 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   /**
    * V. if account_name_attr is set, drupal username is different than authname
    */
-  if ($ldap_server_authenticated_on->account_name_attr != '') {
-    $watchdog_tokens['%account_name_attr'] = $ldap_server_authenticated_on->account_name_attr;
-    $drupal_accountname = $ldap_user['attr'][ldap_server_massage_text($ldap_server_authenticated_on->account_name_attr, 'attr_name', LDAP_SERVER_MASSAGE_QUERY_ARRAY)][0];
+  if ($ldap_server_authenticated_on->account_name_attr->value != '') {
+    $watchdog_tokens['%account_name_attr'] = $ldap_server_authenticated_on->account_name_attr->value;
+    $drupal_accountname = $ldap_user['attr'][ldap_server_massage_text($ldap_server_authenticated_on->account_name_attr->value, 'attr_name', LDAP_SERVER_MASSAGE_QUERY_ARRAY)][0];
     if (!$drupal_accountname) {
       \Drupal::logger('ldap_authentication')->error('Derived drupal username from attribute %account_name_attr returned no username for authname %authname.', $watchdog_tokens);
       return;
@@ -408,7 +408,7 @@ function ldap_authentication_test_credentials($auth_conf, $sso_login, $authname,
   $ldap_server = NULL;
   foreach ($auth_conf->enabledAuthenticationServers as $sid => $ldap_server) {
     $watchdog_tokens['%sid'] = $sid;
-    $watchdog_tokens['%bind_method'] = $ldap_server->bind_method;
+    $watchdog_tokens['%bind_method'] = $ldap_server->get('bind_method')->value;
     if ($detailed_watchdog_log) {
       watchdog('ldap_authentication', '%username : Trying server %sid where bind_method = %bind_method', $watchdog_tokens, WATCHDOG_DEBUG);
     }
@@ -430,43 +430,43 @@ function ldap_authentication_test_credentials($auth_conf, $sso_login, $authname,
     }
 
 /**
-  *
-  LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT => t('Service Account Bind.  Use credentials in following section to
-  bind to ldap.  This option is usually a best practice. Service account is entered in next section.'),
-
-  LDAP_SERVERS_BIND_METHOD_USER => t('Bind with Users Credentials.  Use users\' entered credentials
-  to bind to LDAP.  This is only useful for modules that work during user logon such
-  as ldap authentication and ldap authorization.  This option is not a best practice in most cases.
-  The users dn must be of the form "cn=[username],[base dn]" for this option to work.'),
-
-  LDAP_SERVERS_BIND_METHOD_ANON_USER => t('Anonymous Bind for search, then Bind with Users Credentials.
-  Searches for user DN then uses users\' entered credentials to bind to LDAP.  This is only useful for
-  modules that work during user logon such as ldap authentication and ldap authorization.
-  The users dn must be discovered by an anonymous search for this option to work.'),
-
-  LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind. Use no credentials to bind to ldap server.
-  Will not work on most ldaps.'),
-
-  */
+ *
+ * LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT => t('Service Account Bind.  Use credentials in following section to
+ * bind to ldap.  This option is usually a best practice. Service account is entered in next section.'),
+ *
+ * LDAP_SERVERS_BIND_METHOD_USER => t('Bind with Users Credentials.  Use users\' entered credentials
+ * to bind to LDAP.  This is only useful for modules that work during user logon such
+ * as ldap authentication and ldap authorization.  This option is not a best practice in most cases.
+ * The users dn must be of the form "cn=[username],[base dn]" for this option to work.'),
+ *
+ * LDAP_SERVERS_BIND_METHOD_ANON_USER => t('Anonymous Bind for search, then Bind with Users Credentials.
+ * Searches for user DN then uses users\' entered credentials to bind to LDAP.  This is only useful for
+ * modules that work during user logon such as ldap authentication and ldap authorization.
+ * The users dn must be discovered by an anonymous search for this option to work.'),
+ *
+ * LDAP_SERVERS_BIND_METHOD_ANON => t('Anonymous Bind. Use no credentials to bind to ldap server.
+ * Will not work on most ldaps.'),
+ *
+ */
 
     $bind_success = FALSE;
-    if ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
+    if ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
       $bind_success = ($ldap_server->bind(NULL, NULL, FALSE) == LDAP_SUCCESS);
     }
-    elseif ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_ANON ||
-        $ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+    elseif ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_ANON ||
+        $ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
       $bind_success = ($ldap_server->bind(NULL, NULL, TRUE) == LDAP_SUCCESS);
     }
     elseif ($sso_login) {
       watchdog('ldap_authentication', 'Trying to use SSO with LDAP_SERVERS_BIND_METHOD_USER bind method.', $watchdog_tokens, WATCHDOG_ERROR);
     }
-    elseif ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_USER && $sso_login == FALSE) {
+    elseif ($ldap_server->bind_method->value == LDAP_SERVERS_BIND_METHOD_USER && $sso_login == FALSE) {
       // with sso enabled this method of binding isn't valid
-      foreach ($ldap_server->basedn as $basedn) {
+      foreach ($ldap_server->basedn->value as $basedn) {
         $search = array('%basedn', '%username');
         $transformname =  $ldap_server->userUsernameToLdapNameTransform($authname, $watchdog_tokens);
         $replace = array($basedn, $transformname);
-        $userdn = str_replace($search, $replace, $ldap_server->user_dn_expression);
+        $userdn = str_replace($search, $replace, $ldap_server->user_dn_expression->value);
         $bind_success = ($ldap_server->bind($userdn, $password, FALSE) == LDAP_SUCCESS);
         if ($bind_success) {
           break;
