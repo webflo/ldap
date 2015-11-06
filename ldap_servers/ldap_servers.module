@@ -558,13 +558,15 @@ function _ldap_servers_get_servers($sid, $type, $flatten, $reset) {
     $servers = array();
   }
   if (!isset($servers['all'])) {
-    $servers['all'] = LdapServerAdmin::getLdapServerObjects('all', NULL, 'LdapServer', $reset);
+    $query = \Drupal::entityQuery('ldap_server');
+    $sids = $query->execute();
+    $servers['all'] = Server::loadMultiple($sids);
   }
 
   if (!isset($servers['enabled'])) {
     $servers['enabled'] = array();
     foreach ($servers['all'] as $_sid => $ldap_server) {
-      if ($ldap_server->status == 1) {
+      if ($ldap_server->status->value == 1) {
         $servers['enabled'][$_sid] = $ldap_server;
       }
     }

@@ -1172,7 +1172,7 @@ class Server extends ContentEntityBase {
    * @return
    *   Result of bind; TRUE if successful, FALSE otherwise.
    */
-  public function bind(string $userdn = NULL, string $pass = NULL, boolean $anon_bind = NULL) {
+  public function bind($userdn = NULL, $pass = NULL, $anon_bind = NULL) {
     // Ensure that we have an active server connection.
     if (!$this->connection) {
       \Drupal::logger('ldap')->notice("LDAP bind failure for user %user. Not connected to LDAP server.", array('%user' => $userdn));
