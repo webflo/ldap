@@ -114,7 +114,7 @@ function _ldap_authentication_form_user_profile_form_alter(&$form, $form_state) 
 function _ldap_authentication_user_login_authenticate_validate(&$form_state, $return_user) {
 
   $detailed_watchdog_log = \Drupal::config('ldap_help.settings')->get('watchdog_detail');
-  $authname = $form_state->getValue('name'); // $authname is the name the user is authenticated with from the logon form // patch 1599632
+  $authname = trim($form_state->getValue('name')); // $authname is the name the user is authenticated with from the logon form // patch 1599632
 
   /*
    * If a fake form state was passed into this function from
@@ -127,12 +127,13 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
 
   $watchdog_tokens = array('%username' => $authname, '%authname' => $authname); // $watchdog_tokens = array('%username' => $name); // patch 1599632
   if ($detailed_watchdog_log) {
-    watchdog('ldap_authentication', '%username : Beginning authentification....', $watchdog_tokens, WATCHDOG_DEBUG);
+    \Drupal::logger('ldap_authentication')->debug('%username : Beginning authentification....', $watchdog_tokens);
+    $form_state->setErrorByName('name', t('Server Error: Failed to create Drupal user account for %drupal_accountname', $watchdog_tokens));
   }
 
   if (!$auth_conf = ldap_authentication_get_valid_conf()) {
-    watchdog('ldap_authentication', 'Failed to get valid ldap authentication configuration.', array(), WATCHDOG_ERROR);
-    form_set_error('name', 'Server Error: Failed to get valid ldap authentication configuration.' . $error);
+    \Drupal::logger('ldap_authentication')->error('Failed to get valid ldap authentication configuration.');
+    $form_state->setErrorByName('name', 'Server Error: Failed to get valid ldap authentication configuration.' . $error);
     return;
   }
 
@@ -146,14 +147,13 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   if (null !== $form_state->getValue('uid') && is_numeric($form_state->getValue('uid'))) {
     if ($auth_conf->authenticationMode == LDAP_AUTHENTICATION_MIXED || $form_state->getValue('uid') == 1) {
       if ($detailed_watchdog_log) {
-      watchdog('ldap_authentication', '%username : Previously authenticated in mixed mode or uid=1', $watchdog_tokens, WATCHDOG_DEBUG);
+        \Drupal::logger('ldap_authentication')->debug('%username : Previously authenticated in mixed mode or uid=1', $watchdog_tokens);
       }
       return;  // already passed a previous module's authentication validation
     }
     elseif ($auth_conf->authenticationMode == LDAP_AUTHENTICATION_EXCLUSIVE) {
       if ($detailed_watchdog_log) {
-        watchdog('ldap_authentication', '%username : Previously authenticated in exclusive mode or uid is not 1.  Clear uid
-        in form_state and attempt ldap authentication.',  $watchdog_tokens, WATCHDOG_DEBUG);
+        \Drupal::logger('ldap_authentication')->debug('%username : Previously authenticated in exclusive mode or uid is not 1.  Clear uid in form_state and attempt ldap authentication.', $watchdog_tokens);
       }
       $form_state['uid'] = NULL;  // passed previous authentication, but only ldap should be used so override
     }
@@ -163,8 +163,8 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   * II. Exit if no authentication servers.
   */
   if (!$auth_conf->hasEnabledAuthenticationServers()) {
-    watchdog('ldap_authentication',  'No LDAP servers configured.', array(), WATCHDOG_ERROR);
-    form_set_error('name', 'Server Error:  No LDAP servers configured.');
+    \Drupal::logger('ldap_authentication')->error('No LDAP servers configured.');
+    $form_state->setErrorByName('name', 'Server Error:  No LDAP servers configured.');
     return;
   }
 
@@ -194,7 +194,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
     $watchdog_tokens['%account_name_attr'] = $ldap_server_authenticated_on->account_name_attr;
     $drupal_accountname = $ldap_user['attr'][ldap_server_massage_text($ldap_server_authenticated_on->account_name_attr, 'attr_name', LDAP_SERVER_MASSAGE_QUERY_ARRAY)][0];
     if (!$drupal_accountname) {
-      watchdog('ldap_authentication',  'Derived drupal username from attribute %account_name_attr returned no username for authname %authname.', $watchdog_tokens, WATCHDOG_ERROR);
+      \Drupal::logger('ldap_authentication')->error('Derived drupal username from attribute %account_name_attr returned no username for authname %authname.', $watchdog_tokens);
       return;
     }
   }
@@ -244,7 +244,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
     if ($auth_conf->ldapUser->loginConflictResolve == LDAP_USER_CONFLICT_LOG) {
       if ($account_with_same_email = user_load_by_mail($ldap_user['mail'])) {
         $watchdog_tokens['%conflict_name'] = $account_with_same_email->name;
-        watchdog('ldap_authentication', 'LDAP user with DN %dn has a naming conflict with a local drupal user %conflict_name', $watchdog_tokens, WATCHDOG_ERROR);
+        \Drupal::logger('ldap_authentication')->error('LDAP user with DN %dn has a naming conflict with a local drupal user %conflict_name', $watchdog_tokens);
       }
       drupal_set_message(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'), 'error');
       return;
@@ -254,7 +254,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
       user_set_authmaps($drupal_account, array('authname_ldap_user' => $authname));
       $drupal_account_is_authmapped = TRUE;
       if ($detailed_watchdog_log) {
-        watchdog('ldap_authentication', 'set authmap for %username authname_ldap_user', $watchdog_tokens, WATCHDOG_DEBUG);
+        \Drupal::logger('ldap_authentication')->debug('set authmap for %username authname_ldap_user', $watchdog_tokens);
       }
     }
   }
@@ -271,7 +271,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
 
     $watchdog_tokens['%username'] = $drupal_account->name;
     if (!$updated_account = user_save($drupal_account, $user_edit)) {
-      watchdog('ldap_authentication', 'Failed to make changes to user %username updated %changed.', $watchdog_tokens,  WATCHDOG_ERROR);
+      \Drupal::logger('ldap_authentication')->error('Failed to make changes to user %username updated %changed.', $watchdog_tokens);
     }
     elseif ($auth_conf->emailUpdate == LDAP_AUTHENTICATION_EMAIL_UPDATE_ON_LDAP_CHANGE_ENABLE_NOTIFY ) {
       if (isset($user_edit['mail'])) {
@@ -298,15 +298,15 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
        * mail attribute and the email conflict error needs to be caught beforehand, need to throw error here
        */
       $watchdog_tokens['%duplicate_name'] = $account_with_same_email->name;
-      watchdog('ldap_authentication', 'LDAP user with DN %dn has email address
-        (%mail) conflict with a drupal user %duplicate_name', $watchdog_tokens, WATCHDOG_ERROR);
+      \Drupal::logger('ldap_authentication')->error('LDAP user with DN %dn has email address (%mail) conflict with a drupal user %duplicate_name', $watchdog_tokens);
+
       drupal_set_message(t('Another user already exists in the system with the same email address. You should contact the system administrator in order to solve this conflict.'), 'error');
       return;
     }
 
     // VI.C.2 Do not provision Drupal account if provisioning disabled
     if (!$auth_conf->ldapUser->provisionEnabled(LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER, LDAP_USER_DRUPAL_USER_PROV_ON_AUTHENTICATE)) {
-      watchdog('ldap_user', 'Drupal account for authname=%authname account name=%account_name_attr does not exist and provisioning of Drupal accounts on authentication is not enabled', $watchdog_tokens, WATCHDOG_INFO);
+      \Drupal::logger('ldap_authentication')->error('Drupal account for authname=%authname account name=%account_name_attr does not exist and provisioning of Drupal accounts on authentication is not enabled', $watchdog_tokens);
       return;
     }
 
@@ -336,8 +336,8 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
     $drupal_account = $auth_conf->ldapUser->provisionDrupalAccount(NULL, $user_edit, NULL, TRUE);
 
     if ($drupal_account === FALSE) {
-      watchdog('ldap_user', 'Failed to find or create %drupal_accountname on logon.', $watchdog_tokens, WATCHDOG_ERROR);
-      form_set_error('name', t('Server Error: Failed to create Drupal user account for %drupal_accountname', $watchdog_tokens));
+      \Drupal::logger('ldap_user')->error('Failed to find or create %drupal_accountname on logon.', $watchdog_tokens);
+      $form_state->setErrorByName('name', t('Server Error: Failed to create Drupal user account for %drupal_accountname', $watchdog_tokens));
       return;
     }
   }

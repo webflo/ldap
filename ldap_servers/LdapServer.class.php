@@ -195,7 +195,9 @@ class LdapServer {
         $this->basedn = $basedn_unserialized;
       }
       else {
-        $this->basedn = array();
+        // $this->basedn = array();
+        // FIXME serialise and deserialise basedn
+        $this->basedn = array($this->basedn);
         $token = is_scalar($basedn_unserialized) ? $basedn_unserialized : print_r($basedn_unserialized, TRUE);
         debug("basednb desearialization error". $token);
         \Drupal::logger('ldap_server')->error('Failed to deserialize LdapServer::basedn of !basedn', array('!basedn' => $token));
