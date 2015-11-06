@@ -566,7 +566,19 @@ function ldap_user_grab_password_validate($form, \Drupal\Core\Form\FormState &$f
 }
 
 
+/*
+ * Replaces the authmap table retired in Drupal 8
+ */
+function ldap_user_get_uid_from_map($identifier) {
+  return db_query("SELECT uid FROM {ldap_user_identities} WHERE identifier = :identifier AND module = 'ldap_user'", array(':identifier' => $identifier))->fetchColumn();
+}
 
+/*
+ * Replaces the authmap table retired in Drupal 8
+ */
+function ldap_user_get_identifier_from_map($uid) {
+  return db_query("SELECT identifier FROM {ldap_user_identities} WHERE uid = :uid AND module = 'ldap_user'", array(':uid' => $drupal_user->uid))->fetchColumn();
+}
 
 /**
  * Implements hook_form_FORM_ID_alter(). for user_register_form
@@ -750,7 +762,7 @@ function ldap_user_is_ldap_associated($account, $direction = NULL) {
     }
     elseif (isset($account->uid)) {
       $authmaps = db_query(
-        "SELECT aid, uid, module, authname FROM {authmap} WHERE uid = :uid AND module = :module",
+        "SELECT aid, uid, module, identifier FROM {ldap_user_identities} WHERE uid = :uid AND module = :module",
         array(
           ':uid' => $account->uid,
           ':module' => 'ldap_user'
