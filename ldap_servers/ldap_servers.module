@@ -740,11 +740,12 @@ function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_contex
   }
 
   $ldap_user = $ldap_server->userUserNameToExistingLdapEntry($drupal_username, $ldap_context);
-
   if ($ldap_user) {
+    drupal_set_message("have ldap user");
     $ldap_user['sid'] = $sid;
   }
   else {
+    drupal_set_message("no ldap user");
     $ldap_user = FALSE;
   }
 

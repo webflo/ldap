@@ -339,6 +339,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
     $drupal_account = $auth_conf->ldapUser->provisionDrupalAccount(NULL, $user_edit, NULL, TRUE);
 
     if ($drupal_account === FALSE) {
+      drupal_set_message("drupal_account false", "error");
       \Drupal::logger('ldap_user')->error('Failed to find or create %drupal_accountname on logon.', $watchdog_tokens);
       $form_state->setErrorByName('name', t('Server Error: Failed to create Drupal user account for %drupal_accountname', $watchdog_tokens));
       return;

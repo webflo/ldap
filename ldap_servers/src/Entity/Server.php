@@ -2008,7 +2008,7 @@ class Server extends ContentEntityBase {
    *   'dn' => dn of entry
    */
   function userUserNameToExistingLdapEntry($drupal_user_name, $ldap_context = NULL) {
-
+    drupal_set_message("userUserNameToExistingLdapEntry server entity");
     $watchdog_tokens = array('%drupal_user_name' => $drupal_user_name);
     $ldap_username = $this->userUsernameToLdapNameTransform($drupal_user_name, $watchdog_tokens);
     if (!$ldap_username) {

@@ -1008,7 +1008,7 @@ class LdapUserConf {
    */
 
   public function provisionDrupalAccount($account = FALSE, &$user_edit, $ldap_user = NULL, $save = TRUE) {
-
+    drupal_set_message('provisionDrupalAccount');
     $watchdog_tokens = array();
     /**
      * @todo
@@ -1022,18 +1022,22 @@ class LdapUserConf {
     $account->is_new = TRUE;
 
     if (!$ldap_user && !isset($user_edit['name'])) {
+      drupal_set_message("no user to create");
       return FALSE;
     }
 
     if (!$ldap_user) {
+        drupal_set_message("no ldap user passed in");
       $watchdog_tokens['%username'] = $user_edit['name'];
       if ($this->drupalAcctProvisionServer) {
+        drupal_set_message("getting ldap user");
         $ldap_user = ldap_servers_get_user_ldap_data($user_edit['name'], $this->drupalAcctProvisionServer, 'ldap_user_prov_to_drupal');
       }
       if (!$ldap_user) {
         if ($this->detailedWatchdog) {
           \Drupal::logger('ldap_user')->debug('%username : failed to find associated ldap entry for username in provision.', []);
         }
+        drupal_set_message("no ldap user found");
         return FALSE;
       }
     }
@@ -1073,6 +1077,7 @@ class LdapUserConf {
         return $account;
       }
       else { // create drupal account
+        drupal_set_message("about toentryToUserEdit ");
         $this->entryToUserEdit($ldap_user, $user_edit, $ldap_server, LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER, array(LDAP_USER_EVENT_CREATE_DRUPAL_USER));
         if ($save) {
           $watchdog_tokens = array('%drupal_username' =>  $user_edit['name']);

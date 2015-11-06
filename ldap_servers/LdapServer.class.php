@@ -1150,6 +1150,7 @@ class LdapServer {
    *   'dn' => dn of entry
    */
   function userUserNameToExistingLdapEntry($drupal_user_name, $ldap_context = NULL) {
+drupal_set_message("server class userUserNameToExistingLdapEntry");
 
     $watchdog_tokens = array('%drupal_user_name' => $drupal_user_name);
     $ldap_username = $this->userUsernameToLdapNameTransform($drupal_user_name, $watchdog_tokens);
@@ -1163,7 +1164,7 @@ class LdapServer {
       $attribute_maps = ldap_servers_attributes_needed($this->sid, $ldap_context);
       $attributes = array_keys($attribute_maps);
     }
-
+drupal_set_message("made it to 1166");
     foreach ($this->basedn as $basedn) {
       if (empty($basedn)) continue;
       $filter = '(' . $this->user_attr . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
