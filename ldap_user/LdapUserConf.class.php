@@ -1099,12 +1099,14 @@ class LdapUserConf {
             drupal_set_message(t('Another user already exists in the system with the same email address. You should contact the system administrator in order to solve this conflict.'), 'error');
             return FALSE;
           }
-          $account = user_save(NULL, $user_edit, 'ldap_user');
+          $account = entity_create('user', $user_edit);
+          $account->enforceIsNew();
+          $account->save();
           if (!$account) {
             drupal_set_message(t('User account creation failed because of system problems.'), 'error');
           }
           else {
-            user_set_authmaps($account, array('authname_ldap_user' => $user_edit['name']));
+            ldap_user_set_identifier($account, $user_edit['name']);
           }
           return $account;
         }

@@ -596,6 +596,20 @@ function ldap_user_get_identifier_from_map($uid) {
   return db_query("SELECT identifier FROM {ldap_user_identities} WHERE uid = :uid AND module = 'ldap_user'", array(':uid' => $drupal_user->uid))->fetchColumn();
 }
 
+/*
+ * Replaces the authmap table retired in Drupal 8
+ * Drupal 7: user_set_authmap
+ */
+function ldap_user_set_identifier($account, $identifier) {
+  $table = 'ldap_user_identities';
+  $data = array(
+    'uid' => $account->uid->value,
+    'identifier' => $identifier,
+    'module' => 'ldap_user',
+  );
+  db_insert($table)->fields($data)->execute();
+}
+
 /**
  * Implements hook_form_FORM_ID_alter(). for user_register_form
  */
