@@ -350,7 +350,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   * [#1009990],[#1865938]
   */
 
-  $form_state['uid'] = $drupal_account->uid;
+  $form_state->setValue('uid', $drupal_account->uid);
  // $fake_form_state = array('uid' => $drupal_account->uid);
  // user_login_submit(array(), $fake_form_state);
  // global $user;
@@ -372,8 +372,7 @@ function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$
   }
 
   if (is_object($drupal_account)) {
-    $authmaps = user_get_authmaps($authname); // $authmaps = user_get_authmaps($name); // patch 1599632
-    $drupal_account_is_authmapped = isset($authmaps['ldap_user']);
+    $drupal_account_is_authmapped = (null !== ldap_user_get_uid_from_map('ldap_user'));
     $user_data = $drupal_account->data;
     if ($drupal_account->uid == 1 && $detailed_watchdog_log) {
       watchdog('ldap_authentication',  '%username : Drupal username maps to user 1, so do not authenticate with ldap', $watchdog_tokens, WATCHDOG_DEBUG);

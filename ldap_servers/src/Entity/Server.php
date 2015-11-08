@@ -1869,13 +1869,13 @@ class Server extends ContentEntityBase {
    */
   public function userEmailFromLdapEntry($ldap_entry) {
 
-    if ($ldap_entry && $this->mail_attr) { // not using template
-      $mail = isset($ldap_entry[$this->mail_attr][0]) ? $ldap_entry[$this->mail_attr][0] : FALSE;
+    if ($ldap_entry && $this->mail_attr->value) { // not using template
+      $mail = isset($ldap_entry[$this->mail_attr->value][0]) ? $ldap_entry[$this->mail_attr->value][0] : FALSE;
       return $mail;
     }
-    elseif ($ldap_entry && $this->mail_template) {  // template is of form [cn]@illinois.edu
+    elseif ($ldap_entry && $this->mail_template->value) {  // template is of form [cn]@illinois.edu
       ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
-      return ldap_servers_token_replace($ldap_entry, $this->mail_template, 'ldap_entry');
+      return ldap_servers_token_replace($ldap_entry, $this->mail_template->value, 'ldap_entry');
     }
     else {
       return FALSE;
@@ -1888,10 +1888,10 @@ class Server extends ContentEntityBase {
    * @return drupal file object image user's thumbnail or FALSE if none present or ERROR happens.
    */
   public function userPictureFromLdapEntry($ldap_entry, $drupal_username = FALSE) {
-    if ($ldap_entry && $this->picture_attr) {
+    if ($ldap_entry && $this->picture_attr->value) {
       //Check if ldap entry has been provisioned.
 
-      $thumb = isset($ldap_entry[$this->picture_attr][0]) ? $ldap_entry[$this->picture_attr][0] : FALSE;
+      $thumb = isset($ldap_entry[$this->picture_attr->value][0]) ? $ldap_entry[$this->picture_attr->value][0] : FALSE;
       if(!$thumb){
         return false;
       }
