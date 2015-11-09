@@ -173,7 +173,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   $drupal_account_is_authmapped = FALSE;
   list($drupal_account, $drupal_account_is_authmapped) = ldap_authentication_corresponding_drupal_user($authname, $auth_conf, $watchdog_tokens);
   $drupal_account_exists = is_object($drupal_account);
-  if ($drupal_account_exists && $drupal_account->uid == 1) {
+  if ($drupal_account_exists && $drupal_account->id() == 1) {
     return; // user 1 is not allowed to ldap authenticate
   }
 
@@ -262,14 +262,13 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
    * VI.C: existing Drupal account with incorrect email.  fix email if appropriate
    *
    */
-  if ($drupal_account_exists && $drupal_account->mail != $ldap_user['mail'] && (
+  if ($drupal_account_exists && $drupal_account->mail->value != $ldap_user['mail'] && (
           $auth_conf->emailUpdate == LDAP_AUTHENTICATION_EMAIL_UPDATE_ON_LDAP_CHANGE_ENABLE_NOTIFY ||
           $auth_conf->emailUpdate == LDAP_AUTHENTICATION_EMAIL_UPDATE_ON_LDAP_CHANGE_ENABLE
           ))  {
-    $user_edit = array('mail' => $ldap_user['mail']);
-
-    $watchdog_tokens['%username'] = $drupal_account->name;
-    if (!$updated_account = user_save($drupal_account, $user_edit)) {
+    $drupal_account->set('mail', $ldap_user['mail']);
+    $watchdog_tokens['%username'] = $drupal_account->name->value;
+    if (!$updated_account = $drupal_account->save()) {
       \Drupal::logger('ldap_authentication')->error('Failed to make changes to user %username updated %changed.', $watchdog_tokens);
     }
     elseif ($auth_conf->emailUpdate == LDAP_AUTHENTICATION_EMAIL_UPDATE_ON_LDAP_CHANGE_ENABLE_NOTIFY ) {
@@ -350,7 +349,7 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
   * [#1009990],[#1865938]
   */
 
-  $form_state->setValue('uid', $drupal_account->uid);
+  $form_state->set('uid', $drupal_account->id());
  // $fake_form_state = array('uid' => $drupal_account->uid);
  // user_login_submit(array(), $fake_form_state);
  // global $user;
@@ -373,7 +372,6 @@ function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$
 
   if (is_object($drupal_account)) {
     $drupal_account_is_authmapped = (null !== ldap_user_get_uid_from_map('ldap_user'));
-    $user_data = $drupal_account->data;
     if ($drupal_account->uid == 1 && $detailed_watchdog_log) {
       watchdog('ldap_authentication',  '%username : Drupal username maps to user 1, so do not authenticate with ldap', $watchdog_tokens, WATCHDOG_DEBUG);
     }
