@@ -376,7 +376,7 @@ function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$
 
   if (is_object($drupal_account)) {
     $drupal_account_is_authmapped = (null !== ldap_user_get_uid_from_map('ldap_user'));
-    if ($drupal_account->uid == 1 && $detailed_watchdog_log) {
+    if ($drupal_account->id() == 1 && $detailed_watchdog_log) {
       watchdog('ldap_authentication',  '%username : Drupal username maps to user 1, so do not authenticate with ldap', $watchdog_tokens, WATCHDOG_DEBUG);
     }
     elseif ($detailed_watchdog_log) {
