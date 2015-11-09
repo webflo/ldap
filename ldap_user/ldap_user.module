@@ -278,7 +278,8 @@ function _ldap_user_sanitise($string) {
  */
 function ldap_user_ldap_attributes_needed_alter(&$attributes, $params) {
   drupal_set_message("ldap_user_ldap_attributes_needed_alter", "info", TRUE);
-
+  drupal_set_message("ldap_user_ldap_attributes_needed_alter", "status", TRUE);
+drupal_set_message(print_r($params, TRUE));
   if (isset($params['sid']) && $params['sid']) { // puid attributes are server specific
     if (is_scalar($params['sid'])) {
       $ldap_server = ldap_servers_get_servers($params['sid'], 'enabled', TRUE);
@@ -288,8 +289,10 @@ function ldap_user_ldap_attributes_needed_alter(&$attributes, $params) {
     }
 
     if ($ldap_server === FALSE) { // failed to find enabled server
+  drupal_set_message("alter no server", "status", TRUE);
       return;
     }
+  drupal_set_message("alter has server", "status", TRUE);
 
     $ldap_user_conf = ldap_user_conf();
     if (!isset($attributes['dn'])) {
@@ -316,6 +319,8 @@ function ldap_user_ldap_attributes_needed_alter(&$attributes, $params) {
     $attributes = array_merge($attributes_required_by_user_module_mappings, $attributes);
 
   }
+  drupal_set_message("alter no sid", "status", TRUE);
+
 }
 
 /**

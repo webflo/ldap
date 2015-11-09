@@ -1,5 +1,19 @@
 <?php
 
+/*
+ * 
+ * 
+ * THIS FILE SHOULD BE RETIRED 
+ * In favour of src\Entity\Server
+ * 
+ * 
+ */
+
+
+
+
+
+
 /**
  * @file
  * Defines server classes and related functions.

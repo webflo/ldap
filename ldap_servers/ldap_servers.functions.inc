@@ -103,6 +103,7 @@ function ldap_badattr($attr, $attr_name) {
 function ldap_servers_attributes_needed($sid, $ldap_context = 'all', $reset = TRUE) {
 
   static $attributes;
+  // @TODO SID could be a server object or a field object so we need a better test.
   $sid = is_object($sid) ? $sid->value : $sid;
   $static_cache_id = ($sid) ? $ldap_context . '__' . $sid : $ldap_context;
   if (!is_array($attributes)) {

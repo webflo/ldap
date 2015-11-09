@@ -1009,6 +1009,7 @@ class LdapUserConf {
 
   public function provisionDrupalAccount($account = FALSE, &$user_edit, $ldap_user = NULL, $save = TRUE) {
     drupal_set_message('provisionDrupalAccount');
+    drupal_set_message(print_r($user_edit, TRUE), "status", TRUE);
     $watchdog_tokens = array();
     /**
      * @todo
@@ -1031,6 +1032,7 @@ class LdapUserConf {
       $watchdog_tokens['%username'] = $user_edit['name'];
       if ($this->drupalAcctProvisionServer) {
         drupal_set_message("getting ldap user");
+        // function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_context = NULL) {
         $ldap_user = ldap_servers_get_user_ldap_data($user_edit['name'], $this->drupalAcctProvisionServer, 'ldap_user_prov_to_drupal');
       }
       if (!$ldap_user) {
@@ -1060,6 +1062,7 @@ class LdapUserConf {
       );
 
       \Drupal::moduleHandler()->alter('ldap_entry', $ldap_user, $params);
+    drupal_set_message(print_r($params, TRUE));
 
       // look for existing drupal account with same puid.  if so update username and attempt to synch in current context
       $puid = $ldap_server->userPuidFromLdapEntry($ldap_user['attr']);
@@ -1078,7 +1081,10 @@ class LdapUserConf {
       }
       else { // create drupal account
         drupal_set_message("about toentryToUserEdit ");
+    drupal_set_message(print_r($user_edit, TRUE), "status", TRUE);
         $this->entryToUserEdit($ldap_user, $user_edit, $ldap_server, LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER, array(LDAP_USER_EVENT_CREATE_DRUPAL_USER));
+        drupal_set_message("did toentryToUserEdit ");
+    drupal_set_message(print_r($user_edit, TRUE), "status", TRUE);
         if ($save) {
           $watchdog_tokens = array('%drupal_username' =>  $user_edit['name']);
           if (empty($user_edit['name'])) {
@@ -1086,6 +1092,8 @@ class LdapUserConf {
             \Drupal::logger('ldap_user')->error('Failed to create Drupal account %drupal_username because drupal username could not be derived.', []);
             return FALSE;
           }
+    drupal_set_message(print_r($user_edit, TRUE), "status", TRUE);
+          // FIXME next mail isn't set.
           if (!isset($user_edit['mail']) || !$user_edit['mail']) {
             drupal_set_message(t('User account creation failed because of invalid, empty derived email address.'), 'error');
             \Drupal::logger('ldap_user')->error('Failed to create Drupal account %drupal_username because email address could not be derived by LDAP User module', []);
@@ -1180,10 +1188,12 @@ class LdapUserConf {
     }
     $mail_synched = $this->isSynched('[property.mail]', $prov_events, $direction);
     if (!isset($edit['mail']) && $mail_synched) {
+      drupal_set_message("Didn't find email");
       $derived_mail = $ldap_server->userEmailFromLdapEntry($ldap_user['attr']);
       if ($derived_mail) {
         $edit['mail'] = $derived_mail;
       }
+      drupal_set_message($edit['mail']);
     }
 
     $drupal_username = $ldap_server->userUsernameFromLdapEntry($ldap_user['attr']);
@@ -1204,6 +1214,7 @@ class LdapUserConf {
     }
 
     if ($direction == LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER && in_array(LDAP_USER_EVENT_CREATE_DRUPAL_USER, $prov_events)) {
+      drupal_set_message("Direction LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER");
       $edit['mail'] = isset($edit['mail']) ? $edit['mail'] : $ldap_user['mail'];
       $edit['pass'] = isset($edit['pass']) ? $edit['pass'] : user_password(20);
       $edit['init'] = isset($edit['init']) ? $edit['init'] : $edit['mail'];

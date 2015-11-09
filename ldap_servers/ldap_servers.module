@@ -707,6 +707,7 @@ function ldap_servers_binary($value) {
 
 function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_context = NULL) {
   drupal_set_message("ldap_servers_get_user_ldap_data", "info", TRUE);
+  drupal_set_message("ldap_context $ldap_context");
 
   if (is_object($drupal_user) && property_exists($drupal_user, 'uid') && $authname = ldap_user_get_identifier_from_map($drupal_user->uid)) {
     $drupal_username = $authname;
@@ -740,6 +741,10 @@ function ldap_servers_get_user_ldap_data($drupal_user, $sid = NULL, $ldap_contex
     \Drupal::logger('ldap_servers')->error('Failed to load server object %sid in _ldap_servers_get_user_ldap_data', array('%sid' => $sid));
     return FALSE;
   }
+
+  drupal_set_message("getting user $drupal_username");
+  drupal_set_message(get_class($ldap_server));
+  drupal_set_message("ldap_context $ldap_context", "status", TRUE);
 
   $ldap_user = $ldap_server->userUserNameToExistingLdapEntry($drupal_username, $ldap_context);
   if ($ldap_user) {

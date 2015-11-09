@@ -1211,7 +1211,6 @@ class LdapAuthentication extends ContentEntityBase {
    *   'dn' => dn of entry
    */
   function userUserNameToExistingLdapEntry($drupal_user_name, $ldap_context = NULL) {
-
     if (!$ldap_context) {
       $ldap_context = 'all';
     }
