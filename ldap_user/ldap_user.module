@@ -594,6 +594,17 @@ function ldap_user_set_identifier($account, $identifier) {
   db_insert($table)->fields($data)->execute();
 }
 
+/*
+ * Called from hook_user_delete ldap_user_user_delete
+ */
+function ldap_user_identities_delete($uid) {
+  $table = 'ldap_user_identities';
+  db_delete($table)
+    ->condition('uid', $uid)
+    ->condition('module', 'ldap_user')
+    ->execute();
+}
+
 /**
  * Implements hook_form_FORM_ID_alter(). for user_register_form
  */
@@ -1108,6 +1119,8 @@ function ldap_user_user_delete($account) {
     $boolean_result = $ldap_user_conf->deleteProvisionedLdapEntries($account);
     // no need to watchdog here, because fail in deleteProvisionedLdapEntries provides watchdog entry
   }
+  // Also clean up identities
+  ldap_user_identities_delete($account->id());
 }
 
 
