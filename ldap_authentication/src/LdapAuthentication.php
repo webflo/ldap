@@ -1080,7 +1080,7 @@ class LdapAuthentication extends ContentEntityBase {
 		   * If picture is not set but account has md5 something is wrong exit.
 			 */
 			if ($drupal_username && $account = user_load_by_name($drupal_username)) {
-        if ($account->uid == 0 || $account->uid == 1){
+        if ($account->id() == 0 || $account->id() == 1){
           return FALSE;
         }
         if (isset($account->picture)){
