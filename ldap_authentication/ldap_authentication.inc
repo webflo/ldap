@@ -35,7 +35,7 @@ function _ldap_authentication_login_form_alter(&$form, &$form_state, $form_id) {
    */
 
   if (@in_array('::validateAuthentication', $form['#validate']) && $auth_conf->authenticationMode) {
-    $key = array_search('user_login_authenticate_validate', $form['#validate']);
+    $key = array_search('::validateAuthentication', $form['#validate']);
     $form['#validate'][$key] =  'ldap_authentication_core_override_user_login_authenticate_validate';
     array_splice($form['#validate'], $key + 1, 0, 'ldap_authentication_user_login_authenticate_validate');
   }
