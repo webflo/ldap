@@ -481,77 +481,6 @@ function ldap_user_user_entity_fields() {
 }
 
 
-/**
- * update authmap table, changing ldap_authentication to ldap_user, disable ldap_profile
- */
-
-function ldap_user_update_7201() {
-  if (module_exists('ldap_profile')) {
-    module_disable(array('ldap_profile', TRUE));
-  }
-  _ldap_user_install_update_authmap();
-}
-
-
-/**
- * attach ldap_user_last_checked field to user entity to track reconciliation of ldap and drupal accounts
- */
-
-function ldap_user_update_7202() {
-
-  return t('ldap_user_last_checked field added to user entity.');
-
-}
-
-
-
-/**
- * make sure all user entity fields are created
- */
-function ldap_user_update_7203() {
-
-  if (module_exists('ldap_groups')) {
-    module_disable(array('ldap_groups', TRUE));
-  }
-
-  $fields_added = ldap_user_update_check_user_fields();
-
-  if (count($fields_added)) {
-    $fields = join(', ', $fields_added);
-    return t('%fields added to user entity.', array('%fields' => $fields));
-  }
-  else {
-    return t('no fields needed to be added to user entity.');
-  }
-
-}
-
-/**
- * make sure all user entity field instances are created
- */
-function ldap_user_update_7204() {
-
-  $fields_added = ldap_user_update_check_user_fields();
-
-  if (count($fields_added)) {
-    $fields = join(', ', $fields_added);
-    return t('%fields added to user entity.', array('%fields' => $fields));
-  }
-  else {
-    return t('no fields needed to be added to user entity.');
-  }
-
-}
-
-/**
- * make sure all user entity field instances are created
- */
-function ldap_user_update_7205() {
-
-  return ldap_user_update_7204();
-
-}
-
 function ldap_user_update_check_user_fields($query = FALSE) {
   if (!$query) {
     module_enable(array('number'));
@@ -584,11 +513,8 @@ function ldap_user_update_check_user_fields($query = FALSE) {
  *
  * @ingroup config_upgrade
  */
-function ldap_user_update_8000() {
+function ldap_user_update_8001() {
   update_variables_to_config('ldap_user.settings', array(
     'ldap_user_cron_last_uid_checked' => 'cron_last_uid_checked',
   ));
 }
-
-
-
