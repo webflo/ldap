@@ -66,9 +66,9 @@ class LdapUserConfAdmin extends LdapUserConf {
 
     if ($servers = ldap_servers_get_servers(NULL, 'enabled')) {
       foreach ($servers as $sid => $ldap_server) {
-        $enabled = ($ldap_server->status) ? 'Enabled' : 'Disabled';
-        $this->drupalAcctProvisionServerOptions[$sid] = $ldap_server->name . ' (' . $ldap_server->address . ') Status: ' . $enabled;
-        $this->ldapEntryProvisionServerOptions[$sid] = $ldap_server->name . ' (' . $ldap_server->address . ') Status: ' . $enabled;
+        $enabled = ($ldap_server->get('status')) ? 'Enabled' : 'Disabled';
+        $this->drupalAcctProvisionServerOptions[$sid] = $ldap_server->label() . ' (' . $ldap_server->get('address') . ') Status: ' . $enabled;
+        $this->ldapEntryProvisionServerOptions[$sid] = $ldap_server->label() . ' (' . $ldap_server->get('address') . ') Status: ' . $enabled;
       }
     }
     $this->drupalAcctProvisionServerOptions['none'] = t('None');
