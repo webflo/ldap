@@ -146,7 +146,6 @@ class ServerForm extends EntityForm {
     );
 
     $form['bind']['bindpw'] = array(
-      '#default_value' => $server->get('bindpw'),
       '#type' => 'password',
       '#title' => t('Password for non-anonymous search'),
       '#size' => 20,
