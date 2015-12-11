@@ -6,55 +6,59 @@ ldap_servers.settings:
   requirements:
     _permission: 'administer site configuration'
 
-entity.ldap_servers.edit_index:
-  path: '/admin/config/people/ldap/servers'
+# Server routing definition
+entity.ldap_server.collection:
+  path: '/admin/config/people/ldap/server'
   defaults:
-    _title: '2. Servers'
     _entity_list: 'ldap_server'
-    # _controller: '\Drupal\ldap_servers\Controller\DefaultController::ldap_servers_edit_index'
+    _title: '2. Servers'
   requirements:
     _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
 
-entity.ldap_servers.server_add:
-  path: '/admin/config/people/ldap/servers/add'
+entity.ldap_server.add_form:
+  path: '/admin/config/people/ldap/server/add'
   defaults:
-    _entity_form: ldap_server.add
-    _title: 'Add LDAP Server Configuration'
+    _entity_form: 'ldap_server.add'
+    _title: 'Add Server'
   requirements:
     _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
 
 entity.ldap_server.edit_form:
-  path: '/admin/config/people/ldap/servers/edit/{ldap_server}'
+  path: '/admin/config/people/ldap/server/{ldap_server}'
   defaults:
-    sid: null
-    ldap_server: null
-    _title: 'Edit LDAP Server Configuration'
     _entity_form: 'ldap_server.edit'
+    _title: 'Edit Server'
   requirements:
     _permission: 'administer site configuration'
-
-entity.ldap_server.test_form:
-  path: '/admin/config/people/ldap/servers/test/{ldap_server}'
-  defaults:
-    sid: id
-    ldap_server: null
-    _title: 'Test LDAP Server Configuration'
-    # _form: \Drupal\ldap_servers\Form\LdapServersTestForm
-    _entity_form: 'ldap_server.test'
-  requirements:
-    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
 
 entity.ldap_server.delete_form:
-  path: '/admin/config/people/ldap/servers/delete/{ldap_server}'
+  path: '/admin/config/people/ldap/server/{ldap_server}/delete'
   defaults:
-    ldap_server: null
-    _title: 'Delete LDAP Server'
     _entity_form: 'ldap_server.delete'
+    _title: 'Delete Server'
   requirements:
     _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
 
-entity.ldap_server.admin_enable_disable:
-  path: '/admin/config/people/ldap/servers/enable_disable/{sid}/{action}'
+entity.ldap_server.test_form:
+  path: '/admin/config/people/ldap/server/{ldap_server}/test'
+  defaults:
+    _entity_form: 'ldap_server.test'
+    _title: 'Test Server'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ldap_server.enable_disable:
+  path: '/admin/config/people/ldap/server/enable_disable/{id}/{action}'
   defaults:
     action: null
     sid: null
@@ -63,12 +67,3 @@ entity.ldap_server.admin_enable_disable:
     _entity_form: 'ldap_server.enable_disable'
   requirements:
     _permission: 'administer site configuration'
-# ldap_servers.admin_enable_disable:
-#   path: '/admin/config/people/ldap/servers/{action}/{sid}'
-#   defaults:
-#     action: null
-#     sid: null
-#     _title: 'Enable LDAP Server'
-#     _form: \Drupal\ldap_servers\Form\LdapServersAdminEnableDisable
-#   requirements:
-#     _permission: 'administer site configuration'

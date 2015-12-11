@@ -367,7 +367,7 @@ function ldap_servers_ldap_user_attrs_list_alter(&$available_user_attrs, &$param
   //   '!sid' => $ldap_server->sid,
   // );
 
-  $url = Url::fromRoute('entity.ldap_servers.edit_index');
+  $url = Url::fromRoute('entity.ldap_server.collection');
   $tokens = array(
     '!edit_link' => \Drupal::l($url, $url),
     '!sid' => $ldap_server->get('sid')->value,
@@ -1084,7 +1084,7 @@ function ldap_servers_no_enabled_servers_msg($action) {
   $servers = ldap_servers_get_servers(NULL, 'enabled');
   if (count($servers) == 0) {
 
-    $url = \Drupal\Core\Url::fromRoute('entity.ldap_servers.edit_index');
+    $url = \Drupal\Core\Url::fromRoute('entity.ldap_server.collection');
     $edit_server_link = \Drupal::l(t('@path', array('@path' => $url)), $url);
 
     $message = t('At least one ldap server must configured and <em>enabled</em> before') .

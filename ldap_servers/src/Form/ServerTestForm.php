@@ -7,13 +7,13 @@
 
 namespace Drupal\ldap_servers\Form;
 
-use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityForm;
 // use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\ldap_servers\Entity\Server;
 
-class LdapServersTestForm extends ContentEntityForm {
+class ServerTestForm extends EntityForm {
 
   /**
    * {@inheritdoc}
@@ -47,9 +47,9 @@ class LdapServersTestForm extends ContentEntityForm {
     $entity_type_id = 'ldap_server';
     $properties = array();
 
-    foreach (\Drupal::entityManager()->getFieldDefinitions($entity_type_id) as $field_name => $field_definition) {
-      $properties[] = "$field_name = " . print_r($ldap_server->$field_name->value, TRUE);
-    }
+    // foreach (\Drupal::entityManager()->getFieldDefinitions($entity_type_id) as $field_name => $field_definition) {
+    //   $properties[] = "$field_name = " . print_r($ldap_server->$field_name->value, TRUE);
+    // }
     $settings = array(
       '#theme' => 'item_list',
       '#items' => $properties,

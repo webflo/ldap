@@ -57,8 +57,8 @@ class LdapServersAdminEnableDisable extends ContentEntityConfirmFormBase {
       // Calling _theme() directly can alter the expected output and potentially
       // introduce security issues (see https://www.drupal.org/node/2195739). You
       // should use renderable arrays instead.
-      // 
-      // 
+      //
+      //
       // @see https://www.drupal.org/node/2195739
       // $form['#prefix'] = "<div>" . theme('ldap_servers_server', $variables) . "</div>";
 
@@ -114,7 +114,7 @@ class LdapServersAdminEnableDisable extends ContentEntityConfirmFormBase {
     drupal_set_message(t('Name: ' . $name));
     drupal_set_message(t('Status: ' . $status));
 
-    $form_state->setRedirect('entity.ldap_servers.edit_index');
+    $form_state->setRedirect('entity.ldap_server.collection');
   }
 
 }
