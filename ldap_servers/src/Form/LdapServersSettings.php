@@ -126,18 +126,18 @@ class LdapServersSettings extends ConfigFormBase {
 
       // use db instead of functions to avoid classes encryption and decryption
       if ($new_encryption != $old_encryption) {
-        $servers = db_query("SELECT sid, bindpw FROM {ldap_servers} WHERE bindpw is not NULL AND bindpw <> ''")->fetchAllAssoc('sid');
-        foreach ($servers as $sid => $server) {
+        $servers = db_query("SELECT id, bindpw FROM {ldap_servers} WHERE bindpw is not NULL AND bindpw <> ''")->fetchAllAssoc('id');
+        foreach ($servers as $id => $server) {
           if ($server->bindpw != '') {
-            $decrypted_bind_pwd = ldap_servers_decrypt($server->bindpw->value, $old_encryption);
+            $decrypted_bind_pwd = ldap_servers_decrypt($server->get('bindpw'), $old_encryption);
             $rencrypted = ldap_servers_encrypt($decrypted_bind_pwd, $new_encryption);
           }
           else {
             $rencrypted = '';
           }
-          db_query("UPDATE {ldap_servers} SET bindpw = :bindpw WHERE sid = :sid", [
+          db_query("UPDATE {ldap_servers} SET bindpw = :bindpw WHERE id = :id", [
             ':bindpw' => $rencrypted,
-            ':sid' => $sid,
+            ':id' => $id,
           ]);
         }
       }
