@@ -19,7 +19,7 @@ ldap_servers.server.*:
     address:
       type: string
       label: 'LDAP Server address'
-    address:
+    port:
       type: integer
       label: 'LDAP Server port'
     tls:
