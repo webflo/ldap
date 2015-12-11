@@ -131,7 +131,6 @@ class Server extends ConfigEntityBase implements ServerInterface {
     else {
       $userdn = ($userdn != NULL) ? $userdn : $this->get('binddn');
       $pass = ($pass != NULL) ? $pass : $this->get('bindpw');
-      drupal_set_message("$userdn:$pass");
 
       if (\Drupal\Component\Utility\Unicode::strlen($pass) == 0 || \Drupal\Component\Utility\Unicode::strlen($userdn) == 0) {
         \Drupal::logger('ldap')->notice("LDAP bind failure for user userdn=%userdn, pass=%pass.", array('%userdn' => $userdn, '%pass' => $pass));
