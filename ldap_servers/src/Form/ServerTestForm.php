@@ -94,7 +94,6 @@ class ServerTestForm extends EntityForm {
     $form['grp_test_grp_dn'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Group DN'),
-      // '#default_value' => $ldap_server->grp_test_grp_dn->value,
       '#default_value' => $ldap_server->get('grp_test_grp_dn'),
       '#size' => 120,
       '#maxlength' => 255,
@@ -104,7 +103,6 @@ class ServerTestForm extends EntityForm {
     $form['grp_test_grp_dn_writeable'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Group DN that is writeable. Warning!  In test, this group will be deleted, created, have members added to it!'),
-      // '#default_value' => $ldap_server->grp_test_grp_dn_writeable->value,
       '#default_value' => $ldap_server->get('grp_test_grp_dn_writeable'),
       '#size' => 120,
       '#maxlength' => 255,
