@@ -22,7 +22,7 @@ class ServerTestForm extends EntityForm {
     return 'ldap_servers_test_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $ldap_server = NULL, $sid = NULL) {
+  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $ldap_server = NULL) {
     // @FIXME
     // drupal_set_title() has been removed. There are now a few ways to set the title
     // dynamically, depending on the situation.
@@ -59,10 +59,10 @@ class ServerTestForm extends EntityForm {
       '#markup' => drupal_render($settings),
     );
 
-    $form['sid'] = [
+    $form['id'] = [
       '#type' => 'hidden',
       '#title' => t('Machine name for this server'),
-      '#default_value' => $ldap_server->get('sid')->value,
+      '#default_value' => $ldap_server->id(),
     ];
 
     $form['binding']['bindpw'] = [
@@ -76,7 +76,7 @@ class ServerTestForm extends EntityForm {
     $form['testing_drupal_username'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Drupal Username'),
-      '#default_value' => $ldap_server->get('testing_drupal_username')->value,
+      '#default_value' => $ldap_server->get('testing_drupal_username'),
       '#size' => 30,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
@@ -85,7 +85,7 @@ class ServerTestForm extends EntityForm {
     $form['testing_drupal_user_dn'] = [
       '#type' => 'textfield',
       '#title' => t('Testing Drupal DN'),
-      '#default_value' => $ldap_server->get('testing_drupal_user_dn')->value,
+      '#default_value' => $ldap_server->get('testing_drupal_user_dn'),
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s configuration against an actual username.  The user need not exist in Drupal and testing will not affect the user\'s LDAP or Drupal Account.'),
@@ -95,7 +95,7 @@ class ServerTestForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => t('Testing Group DN'),
       // '#default_value' => $ldap_server->grp_test_grp_dn->value,
-      '#default_value' => $ldap_server->get('grp_test_grp_dn')->value,
+      '#default_value' => $ldap_server->get('grp_test_grp_dn'),
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s group configuration.'),
@@ -105,14 +105,14 @@ class ServerTestForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => t('Testing Group DN that is writeable. Warning!  In test, this group will be deleted, created, have members added to it!'),
       // '#default_value' => $ldap_server->grp_test_grp_dn_writeable->value,
-      '#default_value' => $ldap_server->get('grp_test_grp_dn_writeable')->value,
+      '#default_value' => $ldap_server->get('grp_test_grp_dn_writeable'),
       '#size' => 120,
       '#maxlength' => 255,
       '#description' => t('This is optional and used for testing this server\'s group configuration.'),
     ];
 
     // if ($ldap_server->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
-    if ($ldap_server->get('bind_method')->value == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+    if ($ldap_server->get('bind_method') == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
       $form['testing_drupal_userpw'] = [
         '#type' => 'password',
         '#title' => t('Testing Drupal User Password'),
@@ -221,12 +221,12 @@ class ServerTestForm extends EntityForm {
   public function validateForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
     $values = $form_state->getValues();
 
-    if (!$values['sid']) {
+    if (!$values['id']) {
       $form_state->setErrorByName(NULL, t('No server id found in form'));
     }
-    elseif (!$ldap_server = ldap_servers_get_servers($values['sid'], 'all', TRUE)) {
-      $form_state->setErrorByName(NULL, t('Failed to create server object for server with server id=%sid', [
-        '%sid' => $values['sid']
+    elseif (!$ldap_server = ldap_servers_get_servers($values['id'], 'all', TRUE)) {
+      $form_state->setErrorByName(NULL, t('Failed to create server object for server with server id=%id', [
+        '%id' => $values['id']
         ]));
     }
   }
@@ -240,8 +240,8 @@ class ServerTestForm extends EntityForm {
     $errors = FALSE;
     $has_errors = FALSE;
     $values = $form_state->getValues();
-    $sid = $values['sid'];
-    $ldap_server = ldap_servers_get_servers($sid, 'all', TRUE);
+    $id = $values['id'];
+    $ldap_server = ldap_servers_get_servers($id, 'all', TRUE);
 
     //$result = t('<h1>Test of name </h2>',$server_conf);
     $results = [];
@@ -255,10 +255,10 @@ class ServerTestForm extends EntityForm {
       $bindpw_type = t('stored in configuration');
     }
 
-    if ($ldap_server->get('bind_method')->value == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
+    if ($ldap_server->get('bind_method') == LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT) {
       $results_tables['basic'][] = [
         t('Binding with DN for non-anonymous search (%bind_dn).  Using password ', [
-          '%bind_dn' => $ldap_server->get('binddn')->value
+          '%bind_dn' => $ldap_server->get('binddn')
           ]) . ' ' . $bindpw_type . '.',
         ''
         ];
@@ -275,7 +275,7 @@ class ServerTestForm extends EntityForm {
       $group_create_test_dn = $values['grp_test_grp_dn_writeable'];
       $group_create_test_attr = [
         'objectClass' => [
-          $ldap_server->get('grp_object_cat')->value,
+          $ldap_server->get('grp_object_cat'),
           'top',
         ]
         ];
@@ -363,11 +363,11 @@ class ServerTestForm extends EntityForm {
 
     // connect to ldap
     // @FIXME: testBindingCredentials call function bind and throw an error (no error log)
-    // list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw, $results_tables);
+    list($has_errors, $more_results) = $ldap_server->testBindingCredentials($bindpw, $results_tables);
 
     $results = array_merge($results, $more_results);
 
-    if ($ldap_server->get('bind_method')->value == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+    if ($ldap_server->get('bind_method') == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
       drupal_set_message('LDAP_SERVERS_BIND_METHOD_ANON_USER');
       list($has_errors, $more_results, $ldap_user) = $ldap_server->testUserMapping($values['testing_drupal_username']);
       $results = array_merge($results, $more_results);
@@ -382,7 +382,7 @@ class ServerTestForm extends EntityForm {
           theme_item_list([
             'items' => $mapping,
             'title' => t('Attributes available to anonymous search', [
-              '%bind_dn' => $ldap_server->get('binddn')->value,
+              '%bind_dn' => $ldap_server->get('binddn'),
               ]),
             'type' => 'ul',
             'attributes' => [],

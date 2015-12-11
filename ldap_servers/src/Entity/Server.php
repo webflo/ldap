@@ -58,8 +58,8 @@ class Server extends ConfigEntityBase implements ServerInterface {
    * Connect Method
    */
   public function connect() {
-    $port = (self::get('port')->value);
-    $address = (self::get('address')->value);
+    $port = (self::get('port'));
+    $address = (self::get('address'));
 
     $con = ldap_connect($address, $port);
 
@@ -72,7 +72,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     ldap_set_option($con, LDAP_OPT_REFERRALS, 0);
 
     // Use TLS if we are configured and able to.
-    if (self::get('tls')->value) {
+    if (self::get('tls')) {
       ldap_get_option($con, LDAP_OPT_PROTOCOL_VERSION, $vers);
       if ($vers == -1) {
         \Drupal::logger('user')->notice('Could not get LDAP protocol version.', []);
@@ -129,8 +129,9 @@ class Server extends ConfigEntityBase implements ServerInterface {
       }
     }
     else {
-      $userdn = ($userdn != NULL) ? $userdn : $this->binddn->value;
-      $pass = ($pass != NULL) ? $pass : $this->bindpw->value;
+      $userdn = ($userdn != NULL) ? $userdn : $this->get('binddn');
+      $pass = ($pass != NULL) ? $pass : $this->get('bindpw');
+      drupal_set_message("$userdn:$pass");
 
       if (\Drupal\Component\Utility\Unicode::strlen($pass) == 0 || \Drupal\Component\Utility\Unicode::strlen($userdn) == 0) {
         \Drupal::logger('ldap')->notice("LDAP bind failure for user userdn=%userdn, pass=%pass.", array('%userdn' => $userdn, '%pass' => $pass));
@@ -690,7 +691,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
    */
   public function getBasedn() {
     // Get the basedn value
-    $basedn = $this->basedn->value;
+    $basedn = $this->basedn;
     // See if it is an array
     if ( ! is_array($basedn) ) {
       // @TODO Is it serialised?
@@ -807,13 +808,13 @@ class Server extends ConfigEntityBase implements ServerInterface {
    */
   public function userEmailFromLdapEntry($ldap_entry) {
 
-    if ($ldap_entry && $this->mail_attr->value) { // not using template
-      $mail = isset($ldap_entry[$this->mail_attr->value][0]) ? $ldap_entry[$this->mail_attr->value][0] : FALSE;
+    if ($ldap_entry && $this->mail_attr) { // not using template
+      $mail = isset($ldap_entry[$this->mail_attr][0]) ? $ldap_entry[$this->mail_attr][0] : FALSE;
       return $mail;
     }
-    elseif ($ldap_entry && $this->mail_template->value) {  // template is of form [cn]@illinois.edu
+    elseif ($ldap_entry && $this->mail_template) {  // template is of form [cn]@illinois.edu
       ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
-      return ldap_servers_token_replace($ldap_entry, $this->mail_template->value, 'ldap_entry');
+      return ldap_servers_token_replace($ldap_entry, $this->mail_template, 'ldap_entry');
     }
     else {
       return FALSE;
@@ -826,10 +827,10 @@ class Server extends ConfigEntityBase implements ServerInterface {
    * @return drupal file object image user's thumbnail or FALSE if none present or ERROR happens.
    */
   public function userPictureFromLdapEntry($ldap_entry, $drupal_username = FALSE) {
-    if ($ldap_entry && $this->picture_attr->value) {
+    if ($ldap_entry && $this->picture_attr) {
       //Check if ldap entry has been provisioned.
 
-      $thumb = isset($ldap_entry[$this->picture_attr->value][0]) ? $ldap_entry[$this->picture_attr->value][0] : FALSE;
+      $thumb = isset($ldap_entry[$this->picture_attr][0]) ? $ldap_entry[$this->picture_attr][0] : FALSE;
       if(!$thumb){
         return false;
       }
@@ -982,7 +983,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     foreach ($this->getBasedn() as $basedn) {
 
       if (empty($basedn)) continue;
-      $filter = '(' . $this->user_attr->value . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
+      $filter = '(' . $this->user_attr . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
 
       $result = $this->search($basedn, $filter, $attributes);
       if (!$result || !isset($result['count']) || !$result['count']) continue;
@@ -999,7 +1000,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       // characters' case.
       // This was contributed by Dan "Gribnif" Wilga, and described
       // here: http://drupal.org/node/87833
-      $name_attr = $this->user_attr->value;
+      $name_attr = $this->user_attr;
 
       if (isset($match[$name_attr][0])) {
         // leave name
@@ -1660,7 +1661,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     }
 
     if (!$errors) {
-      $bind_result = self::bind(self::get('binddn')->value, $bindpw, FALSE);
+      $bind_result = self::bind(self::get('binddn'), $bindpw, FALSE);
       if ($bind_result == LDAP_SUCCESS) {
         $results_tables['basic'][] =  array(t('Successfully bound to server'), t('PASS'));
       }
@@ -1683,14 +1684,14 @@ class Server extends ConfigEntityBase implements ServerInterface {
       $results[] = t('Failed to find test user %username by searching on  %user_attr = %username.',
         array(
           '%username' => $drupal_username,
-          '%user_attr' => self::get('user_attr')->value )
+          '%user_attr' => self::get('user_attr') )
         )
         . ' ' . t('Error Message:') . ' ' . self::errorMsg('ldap');
       $errors = TRUE;
     }
     else {
       $results[] = t('Found test user %username by searching on  %user_attr = %username.',
-        array('%username' => $drupal_username, '%user_attr' => $this->user_attr->value ));
+        array('%username' => $drupal_username, '%user_attr' => $this->user_attr ));
     }
     return array($errors, $results, $ldap_user);
   }
