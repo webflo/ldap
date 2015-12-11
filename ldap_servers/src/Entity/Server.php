@@ -117,7 +117,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       return LDAP_CONNECT_ERROR;
     }
 
-    if ($anon_bind !== FALSE && $userdn === NULL && $pass === NULL && $this->bind_method == LDAP_SERVERS_BIND_METHOD_ANON) {
+    if ($anon_bind !== FALSE && $userdn === NULL && $pass === NULL && $this->get('bind_method') == LDAP_SERVERS_BIND_METHOD_ANON) {
       $anon_bind = TRUE;
     }
     if ($anon_bind === TRUE) {
@@ -252,7 +252,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     $result = @ldap_add($this->connection, $dn, $attributes);
     if (!$result) {
       $error = "LDAP Server ldap_add(%dn) Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
-      $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
+      $tokens = array('%dn' => $dn, '%id' => $this->id(), '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
       debug(t($error, $tokens));
       \Drupal::logger('ldap_server')->error($error, []);
     }
@@ -324,7 +324,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       $result = @ldap_read($this->connection, $dn, 'objectClass=*');
       if (!$result) {
         $error = "LDAP Server ldap_read(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
-        $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
+        $tokens = array('%dn' => $dn, '%id' => $this->id(), '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
         \Drupal::logger('ldap_server')->error($error, []);
         return FALSE;
       }
@@ -354,7 +354,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
         $result = @ldap_mod_del($this->connection, $dn, array($key_lcase => $old_value));
         if (!$result) {
           $error = "LDAP Server ldap_mod_del(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
-          $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
+          $tokens = array('%dn' => $dn, '%id' => $this->id(), '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
           \Drupal::logger('ldap_server')->error($error, []);
           return FALSE;
         }
@@ -375,7 +375,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       $result = @ldap_modify($this->connection, $dn, $attributes);
       if (!$result) {
         $error = "LDAP Server ldap_modify(%dn) in LdapServer::modifyLdapEntry() Error Server ID = %sid, LDAP Err No: %ldap_errno LDAP Err Message: %ldap_err2str ";
-        $tokens = array('%dn' => $dn, '%sid' => $this->sid, '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
+        $tokens = array('%dn' => $dn, '%id' => $this->id(), '%ldap_errno' => ldap_errno($this->connection), '%ldap_err2str' => ldap_err2str(ldap_errno($this->connection)));
         \Drupal::logger('ldap_server')->error($error, []);
         return FALSE;
       }
@@ -711,9 +711,9 @@ class Server extends ConfigEntityBase implements ServerInterface {
 
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'user')
-    ->fieldCondition('ldap_user_puid_sid', 'value', $this->sid, '=')
+    ->fieldCondition('ldap_user_puid_sid', 'value', $this->id(), '=')
     ->fieldCondition('ldap_user_puid', 'value', $puid, '=')
-    ->fieldCondition('ldap_user_puid_property', 'value', $this->unique_persistent_attr, '=')
+    ->fieldCondition('ldap_user_puid_property', 'value', $this->get('unique_persistent_attr'), '=')
     ->addMetaData('account', \Drupal::entityManager()->getStorage('user')->load(1)); // run the query as user 1
 
     $result = $query->execute();
@@ -726,7 +726,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       }
       else {
         $uids = join(',', $uids);
-        $tokens = array('%uids' => $uids, '%puid' => $puid, '%sid' =>  $this->sid, '%ldap_user_puid_property' =>  $this->unique_persistent_attr);
+        $tokens = array('%uids' => $uids, '%puid' => $puid, '%id' =>  $this->id(), '%ldap_user_puid_property' =>  $this->get('unique_persistent_attr'));
         \Drupal::logger('ldap_server')->error('multiple users (uids: %uids) with same puid (puid=%puid, sid=%sid, ldap_user_puid_property=%ldap_user_puid_property)', []);
         return FALSE;
       }
@@ -770,11 +770,11 @@ class Server extends ConfigEntityBase implements ServerInterface {
   public function userUsernameFromLdapEntry($ldap_entry) {
 
 
-    if ($this->account_name_attr) {
-      $accountname = (empty($ldap_entry[$this->account_name_attr][0])) ? FALSE : $ldap_entry[$this->account_name_attr][0];
+    if ($this->get('account_name_attr')) {
+      $accountname = (empty($ldap_entry[$this->get('account_name_attr')][0])) ? FALSE : $ldap_entry[$this->get('account_name_attr')][0];
     }
-    elseif ($this->user_attr)  {
-      $accountname = (empty($ldap_entry[$this->user_attr][0])) ? FALSE : $ldap_entry[$this->user_attr][0];
+    elseif ($this->get('user_attr'))  {
+      $accountname = (empty($ldap_entry[$this->get('user_attr')][0])) ? FALSE : $ldap_entry[$this->get('user_attr')][0];
     }
     else {
       $accountname = FALSE;
@@ -807,13 +807,13 @@ class Server extends ConfigEntityBase implements ServerInterface {
    */
   public function userEmailFromLdapEntry($ldap_entry) {
 
-    if ($ldap_entry && $this->mail_attr) { // not using template
-      $mail = isset($ldap_entry[$this->mail_attr][0]) ? $ldap_entry[$this->mail_attr][0] : FALSE;
+    if ($ldap_entry && $this->get('mail_attr')) { // not using template
+      $mail = isset($ldap_entry[$this->get('mail_attr')][0]) ? $ldap_entry[$this->get('mail_attr')][0] : FALSE;
       return $mail;
     }
-    elseif ($ldap_entry && $this->mail_template) {  // template is of form [cn]@illinois.edu
+    elseif ($ldap_entry && $this->get('mail_template')) {  // template is of form [cn]@illinois.edu
       ldap_servers_module_load_include('inc', 'ldap_servers', 'ldap_servers.functions');
-      return ldap_servers_token_replace($ldap_entry, $this->mail_template, 'ldap_entry');
+      return ldap_servers_token_replace($ldap_entry, $this->get('mail_template'), 'ldap_entry');
     }
     else {
       return FALSE;
@@ -826,10 +826,10 @@ class Server extends ConfigEntityBase implements ServerInterface {
    * @return drupal file object image user's thumbnail or FALSE if none present or ERROR happens.
    */
   public function userPictureFromLdapEntry($ldap_entry, $drupal_username = FALSE) {
-    if ($ldap_entry && $this->picture_attr) {
+    if ($ldap_entry && $this->get('picture_attr')) {
       //Check if ldap entry has been provisioned.
 
-      $thumb = isset($ldap_entry[$this->picture_attr][0]) ? $ldap_entry[$this->picture_attr][0] : FALSE;
+      $thumb = isset($ldap_entry[$this->get('picture_attr')][0]) ? $ldap_entry[$this->get('picture_attr')][0] : FALSE;
       if(!$thumb){
         return false;
       }
@@ -905,12 +905,12 @@ class Server extends ConfigEntityBase implements ServerInterface {
    */
   public function userPuidFromLdapEntry($ldap_entry) {
 
-    if ($this->unique_persistent_attr
-        && isset($ldap_entry[$this->unique_persistent_attr][0])
-        && is_scalar($ldap_entry[$this->unique_persistent_attr][0])
+    if ($this->get('unique_persistent_attr')
+        && isset($ldap_entry[$this->get('unique_persistent_attr')][0])
+        && is_scalar($ldap_entry[$this->get('unique_persistent_attr')][0])
         ) {
-      $puid = $ldap_entry[$this->unique_persistent_attr][0];
-      return ($this->unique_persistent_attr_binary) ? ldap_servers_binary($puid) : $puid;
+      $puid = $ldap_entry[$this->get('unique_persistent_attr')][0];
+      return ($this->get('unique_persistent_attr')_binary) ? ldap_servers_binary($puid) : $puid;
     }
     else {
       return FALSE;
@@ -975,14 +975,14 @@ class Server extends ConfigEntityBase implements ServerInterface {
       $attributes = array();
     }
     else {
-      $attribute_maps = ldap_servers_attributes_needed($this->sid, $ldap_context);
+      $attribute_maps = ldap_servers_attributes_needed($this->id(), $ldap_context);
       $attributes = array_keys($attribute_maps);
     }
 
     foreach ($this->getBasedn() as $basedn) {
 
       if (empty($basedn)) continue;
-      $filter = '(' . $this->user_attr . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
+      $filter = '(' . $this->get('user_attr') . '=' . ldap_server_massage_text($ldap_username, 'attr_value', LDAP_SERVER_MASSAGE_QUERY_LDAP) . ')';
 
       $result = $this->search($basedn, $filter, $attributes);
       if (!$result || !isset($result['count']) || !$result['count']) continue;
@@ -999,7 +999,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       // characters' case.
       // This was contributed by Dan "Gribnif" Wilga, and described
       // here: http://drupal.org/node/87833
-      $name_attr = $this->user_attr;
+      $name_attr = $this->get('user_attr');
 
       if (isset($match[$name_attr][0])) {
         // leave name
@@ -1008,12 +1008,12 @@ class Server extends ConfigEntityBase implements ServerInterface {
         $name_attr = \Drupal\Component\Utility\Unicode::strtolower($name_attr);
       }
       else {
-        if ($this->bind_method == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
+        if ($this->get('bind_method') == LDAP_SERVERS_BIND_METHOD_ANON_USER) {
           $result = array(
             'dn' =>  $match['dn'],
             'mail' => $this->userEmailFromLdapEntry($match),
             'attr' => $match,
-            'sid' => $this->sid,
+            'id' => $this->id(),
             );
           return $result;
         }
@@ -1036,7 +1036,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
             'dn' =>  $match['dn'],
             'mail' => $this->userEmailFromLdapEntry($match),
             'attr' => $match,
-            'sid' => $this->sid,
+            'id' => $this->id(),
           );
           return $result;
         }
@@ -1426,7 +1426,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
         $or = '(|(' . join(")(", $current_ors) . '))';  // e.g. (|(cn=group1)(cn=group2)) or   (|(dn=cn=group1,ou=blah...)(dn=cn=group2,ou=blah...))
         $query_for_parent_groups = '(&(objectClass=' . $this->groupObjectClass . ')' . $or . ')';
 
-        foreach ($this->basedn as $base_dn) {  // need to search on all basedns one at a time
+        foreach ($this->get('basedn') as $base_dn) {  // need to search on all basedns one at a time
           // debug("query for parent groups, base_dn=$base_dn, $query_for_parent_groups");
           $group_entries = $this->search($base_dn, $query_for_parent_groups);  // no attributes, just dns needed
           if ($group_entries !== FALSE  && $level < LDAP_SERVER_LDAP_QUERY_RECURSION_LIMIT) {
@@ -1484,7 +1484,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
 
     $group_query = '(&(objectClass=' . $this->groupObjectClass . ')(' . $this->groupMembershipsAttr . "=$member_value))";
 
-    foreach ($this->basedn as $base_dn) {  // need to search on all basedns one at a time
+    foreach ($this->get('basedn') as $base_dn) {  // need to search on all basedns one at a time
       $group_entries = $this->search($base_dn, $group_query, array()); // only need dn, so empty array forces return of no attributes
       if ($group_entries !== FALSE) {
         $max_levels = ($nested) ? LDAP_SERVER_LDAP_QUERY_RECURSION_LIMIT : 0;
@@ -1547,7 +1547,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
         $or = '(|(' . join(")(", $current_ors) . '))';  // e.g. (|(cn=group1)(cn=group2)) or   (|(dn=cn=group1,ou=blah...)(dn=cn=group2,ou=blah...))
         $query_for_parent_groups = '(&(objectClass=' . $this->groupObjectClass . ')' . $or . ')';
 
-        foreach ($this->basedn as $base_dn) {  // need to search on all basedns one at a time
+        foreach ($this->get('basedn') as $base_dn) {  // need to search on all basedns one at a time
           $group_entries = $this->search($base_dn, $query_for_parent_groups);  // no attributes, just dns needed
           if ($group_entries !== FALSE  && $level < $max_levels) {
             $this->groupMembershipsFromEntryResursive($group_entries, $all_group_dns, $tested_group_ids, $level + 1, $max_levels);
@@ -1690,7 +1690,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     }
     else {
       $results[] = t('Found test user %username by searching on  %user_attr = %username.',
-        array('%username' => $drupal_username, '%user_attr' => $this->user_attr ));
+        array('%username' => $drupal_username, '%user_attr' => $this->get('user_attr') ));
     }
     return array($errors, $results, $ldap_user);
   }
