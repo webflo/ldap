@@ -910,7 +910,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
         && is_scalar($ldap_entry[$this->get('unique_persistent_attr')][0])
         ) {
       $puid = $ldap_entry[$this->get('unique_persistent_attr')][0];
-      return ($this->get('unique_persistent_attr')_binary) ? ldap_servers_binary($puid) : $puid;
+      return ($this->get('unique_persistent_attr_binary')) ? ldap_servers_binary($puid) : $puid;
     }
     else {
       return FALSE;
