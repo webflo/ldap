@@ -2,19 +2,59 @@
 
 /**
  * @file
- * class to encapsulate an ldap authorization ldap entry to authorization ids mapping
+ * Contains \Drupal\ldap_authorization\Form\ConsumerForm.
  *
+ * class to encapsulate an ldap authorization ldap entry to authorization ids mapping
  */
 
-module_load_include('php', 'ldap_authorization', 'LdapAuthorizationConsumerConf.class');
+namespace Drupal\ldap_authorization\Form;
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Class ConsumerForm.
+ *
+ * @package Drupal\ldap_authorization\Form
+ */
+class ConsumerForm extends EntityForm {
   /**
-   * LDAP Authorization Consumer Configration Admin Class
+   * {@inheritdoc}
    */
-class LdapAuthorizationConsumerConfAdmin extends LdapAuthorizationConsumerConf {
+  public function form(array $form, FormStateInterface $form_state) {
+    $form = parent::form($form, $form_state);
 
+    $ldap_authorization_consumer = $this->entity;
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#maxlength' => 255,
+      '#default_value' => $ldap_authorization_consumer->label(),
+      '#description' => $this->t("Label for the LDAP Consumer."),
+      '#required' => TRUE,
+    );
 
-  public function save() {
+    $form['id'] = array(
+      '#type' => 'machine_name',
+      '#default_value' => $ldap_authorization_consumer->id(),
+      '#machine_name' => array(
+        'exists' => '\Drupal\ldap_authorization\Entity\Consumer::load',
+      ),
+      '#disabled' => !$ldap_authorization_consumer->isNew(),
+    );
+    /* You will need additional form elements for your custom properties. */
 
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function save(array $form, FormStateInterface $form_state) {
+    $ldap_authorization_consumer = $this->entity;
+
+    /*
     $op = $this->inDatabase ? 'edit' : 'insert';
     $values = new stdClass; // $this;
     $values->sid = $this->sid;
@@ -67,6 +107,23 @@ class LdapAuthorizationConsumerConfAdmin extends LdapAuthorizationConsumerConf {
         drupal_set_message(t('Failed to write LDAP Authorization to the database.'));
       }
     }
+    */
+
+    $status = $ldap_authorization_consumer->save();
+
+    switch ($status) {
+      case SAVED_NEW:
+        drupal_set_message($this->t('Created the %label LDAP Consumer.', [
+          '%label' => $ldap_authorization_consumer->label(),
+        ]));
+        break;
+
+      default:
+        drupal_set_message($this->t('Saved the %label LDAP Consumer.', [
+          '%label' => $ldap_authorization_consumer->label(),
+        ]));
+    }
+    $form_state->setRedirectUrl($ldap_authorization_consumer->urlInfo('collection'));
 
   }
 
@@ -84,7 +141,7 @@ class LdapAuthorizationConsumerConfAdmin extends LdapAuthorizationConsumerConf {
   }
 
   public function __construct(&$consumer = NULL, $new = FALSE) {
-    parent::__construct($consumer, $new);
+    // parent::__construct($consumer, $new);
     $this->fields = $this->fields();
     $this->consumers = ldap_authorization_get_consumers(NULL, TRUE);
 

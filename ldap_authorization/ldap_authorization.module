@@ -226,7 +226,7 @@ function ldap_authorization_get_consumer_object($consumer_type) {
 function ldap_authorization_get_consumers($consumer_type = NULL, $reset = FALSE, $flatten = FALSE) {
   static $consumers;
   if ($reset || !is_array($consumers)) {
-    $consumers = module_invoke_all('ldap_authorization_consumer');
+    $consumers =  Drupal::moduleHandler()->invokeAll('ldap_authorization_consumer');
   }
   if (!$consumer_type) {
     return $consumers;

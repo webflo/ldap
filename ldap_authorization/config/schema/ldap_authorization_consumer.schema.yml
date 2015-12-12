@@ -1,0 +1,12 @@
+ldap_authorization.ldap_authorization_consumer.*:
+  type: config_entity
+  label: 'LDAP Consumer config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

@@ -1,13 +1,14 @@
 <?php
 /**
  * @file
- * Contains \Drupal\ldap_authorization\Entity\Authorization.
+ * Contains \Drupal\ldap_authorization\Entity\Consumer.
  */
 
 namespace Drupal\ldap_authorization\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\ldap_authorization\ConsumerInterface;
+use Drupal\Core\Link;
 
 /**
  * Defines the Consumer entity.
@@ -20,7 +21,7 @@ use Drupal\ldap_authorization\ConsumerInterface;
  *     "form" = {
  *       "add" = "Drupal\ldap_authorization\Form\ConsumerForm",
  *       "edit" = "Drupal\ldap_authorization\Form\ConsumerForm",
- *       "delete" = "Drupal\ldap_authorization\Form\ConsumerDeleteForm",
+ *       "delete" = "Drupal\ldap_authorization\Form\ConsumerDeleteForm"
  *     }
  *   },
  *   config_prefix = "consumer",
@@ -31,22 +32,39 @@ use Drupal\ldap_authorization\ConsumerInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/config/people/ldap/authorization/{consumer}",
- *     "edit-form" = "/admin/config/people/ldap/authorization/{consumer}/edit",
- *     "delete-form" = "/admin/config/people/ldap/authorization/{consumer}/delete",
+ *     "canonical" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}",
+ *     "edit-form" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/edit",
+ *     "delete-form" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/delete",
  *     "collection" = "/admin/config/people/ldap/authorization"
  *   }
  * )
  */
 class Consumer extends ConfigEntityBase implements ConsumerInterface {
+  /**
+   * The Server ID.
+   *
+   * @var string
+   */
+  protected $id;
 
-/*
- *
- * abstract class to represent an ldap_authorization consumer behavior
- * such as drupal_role, og_group, etc.  each authorization consumer
- * will extend this class with its own class named
- * LdapAuthorizationConsumer<consumer type> such as LdapAuthorizationConsumerDrupalRole
- */
+  /**
+   * The Server label.
+   *
+   * @var string
+   */
+  protected $label;
+
+  /**
+   * Connect Method
+   */
+
+  /*
+   *
+   * abstract class to represent an ldap_authorization consumer behavior
+   * such as drupal_role, og_group, etc.  each authorization consumer
+   * will extend this class with its own class named
+   * LdapAuthorizationConsumer<consumer type> such as LdapAuthorizationConsumerDrupalRole
+   */
  
   public $consumerType = NULL; // machine name of consumer.  e.g. og_group, drupal_role, etc.
 
@@ -120,10 +138,11 @@ class Consumer extends ConfigEntityBase implements ConsumerInterface {
     $this->shortNamePlural= $params['consumer_short_name_plural'];
     $this->consumerModule = $params['consumer_module'];
     $this->mappingDirections = $params['consumer_mapping_directions'];
-    $this->testLink = l(t('test') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/test/' . $this->consumerType);
-    $this->editLink = l(t('edit') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/edit/' . $this->consumerType);
-    ldap_servers_module_load_include('php', 'ldap_authorization', 'LdapAuthorizationConsumerConfAdmin.class');
-    $this->consumerConf = new LdapAuthorizationConsumerConf($this);
+
+    $this->testLink = Link::fromTextAndUrl(t('test') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/test/' . $this->consumerType);
+    $this->editLink = Link::fromTextAndUrl(t('edit') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/edit/' . $this->consumerType);
+    // ldap_servers_module_load_include('php', 'ldap_authorization', 'LdapAuthorizationConsumerConfAdmin.class');
+    // $this->consumerConf = new LdapAuthorizationConsumerConf($this);
   }
 
 

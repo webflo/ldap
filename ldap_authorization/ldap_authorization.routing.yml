@@ -1,4 +1,5 @@
-entity.ldap_authorization.collection:
+# Consumer routing definition
+entity.ldap_authorization_consumer.collection:
   path: '/admin/config/people/ldap/authorization'
   defaults:
     _entity_list: 'ldap_authorization_consumer'
@@ -8,18 +9,8 @@ entity.ldap_authorization.collection:
   options:
     _admin_route: TRUE
 
-entity.ldap_authorization.add_form:
-  path: '/admin/config/people/ldap/authorization/add'
-  defaults:
-    _entity_form: 'ldap_authorization_consumer.add'
-    _title: 'Add Consumer'
-  requirements:
-    _permission: 'administer site configuration'
-  options:
-    _admin_route: TRUE
-
-entity.ldap_authorization.edit_form:
-  path: '/admin/config/people/ldap/authorization/{ldap_authorization}'
+entity.ldap_authorization_consumer.edit_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization_consumer}'
   defaults:
     _entity_form: 'ldap_authorization_consumer.edit'
     _title: 'Edit Consumer'
@@ -28,8 +19,8 @@ entity.ldap_authorization.edit_form:
   options:
     _admin_route: TRUE
 
-entity.ldap_authorization.delete_form:
-  path: '/admin/config/people/ldap/authorization/{ldap_authorization}/delete'
+entity.ldap_authorization_consumer.delete_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/delete'
   defaults:
     _entity_form: 'ldap_authorization_consumer.delete'
     _title: 'Delete Consumer'
@@ -38,8 +29,8 @@ entity.ldap_authorization.delete_form:
   options:
     _admin_route: TRUE
 
-entity.ldap_authorization.test_form:
-  path: '/admin/config/people/ldap/authorization/{ldap_authorization}/test'
+entity.ldap_authorization_consumer.test_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/test'
   defaults:
     _entity_form: 'ldap_authorization_consumer.test'
     _title: 'Test Consumer'

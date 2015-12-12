@@ -1,5 +1,5 @@
-ldap_authorization.settings:
-  route_name: ldap_authorization.settings
+entity.ldap_authorization_consumer.collection:
+  route_name: entity.ldap_authorization_consumer.collection
   title: 'Authorization'
   weight: 50
   base_route: ldap_servers.settings

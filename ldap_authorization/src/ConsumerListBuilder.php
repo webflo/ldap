@@ -19,12 +19,16 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    *
-   * Building the header and content lines for the contact list.
+   * Building the header and content lines for the consumer list.
    *
    * Calling the parent::buildHeader() adds a column for the possible actions
    * and inserts the 'edit' and 'delete' links as defined for the entity type.
    */
   public function buildHeader() {
+    $ids = $this->getEntityIds();
+    if ( ! count($ids) ) {
+      drupal_set_message("No authorization consumer modules are enabled. Enable LDAP Authorization Drupal Roles, OG LDAP, or another LDAP Authorization consuming module.", 'warning');
+    }
     $header['server'] = $this->t('LDAP Server');
     $header['description'] = $this->t('Description');
     $header['module'] = $this->t('Module');
@@ -48,6 +52,9 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
     return $row + parent::buildRow($entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
     if ( ! isset($operations['test']) ) {
