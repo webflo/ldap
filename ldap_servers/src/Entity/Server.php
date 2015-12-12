@@ -32,10 +32,10 @@ use Drupal\ldap_servers\ServerInterface;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/server/{server}",
- *     "edit-form" = "/admin/structure/server/{server}/edit",
- *     "delete-form" = "/admin/structure/server/{server}/delete",
- *     "collection" = "/admin/structure/visibility_group"
+ *     "canonical" = "/admin/config/people/ldap/server/{server}",
+ *     "edit-form" = "/admin/config/people/ldap/server/{server}/edit",
+ *     "delete-form" = "/admin/config/people/ldap/server/{server}/delete",
+ *     "collection" = "/admin/config/people/ldap/server"
  *   }
  * )
  */
