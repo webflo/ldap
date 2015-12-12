@@ -5,6 +5,8 @@
  * ldap authorization module
  */
 
+use Drupal\Core\Link;
+
 define('LDAP_AUTHORIZATION_PROJECT_TAG', 'ldap_authorization');
 define('LDAP_AUTHORIZATION_USER_LDAP_NOT_FOUND', 101);
 define('LDAP_AUTHORIZATION_USER_NOT_LDAP_AUTHENTICATED', 102);
@@ -277,7 +279,7 @@ function ldap_authorization_help($path, $arg) {
     etc.)
     More detailed help is available on drupal.org at !helplink.',
           array(
-            '!helplink' => l(LDAP_SERVERS_DRUPAL_HELP_URL, LDAP_SERVERS_DRUPAL_HELP_URL),
+            '!helplink' => Link::fromTextAndUrl(LDAP_SERVERS_DRUPAL_HELP_URL, LDAP_SERVERS_DRUPAL_HELP_URL),
           ));
 
   switch ($path) {

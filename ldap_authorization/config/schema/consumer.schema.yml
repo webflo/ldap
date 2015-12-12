@@ -1,0 +1,10 @@
+ldap_authorization.consumer.*:
+  type: config_entity
+  label: 'Consumer config'
+  mapping:
+    id:
+      type: string
+      label: 'Machine name for this consumer configuration'
+    label:
+      type: label
+      label: 'Name'

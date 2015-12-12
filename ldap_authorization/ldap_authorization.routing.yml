@@ -1,0 +1,49 @@
+entity.ldap_authorization.collection:
+  path: '/admin/config/people/ldap/authorization'
+  defaults:
+    _entity_list: 'ldap_authorization_consumer'
+    _title: 'Authorization'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ldap_authorization.add_form:
+  path: '/admin/config/people/ldap/authorization/add'
+  defaults:
+    _entity_form: 'ldap_authorization_consumer.add'
+    _title: 'Add Consumer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ldap_authorization.edit_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization}'
+  defaults:
+    _entity_form: 'ldap_authorization_consumer.edit'
+    _title: 'Edit Consumer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ldap_authorization.delete_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization}/delete'
+  defaults:
+    _entity_form: 'ldap_authorization_consumer.delete'
+    _title: 'Delete Consumer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ldap_authorization.test_form:
+  path: '/admin/config/people/ldap/authorization/{ldap_authorization}/test'
+  defaults:
+    _entity_form: 'ldap_authorization_consumer.test'
+    _title: 'Test Consumer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

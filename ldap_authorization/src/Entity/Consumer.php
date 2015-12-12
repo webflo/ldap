@@ -1,17 +1,53 @@
 <?php
-
 /**
  * @file
- *
- * abstract class to represent an ldap_authorization consumer behavior
- * such as drupal_role, og_group, etc.  each authorization comsumer
- * will extend this class with its own class named
- * LdapAuthorizationConsumer<consumer type> such as LdapAuthorizationConsumerDrupalRole
- *
+ * Contains \Drupal\ldap_authorization\Entity\Authorization.
  */
 
-class LdapAuthorizationConsumerAbstract {
+namespace Drupal\ldap_authorization\Entity;
 
+use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\ldap_authorization\ConsumerInterface;
+
+/**
+ * Defines the Consumer entity.
+ *
+ * @ConfigEntityType(
+ *   id = "ldap_authorization_consumer",
+ *   label = @Translation("LDAP Authorization Consumer"),
+ *   handlers = {
+ *     "list_builder" = "Drupal\ldap_authorization\ConsumerListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\ldap_authorization\Form\ConsumerForm",
+ *       "edit" = "Drupal\ldap_authorization\Form\ConsumerForm",
+ *       "delete" = "Drupal\ldap_authorization\Form\ConsumerDeleteForm",
+ *     }
+ *   },
+ *   config_prefix = "consumer",
+ *   admin_permission = "administer site configuration",
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "label" = "label",
+ *     "uuid" = "uuid"
+ *   },
+ *   links = {
+ *     "canonical" = "/admin/config/people/ldap/authorization/{consumer}",
+ *     "edit-form" = "/admin/config/people/ldap/authorization/{consumer}/edit",
+ *     "delete-form" = "/admin/config/people/ldap/authorization/{consumer}/delete",
+ *     "collection" = "/admin/config/people/ldap/authorization"
+ *   }
+ * )
+ */
+class Consumer extends ConfigEntityBase implements ConsumerInterface {
+
+/*
+ *
+ * abstract class to represent an ldap_authorization consumer behavior
+ * such as drupal_role, og_group, etc.  each authorization consumer
+ * will extend this class with its own class named
+ * LdapAuthorizationConsumer<consumer type> such as LdapAuthorizationConsumerDrupalRole
+ */
+ 
   public $consumerType = NULL; // machine name of consumer.  e.g. og_group, drupal_role, etc.
 
   /**
