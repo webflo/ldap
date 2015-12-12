@@ -34,7 +34,6 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
     $header['module'] = $this->t('Module');
     $header['type'] = $this->t('Consumer type');
     $header['status'] = $this->t('Enabled');
-    // $header['ops'] = $this->t('Operations');
     return $header + parent::buildHeader();
   }
 
@@ -48,7 +47,6 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
     $row['module'] = $entity->get('module');
     $row['type'] = $entity->get('type');
     $row['status'] = $entity->get('status') ? 'Yes' : 'No';
-    // $row['ops'] = '';
     return $row + parent::buildRow($entity);
   }
 
