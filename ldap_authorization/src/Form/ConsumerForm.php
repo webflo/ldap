@@ -33,7 +33,7 @@ class ConsumerForm extends EntityForm {
     $servers = ldap_servers_get_servers(NULL, 'enabled');
     $server_options = array();
     foreach ($servers as $id => $server) {
-      $server_options[$id] = $server->label();
+      $server_options[$id] = $server->label() . ' (' . $server->address . ')';
     }
 
     $form['status'] = array(
