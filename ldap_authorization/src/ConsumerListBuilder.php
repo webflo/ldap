@@ -36,7 +36,7 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row = array();
-    $row['server'] = $this->get('server');
+    $row['server'] = $entity->get('server');
     $row['description'] = $entity->get('description');
     $row['module'] = $entity->get('module');
     $row['type'] = $entity->get('type');
@@ -53,7 +53,7 @@ class ConsumerListBuilder extends ConfigEntityListBuilder {
        $operations['test'] = array(
         'title' => $this->t('Test'),
         'weight' => 10,
-        'url' => \Drupal\Core\Url::fromRoute('entity.ldap_authorization.test_form', ['ldap_authorization' => $entity->id()]),
+        'url' => \Drupal\Core\Url::fromRoute('entity.ldap_authorization_consumer.test_form', ['ldap_authorization_consumer' => $entity->id()]),
       );
     }
     return $operations;

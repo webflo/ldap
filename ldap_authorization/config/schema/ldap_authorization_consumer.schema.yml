@@ -10,3 +10,21 @@ ldap_authorization.ldap_authorization_consumer.*:
       label: 'Label'
     uuid:
       type: string
+    server:
+      type: string
+      label: 'Server'
+    consumer_type:
+      type: string
+      label: 'Type'
+    only_ldap_authenticated:
+      type: boolean
+    use_first_attr_as_groupid:
+      type: boolean
+    mappings:
+      type: string
+    use_filter:
+      type: boolean
+    synchronization_modes:
+      type: list
+    synchronization_actions:
+      type: list

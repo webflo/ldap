@@ -17,77 +17,24 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\ldap_authorization\Form
  */
 class ConsumerForm extends EntityForm {
+  public function getTitle() {
+    $consumer = $this->entity;
+    return t('LDAP to !consumer_name Configuration', ldap_authorization_tokens($this));
+  }
+
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
+    $consumer_tokens = ldap_authorization_tokens($this);
 
-    $ldap_authorization_consumer = $this->entity;
-    $form['label'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Label'),
-      '#maxlength' => 255,
-      '#default_value' => $ldap_authorization_consumer->label(),
-      '#description' => $this->t("Label for the LDAP Consumer."),
-      '#required' => TRUE,
-    );
-
-    $form['id'] = array(
-      '#type' => 'machine_name',
-      '#default_value' => $ldap_authorization_consumer->id(),
-      '#machine_name' => array(
-        'exists' => '\Drupal\ldap_authorization\Entity\Consumer::load',
-      ),
-      '#disabled' => !$ldap_authorization_consumer->isNew(),
-    );
-
-    /* You will need additional form elements for your custom properties. */
-
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function save(array $form, FormStateInterface $form_state) {
-    $ldap_authorization_consumer = $this->entity;
-    $status = $ldap_authorization_consumer->save();
-
-    switch ($status) {
-      case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label LDAP Consumer.', [
-          '%label' => $ldap_authorization_consumer->label(),
-        ]));
-        break;
-
-      default:
-        drupal_set_message($this->t('Saved the %label LDAP Consumer.', [
-          '%label' => $ldap_authorization_consumer->label(),
-        ]));
+    $consumer = $this->entity;
+    $servers = ldap_servers_get_servers(NULL, 'enabled');
+    $server_options = array();
+    foreach ($servers as $id => $server) {
+      $server_options[$id] = $server->label();
     }
-    $form_state->setRedirectUrl($ldap_authorization_consumer->urlInfo('collection'));
-  }
-
-  public function __construct(&$consumer = NULL, $new = FALSE) {
-    // parent::__construct($consumer, $new);
-    $this->fields = $this->fields();
-    $this->consumers = ldap_authorization_get_consumers(NULL, TRUE);
-
-    if ($new) {
-      foreach ($this->consumer->defaultConsumerConfProperties as $property => $value) {
-        $this->$property = $value;
-      }
-    }
-  }
-
-  public function drupalForm($server_options, $op) {
-
-    $consumer_tokens = ldap_authorization_tokens($this->consumer);
-    $form['intro'] = array(
-        '#type' => 'item',
-        '#markup' => t('<h1>LDAP to !consumer_name Configuration</h1>', $consumer_tokens),
-    );
 
     $form['status'] = array(
       '#type' => 'fieldset',
@@ -96,30 +43,46 @@ class ConsumerForm extends EntityForm {
       '#collapsed' => FALSE,
     );
 
-    $form['status']['sid'] = array(
+    $form['status']['label'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#maxlength' => 255,
+      '#default_value' => $consumer->label(),
+      '#description' => $this->t("Label for the LDAP Consumer."),
+      '#required' => TRUE,
+    );
+
+    $form['status']['id'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Type of consumer'),
+      '#default_value' => $consumer->id(),
+      '#disabled' => !$consumer->isNew(),
+    );
+
+    $form['status']['server'] = array(
       '#type' => 'radios',
       '#title' => t('LDAP Server used in !consumer_name configuration.', $consumer_tokens),
       '#required' => 1,
-      '#default_value' => $this->sid,
+      '#default_value' => $consumer->get('server'),
       '#options' => $server_options,
     );
 
-    $form['status']['consumer_type'] = array(
+    $form['status']['type'] = array(
       '#type' => 'hidden',
-      '#value' => $this->consumerType,
+      '#value' =>  $consumer->get('type'),
       '#required' => 1,
     );
 
     $form['status']['status'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable this configuration', $consumer_tokens),
-      '#default_value' =>  $this->status,
+      '#default_value' =>  $consumer->get('status'),
     );
 
     $form['status']['only_ldap_authenticated'] = array(
       '#type' => 'checkbox',
       '#title' => t('Only apply the following LDAP to !consumer_name configuration to users authenticated via LDAP.  On uncommon reason for disabling this is when you are using Drupal authentication, but want to leverage LDAP for authorization; for this to work the Drupal username still has to map to an LDAP entry.', $consumer_tokens),
-      '#default_value' =>  $this->onlyApplyToLdapAuthenticated,
+      '#default_value' =>  $consumer->get('only_ldap_authenticated'),
     );
 
 
@@ -158,19 +121,19 @@ Representations of groups derived from LDAP might initially look like:
     $form['filter_and_mappings']['use_first_attr_as_groupid'] = array(
       '#type' => 'checkbox',
       '#title' => t('Convert full dn to value of first attribute before mapping.  e.g.  <code>cn=students,ou=groups,dc=hogwarts,dc=edu</code> would be converted to <code>students</code>', $consumer_tokens),
-      '#default_value' => $this->useFirstAttrAsGroupId,
+      '#default_value' => $consumer->get('use_first_attr_as_groupid'),
     );
     $form['filter_and_mappings']['mappings'] = array(
       '#type' => 'textarea',
       '#title' => t('Mapping of LDAP to !consumer_name (one per line)', $consumer_tokens),
-      '#default_value' => $this->mappingsToPipeList($this->mappings),
+      '#default_value' => $this->mappingsToPipeList($consumer->get('mappings')),
       '#cols' => 50,
       '#rows' => 5,
     );
     $form['filter_and_mappings']['use_filter'] = array(
       '#type' => 'checkbox',
       '#title' => t('Only grant !consumer_namePlural that match a filter above.', $consumer_tokens),
-      '#default_value' => $this->useMappingsAsFilter,
+      '#default_value' => $consumer->get('use_filter'),
       '#description' => t('If enabled, only above mapped !consumer_namePlural will be assigned (e.g. students and administrator).
         <strong>If not checked, !consumer_namePlural not mapped above also may be created and granted (e.g. gryffindor and probation students).  In some LDAPs this can lead to hundreds of !consumer_namePlural being created if "Create !consumer_namePlural if they do not exist" is enabled below.
         </strong>', $consumer_tokens)
@@ -231,26 +194,40 @@ Representations of groups derived from LDAP might initially look like:
      * - synchronize actual authorizations (not cached) when granting authorizations
      */
 
-    switch ($op) {
-      case 'add':
-      $action = 'Add';
-      break;
+    return $form;
+  }
 
-      case 'edit':
-      $action = 'Save';
-      break;
+  /**
+   * {@inheritdoc}
+   */
+  public function save(array $form, FormStateInterface $form_state) {
+    $consumer = $this->entity;
+    $status = $consumer->save();
 
-      case 'delete':
-      $action = 'Delete';
-      break;
+    switch ($status) {
+      case SAVED_NEW:
+        drupal_set_message($this->t('Created the %label LDAP Consumer.', [
+          '%label' => $consumer->label(),
+        ]));
+        break;
+
+      default:
+        drupal_set_message($this->t('Saved the %label LDAP Consumer.', [
+          '%label' => $consumer->label(),
+        ]));
     }
+    $form_state->setRedirectUrl($consumer->urlInfo('collection'));
+  }
 
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => $action,
-    );
-
-  return $form;
+  public function __construct(&$consumer = NULL, $new = FALSE) {
+    // parent::__construct($consumer, $new);
+    $this->fields = $this->fields();
+    $this->consumers = ldap_authorization_get_consumers(NULL, TRUE);
+    if ($new) {
+      foreach ($this->consumer->defaultConsumerConfProperties as $property => $value) {
+        $this->$property = $value;
+      }
+    }
   }
 
 

@@ -14,6 +14,7 @@ entity.ldap_authorization_consumer.add_form:
   defaults:
     _entity_form: 'ldap_authorization_consumer.add'
     _title: 'Add Consumer'
+    _title_callback: '\Drupal\ldap_authorization\Form\ConsumerForm::getTitle'
   requirements:
     _permission: 'administer site configuration'
   options:
@@ -24,6 +25,7 @@ entity.ldap_authorization_consumer.edit_form:
   defaults:
     _entity_form: 'ldap_authorization_consumer.edit'
     _title: 'Edit Consumer'
+    _title_callback: '\Drupal\ldap_authorization\Form\ConsumerForm::getTitle'
   requirements:
     _permission: 'administer site configuration'
   options:
