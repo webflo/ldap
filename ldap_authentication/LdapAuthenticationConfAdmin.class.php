@@ -265,7 +265,7 @@ class LdapAuthenticationConfAdmin extends LdapAuthenticationConf {
     if ($servers = ldap_servers_get_servers(NULL, 'enabled')) {
       foreach ($servers as $sid => $ldap_server) {
         $enabled = ($ldap_server->get('status')) ? 'Enabled' : 'Disabled';
-        $this->authenticationServersOptions[$sid] = $ldap_server->name . ' (' . $ldap_server->address . ') Status: ' . $enabled;
+        $this->authenticationServersOptions[$sid] = $ldap_server->get('label') . ' (' . $ldap_server->get('address') . ') Status: ' . $enabled;
       }
     }
   }
