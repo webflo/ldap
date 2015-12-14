@@ -315,7 +315,7 @@ function ldap_user_ldap_attributes_needed_alter(&$attributes, $params) {
  */
 function ldap_user_ldap_user_attrs_list_alter(&$available_user_attrs, &$params) {
 
-  $sid = (isset($params['ldap_server']) && is_object($params['ldap_server'])) ? $params['ldap_server']->sid : LDAP_USER_NO_SERVER_SID;
+  $sid = (isset($params['ldap_server']) && is_object($params['ldap_server'])) ? $params['ldap_server']->get('id') : LDAP_USER_NO_SERVER_SID;
 
   $ldap_user_conf = $params['ldap_user_conf'];
   $direction = isset($params['direction']) ? $params['direction'] : LDAP_USER_PROV_DIRECTION_NONE;
