@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains \Drupal\ldap_authorization\Entity\Consumer.
@@ -24,7 +25,7 @@ use Drupal\Core\Link;
  *       "delete" = "Drupal\ldap_authorization\Form\ConsumerDeleteForm"
  *     }
  *   },
- *   config_prefix = "consumer",
+ *   config_prefix = "ldap_authorization_consumer",
  *   admin_permission = "administer site configuration",
  *   entity_keys = {
  *     "id" = "id",
@@ -35,24 +36,25 @@ use Drupal\Core\Link;
  *     "canonical" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}",
  *     "edit-form" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/edit",
  *     "delete-form" = "/admin/config/people/ldap/authorization/{ldap_authorization_consumer}/delete",
- *     "collection" = "/admin/config/people/ldap/authorization"
+ *     "collection" = "/admin/structure/visibility_group"
  *   }
  * )
  */
 class Consumer extends ConfigEntityBase implements ConsumerInterface {
   /**
-   * The Server ID.
+   * The Consumer ID.
    *
    * @var string
    */
   protected $id;
 
   /**
-   * The Server label.
+   * The Consumer label.
    *
    * @var string
    */
   protected $label;
+
 
   /**
    * Connect Method
@@ -130,20 +132,20 @@ class Consumer extends ConfigEntityBase implements ConsumerInterface {
    * @param array $params as associative array of default properties
    *
    */
-  function __construct($consumer_type, $params) {
-    $this->consumerType = $consumer_type;
-    $this->name = $params['consumer_name'];
-    $this->namePlural= $params['consumer_name_plural'];
-    $this->shortName = $params['consumer_short_name'];
-    $this->shortNamePlural= $params['consumer_short_name_plural'];
-    $this->consumerModule = $params['consumer_module'];
-    $this->mappingDirections = $params['consumer_mapping_directions'];
+  // function __construct($consumer_type, $params) {
+  //   $this->consumerType = $consumer_type;
+  //   $this->name = $params['consumer_name'];
+  //   $this->namePlural= $params['consumer_name_plural'];
+  //   $this->shortName = $params['consumer_short_name'];
+  //   $this->shortNamePlural= $params['consumer_short_name_plural'];
+  //   $this->consumerModule = $params['consumer_module'];
+  //   $this->mappingDirections = $params['consumer_mapping_directions'];
 
-    $this->testLink = Link::fromTextAndUrl(t('test') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/test/' . $this->consumerType);
-    $this->editLink = Link::fromTextAndUrl(t('edit') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/edit/' . $this->consumerType);
-    // ldap_servers_module_load_include('php', 'ldap_authorization', 'LdapAuthorizationConsumerConfAdmin.class');
-    // $this->consumerConf = new LdapAuthorizationConsumerConf($this);
-  }
+  //   $this->testLink = Link::fromTextAndUrl(t('test') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/test/' . $this->consumerType);
+  //   $this->editLink = Link::fromTextAndUrl(t('edit') . ' ' . $this->name, LDAP_SERVERS_MENU_BASE_PATH . '/authorization/edit/' . $this->consumerType);
+  //   // ldap_servers_module_load_include('php', 'ldap_authorization', 'LdapAuthorizationConsumerConfAdmin.class');
+  //   // $this->consumerConf = new LdapAuthorizationConsumerConf($this);
+  // }
 
 
   /**
@@ -158,33 +160,33 @@ class Consumer extends ConfigEntityBase implements ConsumerInterface {
    *   normalized mappings are of form such as for organic groups:
    *
    *   array(
-         array(
-           'from' => 'students',
-           'normalized' => 'node:21:1',
-           'simplified' => 'node:students:member',
-           'user_entered' => 'students'
-           'valid' => TRUE,
-           'error_message' => '',
-           ),
-
-         ...
-        )
-
+   *     array(
+   *       'from' => 'students',
+   *       'normalized' => 'node:21:1',
+   *       'simplified' => 'node:students:member',
+   *       'user_entered' => 'students'
+   *       'valid' => TRUE,
+   *       'error_message' => '',
+   *       ),
+   *
+   *     ...
+   *    )
+   *
    *   or for drupal role where rid 3 is moderator and rid 2 is admin:
    *   array(
-         array(
-           'from' => 'students',
-           'normalized' => '2',
-           'simplified' => 'admin',
-           'user_entered' => 'admin',
-           'valid' => TRUE,
-           'error_message' => '',
-           ),
-         ...
-        )
-
-        where 'normalized' is in id format and 'simplified' is user shorthand
-   )
+   *     array(
+   *       'from' => 'students',
+   *       'normalized' => '2',
+   *       'simplified' => 'admin',
+   *       'user_entered' => 'admin',
+   *       'valid' => TRUE,
+   *       'error_message' => '',
+   *       ),
+   *     ...
+   *    )
+   *
+   *    where 'normalized' is in id format and 'simplified' is user shorthand
+   * )
    */
   public function normalizeMappings($mappings) {
     return $mappings;
@@ -472,12 +474,12 @@ class Consumer extends ConfigEntityBase implements ConsumerInterface {
   }
 
   /**
-	 * Return all user consumer ids
-	 *   regardless of it they were granted by this module
-	 *
-	 * @param user object $user
-	 * @return array of consumer ids such as array('3-2','7-2'), array('admin','user_admin')
-	 */
+  * Return all user consumer ids
+  *   regardless of it they were granted by this module
+  *
+  * @param user object $user
+  * @return array of consumer ids such as array('3-2','7-2'), array('admin','user_admin')
+  */
 
   public function usersAuthorizations(&$user) {
     // method must be overridden
@@ -526,16 +528,16 @@ class Consumer extends ConfigEntityBase implements ConsumerInterface {
   }
 
   /**
-	 * Validate authorization mappings on LDAP Authorization OG Admin form.
-	 *
-	 * @param array $mapping single mapping in format generated in normalizeMappings method
-	 * @param array $form_values from authorization configuration form
-	 * @param boolean $clear_cache
-	 *
-	 * @return array of form array($message_type, $message_text) where message type is status, warning, or error
-	 *   and $message_text is what the user should see.
-	 *
-	 */
+  * Validate authorization mappings on LDAP Authorization OG Admin form.
+  *
+  * @param array $mapping single mapping in format generated in normalizeMappings method
+  * @param array $form_values from authorization configuration form
+  * @param boolean $clear_cache
+  *
+  * @return array of form array($message_type, $message_text) where message type is status, warning, or error
+  *   and $message_text is what the user should see.
+  *
+  */
 
   public function validateAuthorizationMappingTarget($mapping, $form_values = NULL, $clear_cache = FALSE) {
     $message_type = NULL;

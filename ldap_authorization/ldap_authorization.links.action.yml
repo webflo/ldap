@@ -1,0 +1,6 @@
+entity.ldap_authorization_consumer.add_form:
+  route_name: 'entity.ldap_authorization_consumer.add_form'
+  title: 'Add Consumer'
+  appears_on:
+    - entity.ldap_authorization_consumer.collection
+

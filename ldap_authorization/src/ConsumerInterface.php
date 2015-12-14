@@ -10,7 +10,7 @@ namespace Drupal\ldap_authorization;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
- * Provides an interface for defining LDAP Consumer entities.
+ * Provides an interface for defining LDAP Authorization Consumer entities.
  */
 interface ConsumerInterface extends ConfigEntityInterface {
   // Add get/set methods for your configuration properties here.

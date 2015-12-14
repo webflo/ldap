@@ -1,8 +1,0 @@
-# LDAP Consumer menu items definition
-entity.ldap_authorization_consumer.collection:
-  title: 'LDAP Consumer'
-  route_name: entity.ldap_authorization_consumer.collection
-  description: 'List LDAP Consumer (bundles)'
-  parent: system.admin_structure
-   weight: 99
-

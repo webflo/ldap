@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Builds the form to delete LDAP Consumer entities.
+ * Builds the form to delete Consumer entities.
  */
 class ConsumerDeleteForm extends EntityConfirmFormBase {
   /**

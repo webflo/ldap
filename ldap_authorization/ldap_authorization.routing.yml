@@ -9,6 +9,16 @@ entity.ldap_authorization_consumer.collection:
   options:
     _admin_route: TRUE
 
+entity.ldap_authorization_consumer.add_form:
+  path: '/admin/config/people/ldap/authorization/add'
+  defaults:
+    _entity_form: 'ldap_authorization_consumer.add'
+    _title: 'Add Consumer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
 entity.ldap_authorization_consumer.edit_form:
   path: '/admin/config/people/ldap/authorization/{ldap_authorization_consumer}'
   defaults:

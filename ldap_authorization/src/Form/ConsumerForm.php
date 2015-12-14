@@ -3,8 +3,6 @@
 /**
  * @file
  * Contains \Drupal\ldap_authorization\Form\ConsumerForm.
- *
- * class to encapsulate an ldap authorization ldap entry to authorization ids mapping
  */
 
 namespace Drupal\ldap_authorization\Form;
@@ -43,6 +41,7 @@ class ConsumerForm extends EntityForm {
       ),
       '#disabled' => !$ldap_authorization_consumer->isNew(),
     );
+
     /* You will need additional form elements for your custom properties. */
 
     return $form;
@@ -53,62 +52,6 @@ class ConsumerForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $ldap_authorization_consumer = $this->entity;
-
-    /*
-    $op = $this->inDatabase ? 'edit' : 'insert';
-    $values = new stdClass; // $this;
-    $values->sid = $this->sid;
-    $values->numeric_consumer_conf_id = $this->numericConsumerConfId;
-    $values->consumer_type = $this->consumerType;
-    $values->consumer_module = $this->consumer->consumerModule;
-    $values->status = ($this->status) ? 1 : 0;
-    $values->only_ldap_authenticated = (int)$this->onlyApplyToLdapAuthenticated;
-    $values->use_first_attr_as_groupid = (int)$this->useFirstAttrAsGroupId;
-    $values->mappings = serialize($this->mappings);
-    $values->use_filter = (int)$this->useMappingsAsFilter;
-    $values->synch_to_ldap = (int)$this->synchToLdap;
-    $values->synch_on_logon = (int)$this->synchOnLogon;
-    $values->revoke_ldap_provisioned = (int)$this->revokeLdapProvisioned;
-    $values->create_consumers = (int)$this->createConsumers;
-    $values->regrant_ldap_provisioned = (int)$this->regrantLdapProvisioned;
-
-    if (module_exists('ctools')) {
-      ctools_include('export');
-      // Populate our object with ctool's properties
-      $object = ctools_export_crud_new('ldap_authorization');
-      foreach ($object as $property => $value) {
-        if (!isset($values->$property)) {
-          $values->$property = $value;
-        }
-      }
-      try {
-        $values->export_type = NULL;
-        $result = ctools_export_crud_save('ldap_authorization', $values);
-      } catch (Exception $e) {
-        //  debug($e); Integrity constraint violation: 1062 Duplicate entry
-        $values->export_type = EXPORT_IN_DATABASE;
-        $result = ctools_export_crud_save('ldap_authorization', $values);
-      }
-      ctools_export_load_object_reset('ldap_authorization'); // ctools_export_crud_save doesn't invalidate cache
-    }
-    else {
-
-      if ($op == 'edit') {
-        $result = drupal_write_record('ldap_authorization', $values, 'consumer_type');
-      }
-      else { // insert
-        $result = drupal_write_record('ldap_authorization', $values);
-      }
-
-      if ($result) {
-        $this->inDatabase = TRUE;
-      }
-      else {
-        drupal_set_message(t('Failed to write LDAP Authorization to the database.'));
-      }
-    }
-    */
-
     $status = $ldap_authorization_consumer->save();
 
     switch ($status) {
@@ -124,20 +67,6 @@ class ConsumerForm extends EntityForm {
         ]));
     }
     $form_state->setRedirectUrl($ldap_authorization_consumer->urlInfo('collection'));
-
-  }
-
-  public $fields;
-  public $consumers;
-
-  public function delete() {
-    if ($this->consumerType) {
-      $this->inDatabase = FALSE;
-      return db_delete('ldap_authorization')->condition('consumer_type', $this->consumerType)->execute();
-    }
-    else {
-      return FALSE;
-    }
   }
 
   public function __construct(&$consumer = NULL, $new = FALSE) {
@@ -582,6 +511,5 @@ Representations of groups derived from LDAP might initially look like:
     }
     return $result_text;
   }
-
 
 }
