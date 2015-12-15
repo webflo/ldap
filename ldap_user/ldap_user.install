@@ -5,53 +5,6 @@
  * Install, update and uninstall functions for the LDAP User module.
  */
 
-
-/**
- * Implements hook_requirements().
- */
-function ldap_user_requirements($phase) {
-
-  $requirements = array();
-
-  if ($phase == 'runtime') {
-
-    // check for all $user->* fields created
-    $missing_fields = ldap_user_update_check_user_fields(TRUE);
-    if (count($missing_fields)) {
-      $requirements['ldap_user']['title'] = t('User Fields for LDAP User Module Missing');
-      $requirements['ldap_user']['severity'] = REQUIREMENT_ERROR;
-      $requirements['ldap_user']['value'] = NULL;
-
-      // @FIXME
-      $item_list = array(
-        '#type' => 'item_list',
-        '#items' => $missing_fields,
-      );
-      $list = drupal_render($item_list);
-
-      // $requirements['ldap_user']['description'] = t('Fields are added to the
-      //   Drupal User entity for LDAP User module functionality.  These fields should
-      //   have been created in LDAP User update 7203. The following userfields are missing:') .
-      //   theme('item_list', array(
-      //     'items' => $missing_fields,
-      //     'type' => 'ul',
-      //     'title' => NULL,
-      //   )) .
-      //   t('Rerun update 7203 to correct this; it will not write over destroy existing fields.');
-      $requirements['ldap_user']['description'] = t('Fields are added to the
-        Drupal User entity for LDAP User module functionality.  These fields should
-        have been created in LDAP User update 7203. The following userfields are missing:') .
-        $list .
-        t('Rerun update 7203 to correct this; it will not write over destroy existing fields.');
-    }
-  }
-
-
-  // check that ldapauth not installed.
-  return $requirements;
-
-}
-
 /**
  * Implements hook_install().
  */
