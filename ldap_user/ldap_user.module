@@ -6,6 +6,8 @@
  *
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 define('LDAP_USER_DRUPAL_HELP_URL', 'http://drupal.org/node/997082');
 
 // configurable drupal acct provision triggers
@@ -1305,3 +1307,47 @@ function ldap_user_token_tokenize_entry($account, $token_keys, $pre = LDAP_SERVE
     return array($account, $user_entity);
 
   }
+
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function ldap_user_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'user') {
+    $fields = [];
+
+    $fields['ldap_user_puid_sid'] = BaseFieldDefinition::create('string')
+      ->setLabel('LDAP Server ID that puid was derived from. NULL if puid is independent of server configuration instance.')
+      ->setDefaultValueCallback('ldap_user_provisioned_sid_default');
+
+    $fields['ldap_user_puid'] = BaseFieldDefinition::create('string')
+      ->setLabel('Value of user\'s permanent unique id . This should never change for a given ldap identified user.')
+      ->setDescription('This field should not be edited.')
+      ->setDefaultValueCallback('ldap_user_puid_default');
+
+    $fields['ldap_user_puid_property'] = BaseFieldDefinition::create('string')
+      ->setLabel('Property specified as user\'s puid.')
+      ->setDescription('This field should not be edited.')
+      ->setDefaultValueCallback('ldap_user_puid_property_default');
+
+    $fields['ldap_user_current_dn'] = BaseFieldDefinition::create('string')
+      ->setLabel('User LDAP DN')
+      ->setDescription('May change when user\'s DN changes. This field should not be edited.')
+      ->setDefaultValueCallback('ldap_user_dn_default');
+
+    $fields['ldap_user_prov_entries'] = BaseFieldDefinition::create('string')
+      ->setLabel('LDAP Entries that have been provisioned from this Drupal user.')
+      ->setDescription('This field should not be edited.')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+
+    $fields['ldap_user_last_checked'] = BaseFieldDefinition::create('timestamp')
+      ->setLabel('Unix timestamp of when Drupal user was compared to ldap entry. This could be for purposes of synching, deleteing drupal account, etc.')
+      ->setDescription('This field should not be edited.');
+
+    $fields['ldap_user_ldap_exclude'] = BaseFieldDefinition::create('boolean')
+      ->setLabel('Whether to exclude the user from LDAP functionality')
+      ->setDescription('This field should not be edited.');
+
+    return $fields;
+  }
+}
