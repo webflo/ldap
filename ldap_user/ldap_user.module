@@ -1125,34 +1125,6 @@ function ldap_user_user_delete($account) {
   ldap_user_identities_delete($account->id());
 }
 
-
-
-/**
- * @return default value for field user->ldap_user_provisioned_sid
- */
-function ldap_user_provisioned_sid_default($entity_type, $entity, $field, $instance, $langcode) {
-  return NULL;
-}
-
-/**
- * @return default value for field user->ldap_user_provisioned_sid
- */
-function ldap_user_puid_default($entity_type, $entity, $field, $instance, $langcode) {
-  return NULL;
-}
-/**
- * @return default value for field user->ldap_user_puid
- */
-function ldap_user_puid_property_default($entity_type, $entity, $field, $instance, $langcode) {
-  return NULL;
-}
-/**
- * @return default value for field user->ldap_user_dn
- */
-function ldap_user_dn_default($entity_type, $entity, $field, $instance, $langcode) {
-  return NULL;
-}
-
 /**
  * Implements hook_field_widget_info().
  * to provide field type for LDAP fields
@@ -1317,23 +1289,19 @@ function ldap_user_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterfac
     $fields = [];
 
     $fields['ldap_user_puid_sid'] = BaseFieldDefinition::create('string')
-      ->setLabel('LDAP Server ID that puid was derived from. NULL if puid is independent of server configuration instance.')
-      ->setDefaultValueCallback('ldap_user_provisioned_sid_default');
+      ->setLabel('LDAP Server ID that puid was derived from. NULL if puid is independent of server configuration instance.');
 
     $fields['ldap_user_puid'] = BaseFieldDefinition::create('string')
       ->setLabel('Value of user\'s permanent unique id . This should never change for a given ldap identified user.')
-      ->setDescription('This field should not be edited.')
-      ->setDefaultValueCallback('ldap_user_puid_default');
+      ->setDescription('This field should not be edited.');
 
     $fields['ldap_user_puid_property'] = BaseFieldDefinition::create('string')
       ->setLabel('Property specified as user\'s puid.')
-      ->setDescription('This field should not be edited.')
-      ->setDefaultValueCallback('ldap_user_puid_property_default');
+      ->setDescription('This field should not be edited.');
 
     $fields['ldap_user_current_dn'] = BaseFieldDefinition::create('string')
       ->setLabel('User LDAP DN')
-      ->setDescription('May change when user\'s DN changes. This field should not be edited.')
-      ->setDefaultValueCallback('ldap_user_dn_default');
+      ->setDescription('May change when user\'s DN changes. This field should not be edited.');
 
     $fields['ldap_user_prov_entries'] = BaseFieldDefinition::create('string')
       ->setLabel('LDAP Entries that have been provisioned from this Drupal user.')
