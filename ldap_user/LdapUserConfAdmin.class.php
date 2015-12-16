@@ -71,8 +71,8 @@ class LdapUserConfAdmin extends LdapUserConf {
         $this->ldapEntryProvisionServerOptions[$sid] = $ldap_server->label() . ' (' . $ldap_server->get('address') . ') Status: ' . $enabled;
       }
     }
-    $this->drupalAcctProvisionServerOptions['none'] = t('None');
-    $this->ldapEntryProvisionServerOptions['none'] = t('None');
+    $this->drupalAcctProvisionServerOptions['_none'] = t('None');
+    $this->ldapEntryProvisionServerOptions['_none'] = t('None');
 
   }
 
@@ -126,7 +126,7 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#type' => 'radios',
       '#title' => t('LDAP Servers Providing Provisioning Data'),
       '#required' => 1,
-      '#default_value' => $this->drupalAcctProvisionServer,
+      '#default_value' => empty($this->drupalAcctProvisionServer) ? '_none' : $this->drupalAcctProvisionServer,
       '#options' => $this->drupalAcctProvisionServerOptions,
       '#description' => $this->drupalAcctProvisionServerDescription,
       '#states' => array(
@@ -209,7 +209,7 @@ class LdapUserConfAdmin extends LdapUserConf {
       '#type' => 'radios',
       '#title' => t('LDAP Servers to Provision LDAP Entries on'),
       '#required' => 1,
-      '#default_value' => $this->ldapEntryProvisionServer,
+      '#default_value' => empty($this->ldapEntryProvisionServer) ? '_none' : $this->ldapEntryProvisionServer,
       '#options' => $this->ldapEntryProvisionServerOptions,
       '#description' => $this->ldapEntryProvisionServerDescription,
     );
@@ -397,14 +397,14 @@ EOT;
     foreach (array('orphanedCheckQty', 'orphanedDrupalAcctBehavior', 'acctCreation', 'userConflictResolve', 'drupalAcctProvisionTriggers', 'mappings__' . LDAP_USER_PROV_DIRECTION_TO_DRUPAL_USER) as $input_name) {
       $form['basic_to_drupal'][$input_name]['#states']['invisible'] =
         array(
-          ':input[name=drupalAcctProvisionServer]' => array('value' => 'none'),
+          ':input[name=drupalAcctProvisionServer]' => array('value' => '_none'),
         );
     }
 
     foreach (array('ldapEntryProvisionTriggers', 'password_notes', 'source_drupal_token_notes', 'mappings__' . LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY) as $input_name) {
       $form['basic_to_ldap'][$input_name]['#states']['invisible'] =
         array(
-          ':input[name=ldapEntryProvisionServer]' => array('value' => 'none'),
+          ':input[name=ldapEntryProvisionServer]' => array('value' => '_none'),
         );
     }
 
@@ -601,8 +601,8 @@ EOT;
    * @param array $storage as $form_state['storage'] from drupal form api
    */
   protected function populateFromDrupalForm($values, $storage) {
-    $this->drupalAcctProvisionServer = ($values['drupalAcctProvisionServer'] == 'none') ? 0 : $values['drupalAcctProvisionServer'];
-    $this->ldapEntryProvisionServer = ($values['ldapEntryProvisionServer']  == 'none') ? 0 : $values['ldapEntryProvisionServer'];
+    $this->drupalAcctProvisionServer = ($values['drupalAcctProvisionServer'] == '_none') ? '' : $values['drupalAcctProvisionServer'];
+    $this->ldapEntryProvisionServer = ($values['ldapEntryProvisionServer']  == '_none') ? '' : $values['ldapEntryProvisionServer'];
 
     $this->drupalAcctProvisionTriggers = $values['drupalAcctProvisionTriggers'];
     $this->ldapEntryProvisionTriggers = $values['ldapEntryProvisionTriggers'];
