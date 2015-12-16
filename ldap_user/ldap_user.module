@@ -579,7 +579,7 @@ function ldap_user_get_uid_from_map($identifier) {
  * Replaces the authmap table retired in Drupal 8
  */
 function ldap_user_get_identifier_from_map($uid) {
-  return db_query("SELECT identifier FROM {ldap_user_identities} WHERE uid = :uid AND module = 'ldap_user'", array(':uid' => $drupal_user->uid))->fetchColumn();
+  return db_query("SELECT identifier FROM {ldap_user_identities} WHERE uid = :uid AND module = 'ldap_user'", array(':uid' => $uid))->fetchColumn();
 }
 
 /*
