@@ -387,11 +387,10 @@ class LdapUserConf {
         $result = LDAP_USER_PROV_DIRECTION_TO_LDAP_ENTRY;
         break;
 
-      // provisioning is can hapen in both directions in most contexts
+      // provisioning is can happen in both directions in most contexts
       case 'ldap_user_insert_drupal_user':
       case 'ldap_user_update_drupal_user':
       case 'ldap_authentication_authenticate':
-      case 'ldap_user_insert_drupal_user':
       case 'ldap_user_disable_drupal_user':
         $result = LDAP_USER_PROV_DIRECTION_ALL;
         break;
