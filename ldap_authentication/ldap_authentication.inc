@@ -4,6 +4,7 @@
  * @file
  * ldap_authentication helper functions
  */
+use Drupal\user\Entity\User;
 
 /**
   * helper function for ldap_authn_form_user_login_block_alter and ldap_authn_form_user_login_alter
@@ -321,12 +322,18 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
      *       for external authentication modules
      */
 
-    if ($auth_conf->ldapUser->acctCreation == LDAP_AUTHENTICATION_ACCT_CREATION_USER_SETTINGS_FOR_LDAP &&
-        config('user.settings')->get('register') == USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) {
-      $user_edit = array('name' => $drupal_accountname, 'status' => 0); // if admin approval required, set status to 0.
+    if ($auth_conf->ldapUser->acctCreation == LDAP_AUTHENTICATION_ACCT_CREATION_USER_SETTINGS_FOR_LDAP && \Drupal::config('user.settings')->get('register') == USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) {
+      // if admin approval required, set status to 0.
+      $user_edit = User::create([
+        'name' => $drupal_accountname,
+        'status' => FALSE,
+      ]);
     }
     else {
-      $user_edit = array('name' => $drupal_accountname, 'status' => 1);
+      $user_edit = User::create([
+        'name' => $drupal_accountname,
+        'status' => TRUE,
+      ]);
     }
 
     // don't pass in ldap user to provisionDrupalAccount, because want to requery with correct attributes needed
