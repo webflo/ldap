@@ -101,7 +101,7 @@ class ServerForm extends EntityForm {
     );
 
     $form['bind']['bind_method'] = array(
-      '#default_value' => $server->get('bind_method'),
+      '#default_value' => $server->get('bind_method') ? $server->get('bind_method') : LDAP_SERVERS_BIND_METHOD_SERVICE_ACCT,
       '#type' => 'radios',
       '#title' => t('Binding Method for Searches (such as finding user object or their group memberships)'),
       '#options' => array(
