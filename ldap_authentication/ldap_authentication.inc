@@ -249,8 +249,8 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
       return;
     }
     else { // LDAP_authen.AC.disallow.ldap.drupal
-    // add ldap_authentication authmap to user.  account name is fine here, though cn could be used
-      user_set_authmaps($drupal_account, array('authname_ldap_user' => $authname));
+      // add ldap_authentication authmap to user. account name is fine here, though cn could be used
+      ldap_user_set_identifier($drupal_account, $authname);
       $drupal_account_is_authmapped = TRUE;
       if ($detailed_watchdog_log) {
         \Drupal::logger('ldap_authentication')->debug('set authmap for %username authname_ldap_user', $watchdog_tokens);
@@ -371,7 +371,7 @@ function ldap_authentication_corresponding_drupal_user($authname, $auth_conf, &$
   }
 
   if (is_object($drupal_account)) {
-    $drupal_account_is_authmapped = (null !== ldap_user_get_uid_from_map('ldap_user'));
+    $drupal_account_is_authmapped = ldap_user_get_identifier_from_map($drupal_account->id());
     if ($drupal_account->id() == 1 && $detailed_watchdog_log) {
       watchdog('ldap_authentication',  '%username : Drupal username maps to user 1, so do not authenticate with ldap', $watchdog_tokens, WATCHDOG_DEBUG);
     }
