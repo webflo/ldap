@@ -1,0 +1,8 @@
+ldap_sso.login:
+  path: '/user/login/sso'
+  defaults:
+    _controller: '\Drupal\ldap_sso\Controller\SSOController::login'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE

@@ -965,9 +965,8 @@ class Server extends ConfigEntityBase implements ServerInterface {
    *   'dn' => dn of entry
    */
   function userUserNameToExistingLdapEntry($drupal_user_name, $ldap_context = NULL) {
-
     $watchdog_tokens = array('%drupal_user_name' => $drupal_user_name);
-    $ldap_username = $this->userUsernameToLdapNameTransform($drupal_user_name, $watchdog_tokens);
+    $ldap_username = $drupal_user_name;
     if (!$ldap_username) {
       return FALSE;
     }

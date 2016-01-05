@@ -6,5 +6,3 @@ package: 'Lightweight Directory Access Protocol'
 dependencies:
   - ldap_servers
   - ldap_authentication
-
-#configure = admin/config/people/ldap/authentication
