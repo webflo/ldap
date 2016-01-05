@@ -40,6 +40,7 @@ use Drupal\ldap_servers\ServerInterface;
  * )
  */
 class Server extends ConfigEntityBase implements ServerInterface {
+
   /**
    * The Server ID.
    *
@@ -486,12 +487,12 @@ class Server extends ConfigEntityBase implements ServerInterface {
       'scope = ' . $scope,
       )
     );
-    if ($this->detailed_watchdog_log) {
+    if (\Drupal::config('ldap_help.settings')->get('watchdog_detail')) {
       \Drupal::logger('ldap_server')->notice($query, array());
     }
 
     // When checking multiple servers, there's a chance we might not be connected yet.
-    if (! $this->connection) {
+    if (!$this->connection) {
       $this->connect();
       $this->bind();
     }
@@ -509,7 +510,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
       'scope' => $scope,
     );
 
-    if ($this->searchPagination && $this->paginationEnabled) {
+    if ($this->get('search_pagination')) {
       $aggregated_entries = $this->pagedLdapQuery($ldap_query_params);
       return $aggregated_entries;
     }
@@ -557,12 +558,9 @@ class Server extends ConfigEntityBase implements ServerInterface {
    *
    */
   public function pagedLdapQuery($ldap_query_params) {
-
-    if (!($this->searchPagination && $this->paginationEnabled)) {
-       \Drupal::logger('ldap')->notice("LDAP server pagedLdapQuery() called when functionality not available in php install or
-        not enabled in ldap server configuration.  error. basedn: %basedn| filter: %filter| attributes:
-         %attributes| errmsg: %errmsg| ldap err no: %errno|", []);
-      RETURN FALSE;
+    if (!$this->get('search_pagination')) {
+      \Drupal::logger('ldap')->notice("LDAP server pagedLdapQuery() called when functionality not enabled in ldap server configuration.  error. basedn: %basedn| filter: %filter| attributes: %attributes| errmsg: %errmsg| ldap err no: %errno|", []);
+      return FALSE;
     }
 
     $paged_entries = array();
