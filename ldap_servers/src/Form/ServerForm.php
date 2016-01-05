@@ -452,14 +452,12 @@ class ServerForm extends EntityForm {
       '#default_value' => $server->get('search_pagination'),
       '#type' => 'checkbox',
       '#title' => t('Use LDAP Pagination.'),
-      '#disabled' => !ldap_servers_php_supports_pagination(),
     );
 
     $form['pagination']['search_page_size'] = array(
       '#default_value' => $server->get('search_page_size'),
       '#type' => 'textfield',
       '#size' => 10,
-      '#disabled' => !ldap_servers_php_supports_pagination(),
       '#title' => t('Pagination size limit.'),
       '#description' => t('This should be equal to or smaller than the max
         number of entries returned at a time by your ldap server.
