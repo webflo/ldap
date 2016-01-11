@@ -13,6 +13,9 @@ use Drupal\Core\Form\FormState;
 class SSOController extends ControllerBase {
 
   public function login() {
+    // Disable recording of cached pages.
+    \Drupal::service('page_cache_kill_switch')->trigger();
+
     if ($this->currentUser()->isAuthenticated()) {
       return $this->redirect('<front>');
     }
