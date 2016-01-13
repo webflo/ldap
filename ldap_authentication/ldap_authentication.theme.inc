@@ -43,12 +43,13 @@ function theme_ldap_authentication_user_login_block_links($variables) {
  * @ingroup themeable
  */
 function theme_ldap_authentication_user_pass_message($variables) {
-  extract($variables);
+  $auth_conf = $variables['auth_conf'];
+
   if ($auth_conf->authenticationMode == LDAP_AUTHENTICATION_EXCLUSIVE && $auth_conf->passwordOption != LDAP_AUTHENTICATION_PASSWORD_FIELD_ALLOW) {
     $msg = t('This page is only useful for the site administrator.  All other users
       need to reset their passwords');
     if ($auth_conf->ldapUserHelpLinkUrl) {
-      $msg .=  ' ' . t('at') . ' ' . l(t($auth_conf->ldapUserHelpLinkText), $auth_conf->ldapUserHelpLinkUrl) . '.';
+      $msg .=  ' ' . t('at') . ' ' . \Drupal::l(t($auth_conf->ldapUserHelpLinkText), $auth_conf->ldapUserHelpLinkUrl) . '.';
     }
     else {
       $msg .=  ' ' . t('with one of your organizations password management sites.');
@@ -71,12 +72,11 @@ function theme_ldap_authentication_user_pass_message($variables) {
  * @ingroup themeable
  */
 function theme_ldap_authentication_user_pass_validate_ldap_authenticated($variables) {
-  extract($variables);
-  // already know user exists and is ldap authenticated
+  $auth_conf = $variables['auth_conf'];
 
   if ($auth_conf->ldapUserHelpLinkUrl) {
-    $msg = t('You may not reset your password here.  You must reset your password via the directions at')
-    . ' ' . l(t($auth_conf->ldapUserHelpLinkText), $auth_conf->ldapUserHelpLinkUrl);
+    $msg = t('You may not reset your password here. You must reset your password via the directions at')
+    . ' ' . Drupal::l(t($auth_conf->ldapUserHelpLinkText), $auth_conf->ldapUserHelpLinkUrl);
   }
   else {
     $msg = t('You may not reset your password here.  You must reset your password via one of your
