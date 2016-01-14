@@ -1319,3 +1319,42 @@ function ldap_user_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterfac
     return $fields;
   }
 }
+
+/**
+ * Implements hook_views_data().
+ */
+function ldap_user_views_data() {
+  $data = [];
+
+  $data['ldap_user_identities']['table']['group'] = t('LDAP');
+  $data['ldap_user_identities']['table']['join'] = [
+    'users' => [
+      'left_field' => 'uid',
+      'field' => 'uid',
+      'extra' => [
+        [
+          'field' => 'module',
+          'value' => 'ldap_user'
+        ]
+      ]
+
+    ]
+  ];
+  $data['ldap_user_identities']['identifier'] = [
+    'title' => t('LDAP Identifier'),
+    'field' => array(
+      'id' => 'standard',
+    ),
+    'sort' => array(
+      'id' => 'standard',
+    ),
+    'filter' => array(
+      'id' => 'string',
+      'allow empty' => TRUE
+    ),
+    'argument' => array(
+      'id' => 'string',
+    ),
+  ];
+  return $data;
+}
