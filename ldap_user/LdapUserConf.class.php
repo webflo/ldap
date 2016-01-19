@@ -6,6 +6,7 @@
  * It is extended by LdapUserConfAdmin for configuration and other admin functions
  */
 
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\user\Entity\User;
 
 require_once('ldap_user.module');
@@ -1088,12 +1089,16 @@ class LdapUserConf {
           }
           $account = $user_edit;
           $account->enforceIsNew();
-          if (!$account->save()) {
+
+          try {
+            $account->save();
+          }
+          catch (EntityStorageException $e) {
             drupal_set_message(t('User account creation failed because of system problems.'), 'error');
+            return FALSE;
           }
-          else {
-            ldap_user_set_identifier($account, $user_edit->getAccountName());
-          }
+
+          ldap_user_set_identifier($account, $user_edit->getAccountName());
           return $account;
         }
         return TRUE;
@@ -1275,8 +1280,12 @@ class LdapUserConf {
     }
 
     // Allow other modules to have a say.
-
-    \Drupal::moduleHandler()->alter('ldap_user_edit_user', $edit, $ldap_user, $ldap_server, $prov_events);
+    $context = [
+      'ldap_user' => $ldap_user,
+      'ldap_server' => $ldap_server,
+      'prov_events' => $prov_events
+    ];
+    \Drupal::moduleHandler()->alter('ldap_user_edit_user', $account, $context);
     if (isset($edit['name']) && $edit['name'] == '') {  // don't let empty 'name' value pass for user
       unset($edit['name']);
     }

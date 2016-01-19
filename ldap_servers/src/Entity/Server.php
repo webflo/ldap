@@ -492,7 +492,7 @@ class Server extends ConfigEntityBase implements ServerInterface {
     }
 
     // When checking multiple servers, there's a chance we might not be connected yet.
-    if (!$this->connection) {
+    if (!isset($this->connection)) {
       $this->connect();
       $this->bind();
     }
