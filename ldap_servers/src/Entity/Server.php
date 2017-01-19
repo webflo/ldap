@@ -6,6 +6,7 @@
 
 namespace Drupal\ldap_servers\Entity;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\ldap_servers\ServerInterface;
 
@@ -707,23 +708,23 @@ class Server extends ConfigEntityBase implements ServerInterface {
    */
   public function userUserEntityFromPuid($puid) {
 
-    $query = new EntityFieldQuery();
-    $query->entityCondition('entity_type', 'user')
-    ->fieldCondition('ldap_user_puid_sid', 'value', $this->id(), '=')
-    ->fieldCondition('ldap_user_puid', 'value', $puid, '=')
-    ->fieldCondition('ldap_user_puid_property', 'value', $this->get('unique_persistent_attr'), '=')
-    ->addMetaData('account', \Drupal::entityManager()->getStorage('user')->load(1)); // run the query as user 1
+    $query = \Drupal::entityQuery('user');
+    $query
+      ->condition('ldap_user_puid_sid', $this->id(), '=')
+      ->condition('ldap_user_puid', $puid, '=')
+      ->condition('ldap_user_puid_property', $this->get('unique_persistent_attr'), '=')
+      // Run the query as user 1.
+      ->addMetaData('account', \Drupal::entityManager()->getStorage('user')->load(1));
 
     $result = $query->execute();
 
-    if (isset($result['user'])) {
-      $uids = array_keys($result['user']);
-      if (count($uids) == 1) {
-        $user = \Drupal::entityManager()->getStorage('user');
-        return $user[$uids[0]];
+    if ($result) {
+      if (count($result) == 1) {
+        $uid = reset($result);
+        return \Drupal::entityManager()->getStorage('user')->load($uid);
       }
       else {
-        $uids = join(',', $uids);
+        $uids = join(',', $result);
         $tokens = array('%uids' => $uids, '%puid' => $puid, '%id' =>  $this->id(), '%ldap_user_puid_property' =>  $this->get('unique_persistent_attr'));
         \Drupal::logger('ldap_server')->error('multiple users (uids: %uids) with same puid (puid=%puid, sid=%sid, ldap_user_puid_property=%ldap_user_puid_property)', []);
         return FALSE;
@@ -902,17 +903,15 @@ class Server extends ConfigEntityBase implements ServerInterface {
    * @return string user's PUID or permanent user id (within ldap), converted from binary, if applicable
    */
   public function userPuidFromLdapEntry($ldap_entry) {
-
-    if ($this->get('unique_persistent_attr')
-        && isset($ldap_entry[$this->get('unique_persistent_attr')][0])
-        && is_scalar($ldap_entry[$this->get('unique_persistent_attr')][0])
-        ) {
-      $puid = $ldap_entry[$this->get('unique_persistent_attr')][0];
+    if ($this->get('unique_persistent_attr') && isset($ldap_entry[Unicode::strtolower($this->get('unique_persistent_attr'))])) {
+      $puid = $ldap_entry[Unicode::strtolower($this->get('unique_persistent_attr'))];
+      // If its still an array...
+      if (is_array($puid)) {
+        $puid = $puid[0];
+      }
       return ($this->get('unique_persistent_attr_binary')) ? ldap_servers_binary($puid) : $puid;
     }
-    else {
-      return FALSE;
-    }
+    return FALSE;
   }
 
    /**

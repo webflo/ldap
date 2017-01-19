@@ -226,9 +226,9 @@ function _ldap_authentication_user_login_authenticate_validate(&$form_state, $re
       $drupal_account = $ldap_server_authenticated_on->userUserEntityFromPuid($puid);
       if ($drupal_account) {
         $drupal_account_exists = TRUE;
-        $user_edit = array('name' => $drupal_accountname);
-        $drupal_account = user_save($drupal_account, $user_edit, 'ldap_user');
-        user_set_authmaps($drupal_account, array("authname_ldap_user" => $authname));
+        // $user_edit = array('name' => $drupal_accountname);
+        // $drupal_account = user_save($drupal_account, $user_edit, 'ldap_user');
+        ldap_user_set_identifier($drupal_account, $ldap_user['attr'][ldap_server_massage_text($ldap_server_authenticated_on->get('account_name_attr'), 'attr_name', LDAP_SERVER_MASSAGE_QUERY_ARRAY)][0]);
         $drupal_account_is_authmapped = TRUE;
       }
     }
